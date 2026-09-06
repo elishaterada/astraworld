@@ -1,0 +1,67 @@
+{
+  "browser": "153.0.8010.12",
+  "viewport": "1358×574",
+  "initial": {
+    "state": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "rendered": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "camera": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "tick": 0,
+    "paused": false,
+    "collision": false,
+    "width": 1358,
+    "height": 574,
+    "actorScreen": {
+      "x": 679,
+      "y": 287
+    },
+    "live": {
+      "applications": 1,
+      "inputListeners": 8,
+      "tickers": 1,
+      "observers": 1,
+      "textures": 66
+    },
+    "blockerCount": 2924,
+    "visibleProps": 134,
+    "seed": "meadow-001"
+  },
+  "straight": {
+    "x": 68.50000000000006,
+    "y": 64.5
+  },
+  "diagonal": {
+    "x": 67.32842712474633,
+    "y": 67.32842712474633
+  },
+  "diagonalDistance": 4.000000000000194,
+  "props": {
+    "x": 74.25807358037483,
+    "y": 72.8511688245434
+  },
+  "resized": {
+    "width": 878,
+    "height": 394,
+    "actorScreen": {
+      "x": 439,
+      "y": 197
+    }
+  },
+  "edge": {
+    "x": 1.24,
+    "y": 64.5
+  },
+  "slide": {
+    "x": 1.24,
+    "y": 68.74264068711949
+  },
+  "errors": []
+}

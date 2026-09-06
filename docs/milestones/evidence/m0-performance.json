@@ -1,0 +1,2066 @@
+{
+  "browser": "153.0.8010.12",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "dpr": 1,
+  "elapsedSeconds": 600.657,
+  "frameCount": 35920,
+  "meanMs": 16.66600222717149,
+  "p95Ms": 16.70000000006985,
+  "maxMs": 16.800000000046566,
+  "over20Ms": 0,
+  "heaps": [
+    12327508,
+    12567416,
+    12678560,
+    12369648,
+    12359972,
+    12520124
+  ],
+  "samples": [
+    {
+      "state": {
+        "x": 104.50000000000057,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 104.43160000000057,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 104.43160000000057,
+        "y": 64.5
+      },
+      "tick": 201,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 485
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.50319999999999,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.50319999999999,
+        "y": 64.5
+      },
+      "tick": 401,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 1086
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 24.499999999999567
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 24.505199999999565
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 24.505199999999565
+      },
+      "tick": 601,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 172,
+      "seed": "meadow-001",
+      "frames": 1686
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 64.3604
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 64.3604
+      },
+      "tick": 802,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 2287
+    },
+    {
+      "state": {
+        "x": 104.50000000000057,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 104.35840000000056,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 104.35840000000056,
+        "y": 64.5
+      },
+      "tick": 1002,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 2887
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.57639999999999,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.57639999999999,
+        "y": 64.5
+      },
+      "tick": 1202,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 3488
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 24.499999999999567
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 24.577599999999542
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 24.577599999999542
+      },
+      "tick": 1402,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 172,
+      "seed": "meadow-001",
+      "frames": 4088
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 64.48720000000002
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 64.48720000000002
+      },
+      "tick": 1602,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 4689
+    },
+    {
+      "state": {
+        "x": 104.50000000000057,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 104.48560000000055,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 104.48560000000055,
+        "y": 64.5
+      },
+      "tick": 1802,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 5289
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "tick": 2003,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 5890
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 24.499999999999567
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 24.58399999999957
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 24.58399999999957
+      },
+      "tick": 2203,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 172,
+      "seed": "meadow-001",
+      "frames": 6491
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 64.41399999999999
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 64.41399999999999
+      },
+      "tick": 2403,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 7091
+    },
+    {
+      "state": {
+        "x": 104.50000000000057,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 104.47880000000055,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 104.47880000000055,
+        "y": 64.5
+      },
+      "tick": 2603,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 7692
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.52240000000003,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.52240000000003,
+        "y": 64.5
+      },
+      "tick": 2803,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 8292
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 24.499999999999567
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 24.523999999999575
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 24.523999999999575
+      },
+      "tick": 3003,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 172,
+      "seed": "meadow-001",
+      "frames": 8892
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "tick": 3204,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 9493
+    },
+    {
+      "state": {
+        "x": 104.50000000000057,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 104.33920000000052,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 104.33920000000052,
+        "y": 64.5
+      },
+      "tick": 3404,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 10093
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.66240000000003,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.66240000000003,
+        "y": 64.5
+      },
+      "tick": 3604,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 10693
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 24.499999999999567
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 24.59719999999953
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 24.59719999999953
+      },
+      "tick": 3804,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 172,
+      "seed": "meadow-001",
+      "frames": 11294
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 64.46759999999996
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 64.46759999999996
+      },
+      "tick": 4004,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 11895
+    },
+    {
+      "state": {
+        "x": 104.50000000000057,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 104.3328000000006,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 104.3328000000006,
+        "y": 64.5
+      },
+      "tick": 4205,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 12496
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.602,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.602,
+        "y": 64.5
+      },
+      "tick": 4405,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 13097
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 24.499999999999567
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 24.603599999999552
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 24.603599999999552
+      },
+      "tick": 4605,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 172,
+      "seed": "meadow-001",
+      "frames": 13697
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 64.46159999999996
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 64.46159999999996
+      },
+      "tick": 4805,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 14298
+    },
+    {
+      "state": {
+        "x": 104.50000000000057,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 104.45960000000053,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 104.45960000000053,
+        "y": 64.5
+      },
+      "tick": 5005,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 14898
+    },
+    {
+      "state": {
+        "x": 64.3,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.47480000000006,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.47480000000006,
+        "y": 64.5
+      },
+      "tick": 5206,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 15499
+    },
+    {
+      "state": {
+        "x": 64.3,
+        "y": 24.499999999999567
+      },
+      "rendered": {
+        "x": 64.3,
+        "y": 24.67679999999962
+      },
+      "camera": {
+        "x": 64.3,
+        "y": 24.67679999999962
+      },
+      "tick": 5406,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 172,
+      "seed": "meadow-001",
+      "frames": 16099
+    },
+    {
+      "state": {
+        "x": 64.3,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.3,
+        "y": 64.32160000000007
+      },
+      "camera": {
+        "x": 64.3,
+        "y": 64.32160000000007
+      },
+      "tick": 5606,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 16699
+    },
+    {
+      "state": {
+        "x": 104.30000000000057,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 104.1868000000006,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 104.1868000000006,
+        "y": 64.5
+      },
+      "tick": 5806,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 17300
+    },
+    {
+      "state": {
+        "x": 64.3,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.41480000000006,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.41480000000006,
+        "y": 64.5
+      },
+      "tick": 6006,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 17900
+    },
+    {
+      "state": {
+        "x": 64.3,
+        "y": 24.499999999999567
+      },
+      "rendered": {
+        "x": 64.3,
+        "y": 24.54959999999967
+      },
+      "camera": {
+        "x": 64.3,
+        "y": 24.54959999999967
+      },
+      "tick": 6206,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 172,
+      "seed": "meadow-001",
+      "frames": 18501
+    },
+    {
+      "state": {
+        "x": 64.3,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.3,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.3,
+        "y": 64.5
+      },
+      "tick": 6407,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 19102
+    },
+    {
+      "state": {
+        "x": 104.30000000000057,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 104.11400000000054,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 104.11400000000054,
+        "y": 64.5
+      },
+      "tick": 6607,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 19702
+    },
+    {
+      "state": {
+        "x": 64.3,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.42119999999997,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.42119999999997,
+        "y": 64.5
+      },
+      "tick": 6807,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 20303
+    },
+    {
+      "state": {
+        "x": 64.3,
+        "y": 24.499999999999567
+      },
+      "rendered": {
+        "x": 64.3,
+        "y": 24.62279999999963
+      },
+      "camera": {
+        "x": 64.3,
+        "y": 24.62279999999963
+      },
+      "tick": 7007,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 172,
+      "seed": "meadow-001",
+      "frames": 20903
+    },
+    {
+      "state": {
+        "x": 64.3,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.3,
+        "y": 64.44239999999989
+      },
+      "camera": {
+        "x": 64.3,
+        "y": 64.44239999999989
+      },
+      "tick": 7207,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 21504
+    },
+    {
+      "state": {
+        "x": 104.50000000000057,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 104.30760000000065,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 104.30760000000065,
+        "y": 64.5
+      },
+      "tick": 7408,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 22105
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.69439999999993,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.69439999999993,
+        "y": 64.5
+      },
+      "tick": 7608,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 22705
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 24.499999999999567
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 24.62919999999954
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 24.62919999999954
+      },
+      "tick": 7808,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 172,
+      "seed": "meadow-001",
+      "frames": 23306
+    },
+    {
+      "state": {
+        "x": 64.5,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.5,
+        "y": 64.36919999999994
+      },
+      "camera": {
+        "x": 64.5,
+        "y": 64.36919999999994
+      },
+      "tick": 8008,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 134,
+      "seed": "meadow-001",
+      "frames": 23906
+    },
+    {
+      "state": {
+        "x": 104.70000000000057,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 104.5008000000006,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 104.5008000000006,
+        "y": 64.5
+      },
+      "tick": 8209,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 24508
+    },
+    {
+      "state": {
+        "x": 64.9,
+        "y": 64.5
+      },
+      "rendered": {
+        "x": 64.90080000000005,
+        "y": 64.5
+      },
+      "camera": {
+        "x": 64.90080000000005,
+        "y": 64.5
+      },
+      "tick": 8408,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 143,
+      "seed": "meadow-001",
+      "frames": 25108
+    },
+    {
+      "state": {
+        "x": 64.9,
+        "y": 24.299999999999567
+      },
+      "rendered": {
+        "x": 64.9,
+        "y": 24.43559999999966
+      },
+      "camera": {
+        "x": 64.9,
+        "y": 24.43559999999966
+      },
+      "tick": 8609,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 182,
+      "seed": "meadow-001",
+      "frames": 25709
+    },
+    {
+      "state": {
+        "x": 64.9,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 64.9,
+        "y": 64.16280000000003
+      },
+      "camera": {
+        "x": 64.9,
+        "y": 64.16280000000003
+      },
+      "tick": 8809,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 143,
+      "seed": "meadow-001",
+      "frames": 26309
+    },
+    {
+      "state": {
+        "x": 104.90000000000057,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 104.82800000000057,
+        "y": 64.3
+      },
+      "camera": {
+        "x": 104.82800000000057,
+        "y": 64.3
+      },
+      "tick": 9009,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 26910
+    },
+    {
+      "state": {
+        "x": 64.9,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 64.9736000000001,
+        "y": 64.3
+      },
+      "camera": {
+        "x": 64.9736000000001,
+        "y": 64.3
+      },
+      "tick": 9209,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 143,
+      "seed": "meadow-001",
+      "frames": 27510
+    },
+    {
+      "state": {
+        "x": 64.9,
+        "y": 24.299999999999567
+      },
+      "rendered": {
+        "x": 64.9,
+        "y": 24.308799999999618
+      },
+      "camera": {
+        "x": 64.9,
+        "y": 24.308799999999618
+      },
+      "tick": 9409,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 182,
+      "seed": "meadow-001",
+      "frames": 28111
+    },
+    {
+      "state": {
+        "x": 64.9,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 64.9,
+        "y": 64.28999999999999
+      },
+      "camera": {
+        "x": 64.9,
+        "y": 64.28999999999999
+      },
+      "tick": 9609,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 143,
+      "seed": "meadow-001",
+      "frames": 28711
+    },
+    {
+      "state": {
+        "x": 105.10000000000058,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 104.95480000000062,
+        "y": 64.3
+      },
+      "camera": {
+        "x": 104.95480000000062,
+        "y": 64.3
+      },
+      "tick": 9810,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 29312
+    },
+    {
+      "state": {
+        "x": 65.10000000000001,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 65.24680000000006,
+        "y": 64.3
+      },
+      "camera": {
+        "x": 65.24680000000006,
+        "y": 64.3
+      },
+      "tick": 10010,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 136,
+      "seed": "meadow-001",
+      "frames": 29912
+    },
+    {
+      "state": {
+        "x": 65.10000000000001,
+        "y": 24.299999999999567
+      },
+      "rendered": {
+        "x": 65.10000000000001,
+        "y": 24.31479999999962
+      },
+      "camera": {
+        "x": 65.10000000000001,
+        "y": 24.31479999999962
+      },
+      "tick": 10210,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 182,
+      "seed": "meadow-001",
+      "frames": 30514
+    },
+    {
+      "state": {
+        "x": 65.10000000000001,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 65.10000000000001,
+        "y": 64.28319999999994
+      },
+      "camera": {
+        "x": 65.10000000000001,
+        "y": 64.28319999999994
+      },
+      "tick": 10410,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 143,
+      "seed": "meadow-001",
+      "frames": 31114
+    },
+    {
+      "state": {
+        "x": 105.30000000000058,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 105.14840000000048,
+        "y": 64.3
+      },
+      "camera": {
+        "x": 105.14840000000048,
+        "y": 64.3
+      },
+      "tick": 10611,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 186,
+      "seed": "meadow-001",
+      "frames": 31715
+    },
+    {
+      "state": {
+        "x": 65.30000000000001,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 65.45320000000021,
+        "y": 64.3
+      },
+      "camera": {
+        "x": 65.45320000000021,
+        "y": 64.3
+      },
+      "tick": 10811,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 136,
+      "seed": "meadow-001",
+      "frames": 32315
+    },
+    {
+      "state": {
+        "x": 65.30000000000001,
+        "y": 24.299999999999567
+      },
+      "rendered": {
+        "x": 65.30000000000001,
+        "y": 24.38799999999958
+      },
+      "camera": {
+        "x": 65.30000000000001,
+        "y": 24.38799999999958
+      },
+      "tick": 11011,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 174,
+      "seed": "meadow-001",
+      "frames": 32916
+    },
+    {
+      "state": {
+        "x": 65.30000000000001,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 65.30000000000001,
+        "y": 64.20999999999998
+      },
+      "camera": {
+        "x": 65.30000000000001,
+        "y": 64.20999999999998
+      },
+      "tick": 11211,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 136,
+      "seed": "meadow-001",
+      "frames": 33516
+    },
+    {
+      "state": {
+        "x": 105.30000000000058,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 105.27520000000075,
+        "y": 64.3
+      },
+      "camera": {
+        "x": 105.27520000000075,
+        "y": 64.3
+      },
+      "tick": 11411,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 179,
+      "seed": "meadow-001",
+      "frames": 34117
+    },
+    {
+      "state": {
+        "x": 65.30000000000001,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 65.32639999999994,
+        "y": 64.3
+      },
+      "camera": {
+        "x": 65.32639999999994,
+        "y": 64.3
+      },
+      "tick": 11611,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 136,
+      "seed": "meadow-001",
+      "frames": 34717
+    },
+    {
+      "state": {
+        "x": 65.30000000000001,
+        "y": 24.299999999999567
+      },
+      "rendered": {
+        "x": 65.30000000000001,
+        "y": 24.461199999999774
+      },
+      "camera": {
+        "x": 65.30000000000001,
+        "y": 24.461199999999774
+      },
+      "tick": 11812,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 174,
+      "seed": "meadow-001",
+      "frames": 35318
+    },
+    {
+      "state": {
+        "x": 65.30000000000001,
+        "y": 64.3
+      },
+      "rendered": {
+        "x": 65.30000000000001,
+        "y": 64.20360000000007
+      },
+      "camera": {
+        "x": 65.30000000000001,
+        "y": 64.20360000000007
+      },
+      "tick": 12012,
+      "paused": false,
+      "collision": false,
+      "width": 1358,
+      "height": 574,
+      "actorScreen": {
+        "x": 679,
+        "y": 287
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 8,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 66
+      },
+      "blockerCount": 2924,
+      "visibleProps": 136,
+      "seed": "meadow-001",
+      "frames": 35919
+    }
+  ],
+  "errors": []
+}

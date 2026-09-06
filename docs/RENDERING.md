@@ -1,0 +1,41 @@
+# Rendering contract
+
+## Ownership
+
+Next.js/React owns entry screens, session flow, inventory panels and settings. A client-only PixiJS canvas owns world sprites, terrain, camera and effects. React receives low-frequency UI state; do not run the simulation tick or every sprite position through React state.
+
+PixiJS is a 2D rendering engine; its official [introduction](https://pixijs.com/8.x/guides/getting-started/intro) supports this role. The following design is a project proposal, not a library guarantee. Pin actual dependency versions at M0 after checking their current APIs.
+
+## Render data flow
+
+Authoritative/predicted state → read-only render projection → sprite registry keyed by entity ID → layer/depth ordering → canvas. Animation and particles cannot award damage or items. A visual event carries a stable event ID so duplicate snapshots cannot play a loot or tame celebration repeatedly.
+
+Only the local player is predicted. Other actors interpolate between authoritative samples. Camera follows the rendered local position, and correction smoothing must not visually conceal a large invalid location for seconds.
+
+## Coordinates and layers
+
+Simulation uses continuous x/y tile units; tile (0,0) is the northwest map origin, x increases east and y south. Sprite pixel size is an adapter detail. Place each actor's anchor at its feet. Depth sort world objects by foot y, with stable entity ID tie breaking. Keep terrain below actors, canopy/foreground above, and interaction/health overlays separately readable.
+
+Proposed layers: terrain → ground details → y-sorted props/actors → overhead foliage → effects → world labels. Fade occluding canopy when needed without changing collision. Define a single screen-to-world transform for mouse targeting that handles canvas scaling and camera zoom.
+
+## Lifetime and performance
+
+Load atlases once, reuse sprite instances and cull outside the camera margin. Mount/unmount must remove ticker callbacks, DOM listeners and graphics resources. Tab visibility changes stop unnecessary rendering; the server remains authoritative and ignores stale input. On return request resynchronization before prediction resumes.
+
+Start with one camera and bounded zoom, nearest-neighbor sampling for pixel-art tests, capped device pixel ratio and integer-aligned visual sampling where feasible. Do not quantize simulation motion merely to align pixels. M0 must compare visual stability during slow movement and resize.
+
+The target is 60 FPS on the recorded desktop reference device. [TESTING.md](TESTING.md) defines measurement conditions; this is a test target, not a claim of current performance. Defer dynamic lighting, shader-heavy weather, 2.5D conversion and elaborate postprocessing.
+
+## M0 reference (2026-09-06)
+
+`app/sandbox.tsx` loads `app/renderer.ts` inside a client effect. PixiJS 8.20.1 is imported only in that dynamically loaded module. React holds low-frequency status (four updates/second) and mount/seed controls, never the movement loop.
+
+The renderer uses a private ticker and 20 Hz fixed simulation with interpolation; the actor moves four tiles/second. The world-space collision body is a centered 0.48×0.48 tile AABB at the feet. Axis sweeps clamp against full-tile blocker faces and permit wall sliding. Interpolation follows the swept path when a straight blend would cut a solid corner. Tile graphics use 32 pixels/tile and nearest-neighbor textures; the camera follows continuous feet coordinates without quantizing simulation.
+
+There are 64 baked 512×512 terrain textures, two shared prop textures and one vector avatar. Off-camera chunk sprites and props are hidden. The initial map is fully resident; this is rendering culling, not world streaming. Props are sorted by foot y; equal-depth static objects keep the baseline's stable coordinate/ID order. Nearby occluding tree canopies fade to 45% opacity. No effects, targeting actions, animation system or production atlas pipeline is introduced.
+
+Camera position equals the interpolated actor position, including at map edges (the outside of the map uses a muted background). `app/camera.ts` owns reversible canvas/world transforms. ResizeObserver updates the drawing buffer and transform; device pixel ratio is capped at two. Changing monitor DPR without resizing/reloading is not separately handled.
+
+The playfield owns keyboard events and is focusable by mouse or Tab. Blur, Escape and document visibility changes clear held input and accumulated time. Hidden documents stop the ticker; returning requires canvas focus/click to resume. Catch-up is bounded and pauses never replay old input. A single disposer removes eight input/focus/pointer listeners, the ResizeObserver and ticker, destroys the application/canvas and all 66 generated textures. Async initialization cancellation destroys its eventual application before mounting it. Strict Mode, twelve remounts and four rapid restarts have browser coverage.
+
+M0 source art is code-authored geometric pixel-style placeholder art. No external artwork, fonts or asset downloads are required at runtime. `?debug=1` exposes a snapshot-only diagnostic projection (including a bounded frame interval buffer); it does not expose setters or gameplay commands. This is local test instrumentation, not an M1 protocol.

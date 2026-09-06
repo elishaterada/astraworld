@@ -1,0 +1,375 @@
+:root {
+  --paper: #f3f0e5;
+  --ink: #273c32;
+  --muted: #687267;
+  --line: #d6d8c8;
+  --green: #385642;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Avenir Next", Avenir, "Trebuchet MS", sans-serif;
+  font-size: 14px;
+}
+button,
+input {
+  font: inherit;
+}
+button,
+a,
+input {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  cursor: pointer;
+  color: inherit;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid #c48b36;
+  outline-offset: 4px;
+}
+main {
+  max-width: 1800px;
+  margin: auto;
+  padding: 0 40px;
+}
+header {
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.wordmark {
+  font-family: Georgia, serif;
+  font-size: 31px;
+  letter-spacing: -1.2px;
+  color: inherit;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-mark {
+  font-size: 36px;
+  color: #567148;
+}
+.chapter,
+.prototype,
+.eyebrow,
+footer,
+.art-label,
+.scene-bottom,
+.compass {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.7px;
+}
+.chapter span {
+  padding: 0 18px;
+  color: #929a87;
+}
+.prototype {
+  border: 1px solid #bdc6b5;
+  padding: 9px 13px;
+  border-radius: 3px;
+}
+.game-shell {
+  position: relative;
+  height: calc(100svh - 324px);
+  min-height: 380px;
+  max-height: 1000px;
+  border: 1px solid #6b7b5e;
+  overflow: hidden;
+  background: #91ab66;
+}
+.playfield {
+  position: absolute;
+  inset: 0;
+  outline: none;
+}
+.playfield:focus-visible {
+  outline: 3px solid #f0d596;
+  outline-offset: -4px;
+}
+.playfield canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+.scene-heading {
+  position: absolute;
+  left: 32px;
+  top: 28px;
+  pointer-events: none;
+  text-shadow: 0 1px 7px #b9cc91;
+}
+.scene-heading .eyebrow {
+  font-size: 9px;
+  letter-spacing: 2.2px;
+}
+h1 {
+  font-family: Georgia, serif;
+  font-weight: normal;
+  letter-spacing: -1.2px;
+  font-size: 42px;
+  margin: 8px 0;
+}
+.scene-heading p {
+  margin: 0;
+  font-size: 12px;
+}
+.compass {
+  position: absolute;
+  right: 34px;
+  top: 25px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 3px;
+  pointer-events: none;
+}
+.compass b {
+  font-size: 26px;
+  font-weight: normal;
+}
+.compass i {
+  font-style: normal;
+  font-size: 9px;
+}
+.scene-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 22px;
+  background: #263f33e8;
+  color: #e8ecd7;
+  letter-spacing: 1.1px;
+  font-size: 9px;
+  pointer-events: none;
+}
+.scene-bottom span:first-child {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.live-dot,
+.idle-dot {
+  width: 6px;
+  height: 6px;
+  background: #cce797;
+  display: inline-block;
+  border-radius: 50%;
+}
+.idle-dot {
+  background: #d7c597;
+}
+.art-label {
+  position: absolute;
+  bottom: 54px;
+  right: 18px;
+  font-size: 8px;
+  letter-spacing: 1px;
+  background: #f0ecdcc9;
+  padding: 6px 8px;
+  pointer-events: none;
+}
+.pause-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #263f33ed;
+  color: #f2eddb;
+  padding: 18px 24px;
+  max-width: 90%;
+  text-align: center;
+  border: 1px solid #c6cba2;
+  pointer-events: none;
+}
+.field-desk {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: 38px;
+  padding: 27px 0 25px;
+}
+.eyebrow {
+  display: block;
+  color: #64745d;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+h2 {
+  font-family: Georgia, serif;
+  font-size: 25px;
+  letter-spacing: -0.5px;
+  font-weight: normal;
+  margin: 8px 0 7px;
+}
+.field-desk p {
+  font-size: 11px;
+  line-height: 1.65;
+  color: #64705f;
+  margin: 8px 0;
+}
+.controls {
+  border-left: 1px solid var(--line);
+  padding-left: 35px;
+}
+.controls p {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.controls p span {
+  margin-left: 7px;
+}
+kbd {
+  font-family: inherit;
+  font-size: 10px;
+  min-width: 21px;
+  padding: 3px 5px;
+  text-align: center;
+  border: 1px solid #c7cebc;
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  background: #f8f6ed;
+}
+.text-button {
+  padding: 0;
+  background: none;
+  border: 0;
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.seed-row {
+  display: flex;
+  margin-top: 12px;
+  border: 1px solid #b8c2ad;
+  border-radius: 3px;
+  background: #faf8f0;
+  height: 39px;
+}
+.seed-row input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  background: none;
+  padding: 0 12px;
+  color: #41563d;
+  font-family: monospace;
+  font-size: 12px;
+}
+.seed-row button {
+  border: 0;
+  border-left: 1px solid #b8c2ad;
+  background: var(--green);
+  color: #f5f1df;
+  width: 42px;
+  font-size: 25px;
+}
+.seed-row button:hover {
+  background: #496c45;
+}
+footer {
+  border-top: 1px solid var(--line);
+  height: 49px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  color: #7a8273;
+}
+footer span:nth-child(2) {
+  font-size: 10px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.rest-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #e2e5d2;
+}
+.rest-screen p {
+  color: #65715c;
+}
+.rest-screen button {
+  border: 0;
+  background: var(--green);
+  color: var(--paper);
+  padding: 12px 20px;
+  margin-top: 15px;
+}
+@media (max-width: 800px) {
+  main {
+    padding: 0 16px;
+  }
+  header {
+    height: 72px;
+  }
+  .chapter {
+    display: none;
+  }
+  .wordmark {
+    font-size: 26px;
+  }
+  .prototype {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .game-shell {
+    height: 60svh;
+    min-height: 340px;
+  }
+  .field-desk {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .invitation {
+    grid-column: 1/-1;
+  }
+  .controls {
+    border: 0;
+    padding: 0;
+  }
+  .scene-heading {
+    left: 20px;
+    top: 22px;
+  }
+  h1 {
+    font-size: 32px;
+  }
+  .scene-bottom span:last-child {
+    display: none;
+  }
+  footer span:last-child {
+    display: none;
+  }
+  footer {
+    gap: 20px;
+  }
+  .art-label {
+    font-size: 7px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto;
+  }
+}

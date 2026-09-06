@@ -1,0 +1,78 @@
+{
+  "hidden": {
+    "visibility": "visible",
+    "state": {
+      "x": 66.50000000000003,
+      "y": 64.5
+    },
+    "rendered": {
+      "x": 66.43320000000003,
+      "y": 64.5
+    },
+    "camera": {
+      "x": 66.43320000000003,
+      "y": 64.5
+    },
+    "tick": 12,
+    "paused": false,
+    "collision": false,
+    "width": 1358,
+    "height": 574,
+    "actorScreen": {
+      "x": 679,
+      "y": 287
+    },
+    "live": {
+      "applications": 1,
+      "inputListeners": 8,
+      "tickers": 1,
+      "observers": 1,
+      "textures": 66
+    },
+    "blockerCount": 2924,
+    "visibleProps": 136,
+    "seed": "meadow-001"
+  },
+  "stable": {
+    "x": 67.90000000000005,
+    "y": 64.5
+  },
+  "returned": {
+    "visibility": "visible",
+    "state": {
+      "x": 67.90000000000005,
+      "y": 64.5
+    },
+    "rendered": {
+      "x": 67.90000000000005,
+      "y": 64.5
+    },
+    "camera": {
+      "x": 67.90000000000005,
+      "y": 64.5
+    },
+    "tick": 25,
+    "paused": false,
+    "collision": false,
+    "width": 1358,
+    "height": 574,
+    "actorScreen": {
+      "x": 679,
+      "y": 287
+    },
+    "live": {
+      "applications": 1,
+      "inputListeners": 8,
+      "tickers": 1,
+      "observers": 1,
+      "textures": 66
+    },
+    "blockerCount": 2924,
+    "visibleProps": 137,
+    "seed": "meadow-001"
+  },
+  "resumed": {
+    "x": 67.90000000000005,
+    "y": 63.29999999999998
+  }
+}

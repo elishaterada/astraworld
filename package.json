@@ -1,0 +1,34 @@
+{
+  "name": "astraworld",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:browser": "playwright test",
+    "test:soak": "SOAK=1 playwright test tests/e2e/soak.spec.ts"
+  },
+  "dependencies": {
+    "next": "16.3.4",
+    "pixi.js": "8.20.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "agent-browser": "0.36.0",
+    "prettier": "3.6.2",
+    "typescript": "5.9.3",
+    "vitest": "5.0.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "type": "module"
+}

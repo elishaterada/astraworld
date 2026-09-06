@@ -1,0 +1,98 @@
+/** Pure baseline generation. Coordinates are tiles; no renderer or platform imports. */
+export const SIZE = 128;
+export const CHUNK_SIZE = 16;
+export const GENERATION_VERSION = "meadow-1";
+export const CONTENT_VERSION = "placeholder-1";
+export const SPAWN = Object.freeze({ x: 64.5, y: 64.5 });
+export type Tile = Readonly<{
+  x: number;
+  y: number;
+  terrain: "grass" | "path";
+  variant: number;
+  blocker: "tree" | "rock" | null;
+  id: string;
+}>;
+export type World = Readonly<{ seed: string; tiles: readonly Tile[] }>;
+
+export function seedHash(seed: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++)
+    h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
+  return h >>> 0;
+}
+function sample(seed: number, x: number, y: number, stream: number): number {
+  let h = seed ^ Math.imul(x, 374761393) ^ Math.imul(y, 668265263) ^ stream;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+export function normalizeSeed(seed: string): string {
+  // A pasted seed can end at half a surrogate pair at the input's length limit.
+  const bounded = seed.trim().slice(0, 64);
+  return (
+    bounded.replace(
+      /[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDFFF]/g,
+      (char) => (char.length === 2 ? char : "\uFFFD"),
+    ) || "meadow-001"
+  );
+}
+
+export function generateChunk(rawSeed: string, cx: number, cy: number): Tile[] {
+  if (
+    ![cx, cy].every(
+      (n) => Number.isInteger(n) && n >= 0 && n < SIZE / CHUNK_SIZE,
+    )
+  )
+    throw new RangeError("Chunk outside Meadow");
+  const seed = normalizeSeed(rawSeed),
+    hash = seedHash(seed),
+    tiles: Tile[] = [];
+  for (let y = cy * CHUNK_SIZE; y < (cy + 1) * CHUNK_SIZE; y++) {
+    for (let x = cx * CHUNK_SIZE; x < (cx + 1) * CHUNK_SIZE; x++) {
+      const edge = x === 0 || y === 0 || x === SIZE - 1 || y === SIZE - 1;
+      const clearing = Math.hypot(x - 64, y - 64) < 5;
+      const path = Math.abs(x - 64) <= 1 || Math.abs(y - 64) <= 1;
+      // Even-coordinate single-tile props leave connected walking lanes for every seed.
+      const prop =
+        !clearing &&
+        !path &&
+        x % 2 === 0 &&
+        y % 2 === 0 &&
+        sample(hash, x, y, 719) < 0.64;
+      const blocker = edge
+        ? "rock"
+        : prop
+          ? sample(hash, x, y, 131) < 0.7
+            ? "tree"
+            : "rock"
+          : null;
+      tiles.push({
+        x,
+        y,
+        terrain: path || clearing ? "path" : "grass",
+        variant: Math.floor(sample(hash, x, y, 37) * 8),
+        blocker,
+        id: `${GENERATION_VERSION}:${CONTENT_VERSION}:${encodeURIComponent(seed)}:${x}:${y}`,
+      });
+    }
+  }
+  return tiles;
+}
+export function generateWorld(rawSeed: string): World {
+  const seed = normalizeSeed(rawSeed),
+    tiles = new Array<Tile>(SIZE * SIZE);
+  for (let cy = 0; cy < SIZE / CHUNK_SIZE; cy++)
+    for (let cx = 0; cx < SIZE / CHUNK_SIZE; cx++) {
+      for (const tile of generateChunk(seed, cx, cy))
+        tiles[tile.y * SIZE + tile.x] = tile;
+    }
+  return { seed, tiles };
+}
+export function isSolid(world: World, x: number, y: number): boolean {
+  return (
+    x < 0 ||
+    y < 0 ||
+    x >= SIZE ||
+    y >= SIZE ||
+    world.tiles[y * SIZE + x].blocker !== null
+  );
+}
