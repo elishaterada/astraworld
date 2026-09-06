@@ -1,5 +1,7 @@
 # M0 — engine sandbox completion evidence
 
+Historical baseline. The subsequent [style/fullscreen refinement](M0_STYLE_UPDATE.md) has separate evidence and supersedes the old art, entry flow and playfield dimensions below.
+
 Date: 2026-09-06. Scope: local M0 only. **PASS: G0, R0, R1 and the ten-minute local performance envelope. M0 complete.** No M1 work was started.
 
 ## Delivered

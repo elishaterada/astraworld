@@ -61,3 +61,6 @@ One root npm package is sufficient for this reference. `app/` is the future web 
 The local browser harness owns the M0 position and calls pure `step(world, state, intent)` at 20 Hz. This is explicitly an offline sandbox exception, not the eventual multiplayer authority. M1 must run authoritative steps on a server and validate incoming intent. React and Pixi cannot introduce future authoritative mutations through this harness.
 
 `World` is a finite read-only baseline of tile instances. Tile blocker kinds refer to two placeholder visual definitions in the rendering adapter; IDs include generation version, content version, seed and coordinates. Simulation accepts bounded directional input, normalizes diagonals and never reads browser state, wall time or unseeded randomness. The client harness handles time accumulation and pauses. There are no inbound network messages in M0.
+
+
+The subsequent M0 style update adds only a local username label and browser fullscreen/menu UI. No identity service, persistence or protocol has been introduced. Procedural cosmetic terrain and atlas sprites belong to `app/art.ts`; `packages/world` and `packages/simulation` remain byte-identical to the original M0 baseline. See [style update evidence](milestones/M0_STYLE_UPDATE.md).

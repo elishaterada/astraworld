@@ -4,7 +4,35 @@ import type { DebugSnapshot } from "../../app/renderer";
 async function snapshot(page: Page): Promise<DebugSnapshot> {
   return page.evaluate(() => window.__MEADOW__!.snapshot());
 }
+test.beforeEach(async ({ page }, info) => {
+  if (!info.title.includes("native fullscreen"))
+    await page.addInitScript(() => {
+      Element.prototype.requestFullscreen = () =>
+        Promise.reject(
+          new DOMException(
+            "Fullscreen unavailable in this test",
+            "NotAllowedError",
+          ),
+        );
+    });
+});
+async function openMenu(page: Page) {
+  if (!(await page.getByRole("dialog").isVisible()))
+    await page.getByRole("button", { name: "Open menu" }).click();
+}
 async function ready(page: Page) {
+  if (
+    await page
+      .getByRole("textbox", { name: "What should we call you?" })
+      .isVisible()
+  ) {
+    await page
+      .getByRole("textbox", { name: "What should we call you?" })
+      .fill("Rowan");
+    await page
+      .getByRole("button", { name: "Enter Meadow", exact: true })
+      .click();
+  }
   await expect(page.locator("canvas")).toHaveCount(1);
   await page.waitForFunction(() => !!window.__MEADOW__);
 }
@@ -14,6 +42,7 @@ async function hold(page: Page, keys: string[], ms: number) {
   for (const k of keys) await page.keyboard.up(k);
 }
 async function restart(page: Page) {
+  await openMenu(page);
   await page
     .getByRole("button", { name: "Regenerate Meadow with this seed" })
     .click();
@@ -55,7 +84,9 @@ test("R0 actual keyboard movement, camera, boundary sliding, resize and focus", 
   await hold(page, ["d", "s"], 2500);
   const props = await snapshot(page);
   expect(props.collision).toBe(false);
-  await page.screenshot({ path: "docs/milestones/evidence/m0-gameplay.png" });
+  await page.screenshot({
+    path: "docs/milestones/evidence/m0-style-gameplay.png",
+  });
   await page.setViewportSize({ width: 960, height: 720 });
   await page.waitForTimeout(200);
   const resized = await snapshot(page);
@@ -75,13 +106,14 @@ test("R0 actual keyboard movement, camera, boundary sliding, resize and focus", 
   expect(pointer[1]).toBeCloseTo(resized.camera.y, 2);
   await page.keyboard.down("w");
   await page.waitForTimeout(200);
+  await openMenu(page);
   await page.getByRole("textbox", { name: "World seed" }).focus();
   const paused = await snapshot(page);
   expect(paused.paused).toBe(true);
   await page.waitForTimeout(300);
   expect((await snapshot(page)).state).toEqual(paused.state);
   await page.keyboard.up("w");
-  await page.getByRole("application").focus();
+  await page.getByRole("button", { name: "Close menu" }).click();
   await page.waitForTimeout(200);
   expect((await snapshot(page)).state).toEqual(paused.state);
   await page.keyboard.press("Escape");
@@ -98,7 +130,7 @@ test("R0 actual keyboard movement, camera, boundary sliding, resize and focus", 
   expect(slide.collision).toBe(false);
   expect(errors).toEqual([]);
   writeFileSync(
-    "docs/milestones/evidence/m0-browser.json",
+    "docs/milestones/evidence/m0-style-browser.json",
     JSON.stringify(
       {
         browser: browser.version(),
@@ -134,10 +166,10 @@ test("R1 repeated real unmount/remount and rapid initialization cancellation", a
   const cdp = await page.context().newCDPSession(page);
   const heaps: number[] = [];
   for (let i = 0; i < 12; i++) {
+    await openMenu(page);
     await page.getByRole("button", { name: "Leave meadow" }).click();
     await expect(page.locator("canvas")).toHaveCount(0);
     expect(await page.evaluate(() => !!window.__MEADOW__)).toBe(false);
-    await page.getByRole("button", { name: "Enter meadow" }).first().click();
     await ready(page);
     expect((await snapshot(page)).live).toEqual(baseline);
     expect((await snapshot(page)).state).toEqual({ x: 64.5, y: 64.5 });
@@ -146,11 +178,13 @@ test("R1 repeated real unmount/remount and rapid initialization cancellation", a
   }
   // Rapidly discard initialization, exercising the async dispose path.
   for (let i = 0; i < 4; i++) {
+    await openMenu(page);
     await page
       .getByRole("button", { name: "Regenerate Meadow with this seed" })
       .click();
+    await openMenu(page);
     await page.getByRole("button", { name: "Leave meadow" }).click();
-    await page.getByRole("button", { name: "Enter meadow" }).first().click();
+    await ready(page);
   }
   await ready(page);
   await page.waitForTimeout(500);
@@ -158,7 +192,7 @@ test("R1 repeated real unmount/remount and rapid initialization cancellation", a
   expect(heaps.at(-1)! - heaps[2]).toBeLessThan(8 * 1024 * 1024);
   expect(errors).toEqual([]);
   writeFileSync(
-    "docs/milestones/evidence/m0-lifecycle.json",
+    "docs/milestones/evidence/m0-style-lifecycle.json",
     JSON.stringify(
       { cycles: 12, rapidCycles: 4, resources: baseline, heaps, errors },
       null,
@@ -172,6 +206,7 @@ test("G0 seed controls regenerate the same rendered landscape and reset movement
 }) => {
   await page.goto("/?debug=1");
   await ready(page);
+  await openMenu(page);
   const seed = page.getByRole("textbox", { name: "World seed" });
   await seed.fill("brook-42");
   expect((await snapshot(page)).paused).toBe(true);
@@ -185,6 +220,7 @@ test("G0 seed controls regenerate the same rendered landscape and reset movement
   expect((await snapshot(page)).state).toEqual({ x: 64.5, y: 64.5 });
   const second = await page.locator("canvas").screenshot();
   expect(second.equals(first)).toBe(true);
+  await openMenu(page);
   await seed.fill("another-meadow");
   await restart(page);
   await page.waitForTimeout(150);
@@ -221,9 +257,86 @@ test("visibility event handler clears input and freezes ticks until explicit res
   await page.waitForTimeout(150);
   expect((await snapshot(page)).paused).toBe(true);
   expect((await snapshot(page)).state).toEqual(hidden.state);
-  await page.getByRole("application").click();
+  await page.getByRole("button", { name: "Return to the Meadow" }).click();
   await page.waitForTimeout(150);
   expect((await snapshot(page)).state).toEqual(hidden.state);
   await hold(page, ["w"], 300);
   expect((await snapshot(page)).state.y).toBeLessThan(hidden.state.y);
+});
+
+test("username gate, viewport fallback and local display name", async ({
+  page,
+}) => {
+  await page.goto("/?debug=1");
+  await expect(page.locator("canvas")).toHaveCount(0);
+  await page.screenshot({
+    path: "docs/milestones/evidence/m0-style-entry.png",
+  });
+  await page.getByRole("button", { name: "Enter Meadow", exact: true }).click();
+  await expect(page.locator("#name-error")).toContainText("2–20");
+  await expect(page.locator("canvas")).toHaveCount(0);
+  await page.getByLabel("What should we call you?").fill("  Mika  ");
+  await page.getByRole("button", { name: "Enter Meadow", exact: true }).click();
+  await ready(page);
+  await expect(page.getByLabel("Player Mika", { exact: true })).toBeVisible();
+  expect((await snapshot(page)).username).toBe("Mika");
+  const size = page.viewportSize()!,
+    box = (await page.getByRole("application").boundingBox())!;
+  expect(box).toEqual({ x: 0, y: 0, ...size });
+  await expect(
+    page.getByText("Playing in your browser window.", { exact: false }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Dismiss fullscreen notice" }).click();
+  await page.getByRole("application").focus();
+  await page.screenshot({
+    path: "docs/milestones/evidence/m0-style-first-game.png",
+  });
+
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(
+    size.height,
+  );
+  await hold(page, ["d"], 300);
+  expect((await snapshot(page)).state.x).toBeGreaterThan(64.5);
+  await openMenu(page);
+  await page.getByRole("button", { name: "Leave meadow" }).click();
+  await expect(page.locator("canvas")).toHaveCount(0);
+  await expect(page.getByLabel("What should we call you?")).toHaveValue("Mika");
+  await page.reload();
+  await expect(page.getByLabel("What should we call you?")).toHaveValue("");
+});
+
+test("native fullscreen entry and exit preserve a playable viewport", async ({
+  page,
+}) => {
+  await page.goto("/?debug=1");
+  await ready(page);
+  expect(await page.evaluate(() => !!document.fullscreenElement)).toBe(true);
+  const fullscreen = await snapshot(page);
+  expect(fullscreen.width).toBe(await page.evaluate(() => innerWidth));
+  expect(fullscreen.height).toBe(await page.evaluate(() => innerHeight));
+  writeFileSync(
+    "docs/milestones/evidence/m0-style-fullscreen.json",
+    JSON.stringify(
+      {
+        nativeFullscreen: true,
+        width: fullscreen.width,
+        height: fullscreen.height,
+        username: fullscreen.username,
+      },
+      null,
+      2,
+    ),
+  );
+  await hold(page, ["d"], 300);
+  expect((await snapshot(page)).state.x).toBeGreaterThan(64.5);
+  await page
+    .getByRole("button", { name: "Exit fullscreen", exact: true })
+    .click();
+  await expect
+    .poll(() => page.evaluate(() => !!document.fullscreenElement))
+    .toBe(false);
+  expect((await snapshot(page)).paused).toBe(true);
+  await page.getByRole("button", { name: "Return to the Meadow" }).click();
+  await hold(page, ["w"], 300);
+  expect((await snapshot(page)).paused).toBe(false);
 });

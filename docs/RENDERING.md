@@ -26,7 +26,7 @@ Start with one camera and bounded zoom, nearest-neighbor sampling for pixel-art 
 
 The target is 60 FPS on the recorded desktop reference device. [TESTING.md](TESTING.md) defines measurement conditions; this is a test target, not a claim of current performance. Defer dynamic lighting, shader-heavy weather, 2.5D conversion and elaborate postprocessing.
 
-## M0 reference (2026-09-06)
+## Original M0 reference (historical; art and entry superseded below)
 
 `app/sandbox.tsx` loads `app/renderer.ts` inside a client effect. PixiJS 8.20.1 is imported only in that dynamically loaded module. React holds low-frequency status (four updates/second) and mount/seed controls, never the movement loop.
 
@@ -39,3 +39,16 @@ Camera position equals the interpolated actor position, including at map edges (
 The playfield owns keyboard events and is focusable by mouse or Tab. Blur, Escape and document visibility changes clear held input and accumulated time. Hidden documents stop the ticker; returning requires canvas focus/click to resume. Catch-up is bounded and pauses never replay old input. A single disposer removes eight input/focus/pointer listeners, the ResizeObserver and ticker, destroys the application/canvas and all 66 generated textures. Async initialization cancellation destroys its eventual application before mounting it. Strict Mode, twelve remounts and four rapid restarts have browser coverage.
 
 M0 source art is code-authored geometric pixel-style placeholder art. No external artwork, fonts or asset downloads are required at runtime. `?debug=1` exposes a snapshot-only diagnostic projection (including a bounded frame interval buffer); it does not expose setters or gameplay commands. This is local test instrumentation, not an M1 protocol.
+
+
+## Reference-driven visual and entry update — 2026-09-06
+
+The earlier M0 renderer above is the historical baseline. Current rendering uses [the supplied reference](art-reference/early-game-concept.png) and the generated atlas described in [ART_DIRECTION](ART_DIRECTION.md). A single shared source texture and sixteen frame views are reused for the page lifetime. Each mounted renderer owns 64 terrain textures at 256×256 pixels, displayed at 512×512, replacing the former baked graphics. The private ticker, observer and nine renderer listeners (including fullscreenchange) are released on disposal; per-mount textures are destroyed, while the one shared atlas remains intentionally cached.
+
+A username form precedes creation of the Pixi application. `app/profile.ts` normalizes and validates 2–20 letters/numbers with spaces, apostrophes, hyphens or underscores. The label is rendered by React as text above the camera-centered actor; it is neither an account nor a multiplayer identity and is never stored or sent to a server.
+
+`Enter Meadow` calls `requestFullscreen()` on the persistent page shell during the submit gesture. Gameplay always occupies the entire browser viewport. A denied/unsupported fullscreen request leaves it playable with a dismissible explanation; the ⛶ control can retry. The `fullscreenchange` listener updates the control and pauses movement on exit. Leaving the Meadow exits native fullscreen and disposes the canvas. There is no keyboard lock: Escape remains available to the browser.
+
+Menu uses a native modal dialog with focus containment. Opening it clears gameplay input through blur; closing restores canvas focus. Seed regeneration and leaving remain available inside Menu. The initial page is a real username form over a generated scenery backdrop, not a static screenshot UI.
+
+Read [update evidence](milestones/M0_STYLE_UPDATE.md) for the new browser and performance measurements. The earlier 1358×574 playfield benchmark must not be presented as the current 1440×900 rendering load.

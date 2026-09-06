@@ -2,7 +2,7 @@
 
 A top-down 2D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
 
-**Status: M0 implemented locally, 2026-09-06.** The playable engine sandbox has seeded Meadow terrain, keyboard movement, collision and a following camera. M1–M9 remain unstarted. No services or deployment have been created. See [M0 evidence](docs/milestones/M0_COMPLETION.md) for acceptance results and limitations.
+**Status: M0 implemented locally, 2026-09-06.** The playable engine sandbox has reference-inspired pixel-painted artwork, a username entry screen, fullscreen play, seeded Meadow terrain, keyboard movement, collision and a following camera. M1–M9 remain unstarted. No services or deployment have been created. See [M0 evidence](docs/milestones/M0_COMPLETION.md) for acceptance results and limitations.
 
 ## Start here
 
@@ -22,9 +22,13 @@ npm ci
 npm run dev
 ```
 
-Open [the local sandbox](http://127.0.0.1:3000). Click the Meadow or Tab into it, then use **WASD / arrow keys** to walk. **Escape** pauses and releases keyboard focus. Leaving the canvas or switching tabs clears movement. Trees, rocks and the boundary are solid. The camera stays on your character.
+Open [the local sandbox](http://127.0.0.1:3000), choose a 2–20 character adventurer name, and click **Enter Meadow**. The game fills the viewport and requests native browser fullscreen from that click; unsupported or denied fullscreen falls back to viewport play. Use **WASD / arrow keys** to walk. **Escape** pauses and releases keyboard focus. Leaving the canvas or switching tabs clears movement. Trees, rocks and the boundary are solid. The camera stays on your character.
 
-Edit the seed and press **↻** to regenerate and restart; the same seed reproduces the same map. **Leave meadow / Enter meadow** removes and recreates the renderer. Art is explicitly provisional. Reloading resets everything; there is no saving or multiplayer.
+Open **Menu** to edit the seed and press **↻** to regenerate/restart; the same seed reproduces the same map. **Leave meadow** returns to the username screen and destroys the canvas. **⛶** toggles browser fullscreen. Art is a provisional study matched to the [supplied concept](docs/art-reference/early-game-concept.png). The name is a local display label, not an account. Reloading resets everything; there is no saving or multiplayer.
+
+The current preview uses port **3002** because another local project occupied port 3000: [open the current preview](http://127.0.0.1:3002). Run `npm run dev -- --port 3002` to use that port yourself.
+
+See the [style and fullscreen update evidence](docs/milestones/M0_STYLE_UPDATE.md).
 
 For an optimized local build: `npm run build`, then `npm start` (stop the dev server first, or use `npm start -- --port 3001`). No environment variables or credentials are required.
 
@@ -50,7 +54,7 @@ The next eligible milestone is **M1**, only upon a separate request. Its hosting
 | --- | --- |
 | [Product vision](docs/PRODUCT.md) | Audience, pillars, success measures, non-goals |
 | [Game design](docs/GAME_DESIGN.md) | Player loop, controls, progression and cooperative rules |
-| [Art direction](docs/ART_DIRECTION.md) | Written concept, asset targets and missing promo reference |
+| [Art direction](docs/ART_DIRECTION.md) | Supplied visual reference, implemented assets and provisional targets |
 | [Rendering](docs/RENDERING.md) | PixiJS/React boundary, camera, layers and performance |
 | [Architecture](docs/ARCHITECTURE.md) | Proposed modules, deployment boundaries and authority |
 | [Entity system](docs/ENTITY_SYSTEM.md) | IDs, simulation lifecycle and component contracts |

@@ -18,7 +18,7 @@ Planning baseline: 2026-09-06. “Locked” reflects explicit user direction or 
 | D012 | Provisional | Curious Slimes non-targetable; retain items on player death | M3/M4 recovery and progression testing |
 | D013 | Locked process | Astra establishes systems; Luna expands patterns | MODEL_USAGE.md |
 | D014 | Unresolved naming | Requested “Luna 4.6” differs from documented GPT-5.6 Luna | Resolve before actual Luna dispatch; no silent substitution |
-| D015 | Unresolved reference | Approved promo image absent from retrievable history | Obtain/inspect original before final assets |
+| D015 | Current reference supplied | User attached early-game-concept.png on 2026-09-06 and requested matching its style | Archived and inspected; generated assets remain an art study |
 | D016 | Provisional | Pixel-art test, 32-pixel terrain tiles, fixed camera | Compare to original promo; M0 visual test |
 | D017 | Deferred selection | Stable auth provider, Postgres provider/ORM and Redis deployment | Choose before M6/M1 respectively when needed |
 | D018 | Deferred | Marsh, bosses beyond M9, breeding, evolution, AI NPCs, economy | New milestone decision required |
@@ -43,3 +43,12 @@ Add date, status, observed problem, considered alternatives, selected choice, co
 - **D022 tooling:** Next.js 16.3.4, React/React DOM 19.2.8, PixiJS 8.20.1, TypeScript 5.9.3, Vitest 5.0.0, Playwright 1.63.0 agent-browser 0.36.0 and Prettier 3.6.2 pinned in package/lock files. TypeScript 5.9 was selected as a compatible stable toolchain rather than changing compiler major alongside the engine spike. Versions checked against npm; initialization/installation APIs checked against [Pixi documentation](https://pixijs.com/8.x/guides/components/application) and [Next.js documentation](https://nextjs.org/docs/app/getting-started/installation).
 
 Affected contracts: [architecture](../ARCHITECTURE.md), [world generation](../WORLD_GENERATION.md), [rendering](../RENDERING.md), [art](../ART_DIRECTION.md), [testing](../TESTING.md). The seed layout and collision dimensions are provisional defaults, not changes to locked product direction.
+
+
+## M0 style and launch refinement — 2026-09-06
+
+- **D016 refined by explicit user reference:** detailed pixel-painted scenery and sprites replace the original geometric art. Keep 32-pixel world tiles and top-down gameplay. Sprite assets, palette, canopies, animation and cosmetic terrain now follow the supplied concept; extra biomes and mechanics shown in that image remain deferred. Astraworld's name remains unchanged.
+- **D023 adopted by user request:** choose a local adventurer name before creating the game canvas, then launch edge-to-edge and request native browser fullscreen directly from the submit gesture. Retain a viewport fallback so embedded browsers or denied requests do not block play. Include an explicit fullscreen toggle, pause/resume and Leave control. Display name is local-only, resets on reload, and is not authentication.
+- **D024 atlas lifetime:** cache one generated RGBA atlas with sixteen frame views for a page lifetime. Own and destroy each canvas's 64 procedural ground textures separately. Generated assets and source-frame metadata are stored as project files; the original checkerboard draft is rejected, not consumed.
+
+[Reference and asset provenance](../ART_DIRECTION.md), [updated renderer contract](../RENDERING.md), [acceptance evidence](../milestones/M0_STYLE_UPDATE.md).

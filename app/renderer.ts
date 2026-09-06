@@ -19,6 +19,7 @@ import {
   STEP_SECONDS,
   type Position,
 } from "../packages/simulation";
+import { loadMeadowArt, terrainTexture } from "./art";
 import { screenToWorld, TILE_PIXELS, worldToScreen } from "./camera";
 
 const live = {
@@ -49,6 +50,8 @@ export type DebugSnapshot = {
   blockerCount: number;
   visibleProps: number;
   seed: string;
+  username: string;
+  sharedAtlasFrames: number;
 };
 declare global {
   interface Window {
@@ -62,10 +65,13 @@ export function mountMeadow(
   seed: string,
   report: (s: SandboxReport) => void,
   fail: (message: string) => void,
+  username: string,
 ): () => void {
   let disposed = false,
     cleanup: (() => void) | undefined;
   void (async () => {
+    const art = await loadMeadowArt();
+    if (disposed) return;
     const app = new Application();
     await app.init({
       width: host.clientWidth,
@@ -110,121 +116,64 @@ export function mountMeadow(
     objects.sortableChildren = true;
     root.addChild(ground, objects);
     app.stage.addChild(root);
-    const texture = (g: Graphics) => {
-      const t = app.renderer.generateTexture({ target: g, resolution: 1 });
-      t.source.scaleMode = "nearest";
-      textures.push(t);
-      live.textures++;
-      g.destroy();
-      return t;
-    };
     const chunks: { sprite: Sprite; x: number; y: number }[] = [];
     for (let cy = 0; cy < SIZE / CHUNK_SIZE; cy++)
       for (let cx = 0; cx < SIZE / CHUNK_SIZE; cx++) {
-        const g = new Graphics();
-        for (let ly = 0; ly < CHUNK_SIZE; ly++)
-          for (let lx = 0; lx < CHUNK_SIZE; lx++) {
-            const t =
-              world.tiles[(cy * CHUNK_SIZE + ly) * SIZE + cx * CHUNK_SIZE + lx];
-            const grass = [0x92ad68, 0x94af6a, 0x91ab66, 0x96af6b];
-            const sand = [0xc5bc88, 0xc8bf8e, 0xc7be8d, 0xc3b984];
-            g.rect(lx * 32, ly * 32, 32, 32).fill(
-              (t.terrain === "grass" ? grass : sand)[t.variant % 4],
-            );
-            if (t.terrain === "grass") {
-              g.rect(lx * 32 + 7 + t.variant, ly * 32 + 10, 2, 5).fill(
-                0x799859,
-              );
-              g.rect(lx * 32 + 11 + t.variant, ly * 32 + 8, 2, 4).fill(
-                0x799859,
-              );
-              if (t.variant === 1 && !t.blocker)
-                g.rect(lx * 32 + 23, ly * 32 + 23, 3, 3).fill(0xf6e6a9);
-              if (t.variant === 6 && !t.blocker)
-                g.rect(lx * 32 + 22, ly * 32 + 18, 3, 3).fill(0xd5dae3);
-            } else
-              g.rect(lx * 32 + 6 + t.variant * 2, ly * 32 + 22, 2, 2).fill(
-                0xb2aa7c,
-              );
-          }
-        const sprite = new Sprite(texture(g));
+        const texture = terrainTexture(world, cx, cy);
+        textures.push(texture);
+        live.textures++;
+        const sprite = new Sprite(texture);
+        sprite.width = sprite.height = 512;
         sprite.position.set(cx * 512, cy * 512);
         ground.addChild(sprite);
         chunks.push({ sprite, x: cx * 16, y: cy * 16 });
       }
-    const tree = texture(
-      new Graphics()
-        .ellipse(24, 52, 19, 8)
-        .fill({ color: 0x334b35, alpha: 0.25 })
-        .rect(19, 31, 10, 22)
-        .fill(0x725839)
-        .rect(23, 35, 4, 16)
-        .fill(0x987447)
-        .poly([
-          3, 31, 4, 17, 13, 17, 13, 7, 22, 7, 22, 2, 33, 2, 33, 10, 42, 10, 42,
-          19, 47, 19, 47, 35, 36, 35, 36, 41, 14, 41, 14, 36, 3, 36,
-        ])
-        .fill(0x355b3b)
-        .rect(9, 17, 28, 15)
-        .fill(0x4d7948)
-        .rect(17, 9, 15, 18)
-        .fill(0x628952)
-        .rect(13, 17, 9, 7)
-        .fill(0x799a5d),
-    );
-    const rock = texture(
-      new Graphics()
-        .ellipse(18, 27, 18, 6)
-        .fill({ color: 0x334b35, alpha: 0.2 })
-        .poly([1, 23, 6, 8, 15, 2, 28, 5, 34, 17, 34, 27, 8, 29])
-        .fill(0x69756b)
-        .poly([5, 19, 9, 9, 17, 5, 27, 8, 30, 18, 17, 21])
-        .fill(0x9fa997)
-        .poly([9, 10, 17, 5, 26, 8, 18, 11])
-        .fill(0xbdc4ae),
-    );
     const props: { sprite: Sprite; tile: Tile }[] = [];
-    for (const tile of world.tiles)
+    const flowers: { sprite: Sprite; tile: Tile }[] = [];
+    for (const tile of world.tiles) {
       if (tile.blocker) {
-        const sprite = new Sprite(tile.blocker === "tree" ? tree : rock);
-        sprite.anchor.set(0.5, 0.9);
+        const sprite = new Sprite(
+          art[
+            tile.blocker === "tree" ? tile.variant % 4 : 4 + (tile.variant % 2)
+          ],
+        );
+        sprite.anchor.set(0.5, 0.95);
+        const scale =
+          tile.blocker === "tree"
+            ? (100 + tile.variant * 2) / sprite.texture.height
+            : 39 / sprite.texture.height;
+        sprite.scale.set(scale);
         sprite.position.set((tile.x + 0.5) * 32, (tile.y + 0.85) * 32);
         sprite.zIndex = tile.y + 0.85;
         objects.addChild(sprite);
         props.push({ sprite, tile });
+      } else if (
+        tile.terrain === "grass" &&
+        (tile.variant === 1 || tile.variant === 6) &&
+        (tile.x + tile.y) % 4 === 0
+      ) {
+        const sprite = new Sprite(art[6 + (tile.variant % 2)]);
+        sprite.anchor.set(0.5, 1);
+        sprite.scale.set(15 / sprite.texture.height);
+        sprite.position.set((tile.x + 0.4) * 32, (tile.y + 0.8) * 32);
+        ground.addChild(sprite);
+        flowers.push({ sprite, tile });
       }
-    const marker = new Graphics()
-      .ellipse(0, 0, 19, 9)
-      .stroke({ color: 0xf9efd0, width: 2, alpha: 0.75 });
-    marker.position.set(SPAWN.x * 32, SPAWN.y * 32);
-    ground.addChild(marker);
+    }
     const avatar = new Container();
     const shadow = new Graphics()
       .ellipse(0, 0, 10, 4)
-      .fill({ color: 0x354b38, alpha: 0.35 });
-    const body = new Graphics()
-      .rect(-7, -9, 5, 10)
-      .fill(0x36493f)
-      .rect(2, -9, 5, 10)
-      .fill(0x36493f)
-      .rect(-9, -22, 18, 15)
-      .fill(0xe5c276)
-      .rect(-9, -20, 5, 12)
-      .fill(0xf5dfa5)
-      .rect(-7, -33, 14, 14)
-      .fill(0xf1c598)
-      .rect(-8, -34, 16, 7)
-      .fill(0x5d4535)
-      .rect(-12, -30, 24, 4)
-      .fill(0x8d5d3e)
-      .rect(-7, -38, 14, 9)
-      .fill(0xb17e4f)
-      .rect(3, -25, 2, 2)
-      .fill(0x36493f)
-      .rect(-10, -18, 4, 8)
-      .fill(0xbb694b);
+      .fill({ color: 0x193d30, alpha: 0.3 });
+    const body = new Sprite(art[8]);
+    body.anchor.set(0.5, 1);
+    body.scale.set(48 / body.texture.height);
     avatar.addChild(shadow, body);
     objects.addChild(avatar);
+    let facing: "down" | "up" | "right" | "left" = "down",
+      walkTime = 0;
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     let state: Position = { ...SPAWN },
       previous = state,
       rendered = state;
@@ -259,6 +208,8 @@ export function mountMeadow(
         blockerCount: props.length,
         visibleProps,
         seed: world.seed,
+        username,
+        sharedAtlasFrames: art.length,
       }),
     };
     if (debugEnabled) window.__MEADOW__ = debug;
@@ -319,6 +270,9 @@ export function mountMeadow(
     listen(host, "focus", resume);
     listen(host, "blur", pause);
     listen(window, "blur", pause);
+    listen(document, "fullscreenchange", () => {
+      if (!document.fullscreenElement) pause();
+    });
     listen(document, "visibilitychange", () => {
       pause();
       if (document.hidden) app.stop();
@@ -349,8 +303,43 @@ export function mountMeadow(
       );
       avatar.position.set(rendered.x * 32, rendered.y * 32);
       avatar.zIndex = rendered.y;
-      const rx = app.screen.width / 64 + 2,
-        ry = app.screen.height / 64 + 3;
+      const moving =
+        !paused &&
+        Math.abs(state.x - previous.x) + Math.abs(state.y - previous.y) >
+          0.0001;
+      if (moving) {
+        const dx = state.x - previous.x,
+          dy = state.y - previous.y;
+        facing =
+          Math.abs(dx) > Math.abs(dy)
+            ? dx > 0
+              ? "right"
+              : "left"
+            : dy > 0
+              ? "down"
+              : "up";
+      }
+      const frame = moving && !reducedMotion ? Math.floor(walkTime * 8) % 4 : 0;
+      const gait = [0, 1, 0, 2][frame];
+      const index =
+        facing === "up"
+          ? gait
+            ? 15
+            : 11
+          : facing === "down"
+            ? 8 + gait
+            : 12 + gait;
+      body.texture = art[index];
+      body.scale.set(
+        ((facing === "left" ? -1 : 1) * 48) / art[8].height,
+        48 / art[8].height,
+      );
+      const rx = app.screen.width / 64 + 4,
+        ry = app.screen.height / 64 + 5;
+      for (const f of flowers)
+        f.sprite.visible =
+          Math.abs(f.tile.x - camera.x) < rx &&
+          Math.abs(f.tile.y - camera.y) < ry;
       for (const c of chunks)
         c.sprite.visible =
           c.x < camera.x + rx &&
@@ -365,10 +354,10 @@ export function mountMeadow(
         if (p.sprite.visible) visibleProps++;
         p.sprite.alpha =
           p.tile.blocker === "tree" &&
-          Math.abs(p.tile.x + 0.5 - rendered.x) < 0.85 &&
+          Math.abs(p.tile.x + 0.5 - rendered.x) < 1.5 &&
           rendered.y < p.tile.y + 0.8 &&
-          rendered.y > p.tile.y - 1.2
-            ? 0.45
+          rendered.y > p.tile.y - 2.5
+            ? 0.22
             : 1;
       }
     }
@@ -390,6 +379,7 @@ export function mountMeadow(
           ticks++;
         }
       }
+      if (!paused) walkTime += dt;
       elapsedFrames += dt;
       if (
         debugEnabled &&

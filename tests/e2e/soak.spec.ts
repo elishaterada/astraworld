@@ -8,7 +8,13 @@ test("ten-minute Meadow traversal frame and memory envelope", async ({
   test.setTimeout(650000);
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  await page.addInitScript(() => {
+    Element.prototype.requestFullscreen = () =>
+      Promise.reject(new DOMException("Windowed benchmark", "NotAllowedError"));
+  });
   await page.goto("/?debug=1");
+  await page.getByLabel("What should we call you?").fill("Rowan");
+  await page.getByRole("button", { name: "Enter Meadow", exact: true }).click();
   await page.waitForFunction(() => !!window.__MEADOW__);
   await page.getByRole("application").focus();
   const cdp = await page.context().newCDPSession(page);
@@ -53,7 +59,7 @@ test("ten-minute Meadow traversal frame and memory envelope", async ({
     errors,
   };
   writeFileSync(
-    "docs/milestones/evidence/m0-performance.json",
+    "docs/milestones/evidence/m0-style-performance.json",
     JSON.stringify(result, null, 2),
   );
   expect(frames.length).toBeGreaterThan(30000);
