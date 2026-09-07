@@ -2,7 +2,7 @@
 
 A top-down 2D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
 
-**Status: M1 multiplayer runs locally and on Vercel; final hosting verification is in progress.** Two private browser sessions can explore the same Meadow with server-owned movement, prediction and Redis-backed recovery. The concept-inspired art, username entry and fullscreen experience remain. The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md); M2 has not started.
+**Status: M1 multiplayer is deployed; hosted lifecycle verification passed. True TCP packet-loss validation remains before M2.** Two private browser sessions can explore the same Meadow with server-owned movement, prediction and Redis-backed recovery. The concept-inspired art, username entry and fullscreen experience remain. The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md); M2 has not started.
 
 ## Start here
 
@@ -61,7 +61,7 @@ BASE_URL=http://127.0.0.1:3002 npm run test:multiplayer-soak
 
 The rule/integration suite launches a disposable Redis process itself; Redis must be on PATH. The ordinary browser suite skips the separate ten-minute M0 and M1 soaks. Read-only `?debug=1` reports measurements without a state-mutation API. [M1 results](docs/milestones/M1_LOCAL_RESULTS.md) distinguish local evidence from outstanding deployed-host and network gates.
 
-The next eligible work is the **M1 hosting gate**, not M2.
+The next eligible work is **M1 true TCP packet-loss validation**, not M2. Hosted overlap and expiry recovery passed; see [deployment evidence](docs/milestones/M1_DEPLOYMENT.md).
 
 ## Document map
 

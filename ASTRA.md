@@ -1,6 +1,6 @@
 # Astra milestone operating contract
 
-You own the quality of one complete milestone, not the breadth of the whole game. M0 has been implemented under the explicit M0 request; see [its completion evidence](docs/milestones/M0_COMPLETION.md). M1 is implemented locally with [deployed acceptance pending](docs/milestones/M1_LOCAL_RESULTS.md); M2–M9 remain unstarted. Do not advance automatically.
+You own the quality of one complete milestone, not the breadth of the whole game. M0 has been implemented under the explicit M0 request; see [its completion evidence](docs/milestones/M0_COMPLETION.md). M1 is deployed with [lifecycle verification passed and TCP packet-loss validation pending](docs/milestones/M1_DEPLOYMENT.md); M2–M9 remain unstarted. Do not advance automatically.
 
 ## Before coding
 

@@ -1,0 +1,84 @@
+{
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "connectionsA": [
+    "ws://127.0.0.1:3101/play",
+    "ws://127.0.0.1:3102/play"
+  ],
+  "connectionsB": [
+    "ws://127.0.0.1:3102/play"
+  ],
+  "initial": {
+    "status": "Connected",
+    "epoch": 1,
+    "generation": 1,
+    "owner": "local-a",
+    "gateway": "",
+    "tick": 12,
+    "selfId": "649716b1-16f7-463a-a3d5-ce1656dc57ed",
+    "authoritative": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "remotes": [
+      {
+        "id": "5891247d-0a5e-4594-9650-eab74322dffc",
+        "name": "Mika",
+        "position": {
+          "x": 64.5,
+          "y": 64.5
+        }
+      }
+    ]
+  },
+  "moved": {
+    "status": "Connected",
+    "epoch": 1,
+    "generation": 1,
+    "owner": "local-a",
+    "gateway": "",
+    "tick": 36,
+    "selfId": "649716b1-16f7-463a-a3d5-ce1656dc57ed",
+    "authoritative": {
+      "x": 67.30000000000004,
+      "y": 64.5
+    },
+    "remotes": [
+      {
+        "id": "5891247d-0a5e-4594-9650-eab74322dffc",
+        "name": "Mika",
+        "position": {
+          "x": 64.5,
+          "y": 64.5
+        }
+      }
+    ]
+  },
+  "resumed": {
+    "status": "Connected",
+    "epoch": 1,
+    "generation": 2,
+    "owner": "local-a",
+    "gateway": "",
+    "tick": 80,
+    "selfId": "649716b1-16f7-463a-a3d5-ce1656dc57ed",
+    "authoritative": {
+      "x": 67.30000000000004,
+      "y": 64.5
+    },
+    "remotes": [
+      {
+        "id": "5891247d-0a5e-4594-9650-eab74322dffc",
+        "name": "Mika",
+        "position": {
+          "x": 64.5,
+          "y": 64.5
+        }
+      }
+    ]
+  },
+  "errors": []
+}

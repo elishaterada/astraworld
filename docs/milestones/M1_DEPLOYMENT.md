@@ -23,3 +23,19 @@ The hosted verifier now records per-second identity, generation, epoch, owner, g
 The first per-second overlap run observed simultaneous gateways from `91ddbda` and `f66d0ed`, consistent owner/epoch projections, unchanged identities and no collisions. It failed the 15-second recovery target with a 16,042 ms gap. The client was closing an already authenticated connection after three seconds without snapshots, causing repeated handshake/backoff cycles while the previous owner's ten-second lease remained valid. The watchdog now allows an authenticated socket 15 seconds to wait for ownership recovery; unauthenticated handshakes retain the three-second bound. Reconnect feedback still starts after one second. See `m1-hosted-overlap-first.json` for the failed run.
 
 The authenticated-connection watchdog change passed 24 tests and the production build. It was deployed as `bbaa99a`. The final overlap exercise starts both browsers on that revision and rolls a documentation-only deployment while they remain active. The per-second verifier requires recovery in less than 15 seconds, stable identities, collision-free positions, consistent ownership for matching epochs, and gateways from both commit prefixes.
+
+## Final deployed lifecycle result
+
+**Hosted lifecycle and deployment-overlap gate: PASS. Overall M1 transport acceptance remains pending one true TCP packet-loss test. M2 has not started.**
+
+The final verifier ran two independently authenticated browser contexts against `https://astraworld-teradas.vercel.app`, beginning on `bbaa99a` and spanning the live rollout of `7db14c1`. Production retained Vercel authentication; testing used its automation access mechanism without exposing the bypass credential in code or evidence.
+
+- Both clients connected, saw one another, and retained their server-issued identities across reload, function expiry and deployment overlap.
+- A one-second movement held exactly 4.0 authoritative tiles in the measured clearing. Every sampled position was collision-free.
+- Four owner epochs were observed. The gateway IDs proved traffic through both deployed revisions. Matching epochs always reported the same owner, including periods with clients connected to different deployments.
+- Longest sampled reconnect/presence gap: **10,026 ms**, below the 15,000 ms target. Sampling is approximately once per second, so this is a measured sampled bound, not a sub-millisecond timing claim.
+- No browser page exceptions. Final local checks: **24 tests PASS**, TypeScript/production build PASS, and all three client browser regressions PASS (42.6 seconds), including 150/300 ms RTT, application-message loss and a five-second outage.
+
+Evidence: [final per-second samples](evidence/m1-hosted-final.json), [hosted screenshot](evidence/m1-hosted-final.png), and the `m1-hosted-client-regression-*` artifacts. Failed experiments are retained separately and are not counted as passes. The reproducible harness is `scripts/verify-hosted.mjs`; configure `HOSTED_URL` and optionally `HOSTED_ACCESS_FILE` pointing to a private JSON file with the automation `secret`. Set `HOSTED_OVERLAP=1` and make a documentation-only push during the run to exercise different revisions. Never commit that access file or its credential.
+
+Remaining check: real TCP/IP packet loss and retransmission/head-of-line buffering. The existing proxy drops application messages, which is a different fault model. Noninteractive administrator access is unavailable on this Mac (`sudo -n true` reports that a password is required), so no packet-filter changes were attempted. Complete that check in a controlled network test environment before treating the full M1 transport matrix as accepted or starting M2. No additional cloud services were provisioned.

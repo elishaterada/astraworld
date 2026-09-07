@@ -72,3 +72,7 @@ M1 has now been authorized and implemented locally. `apps/game-server/store.ts` 
 The browser's ordinary entry now requests a private server session. `?solo=1` retains the explicit M0 offline harness for engine tests. Shared-room clients cannot regenerate the seed. Gateway/runner processes use server-only Redis settings; only configured endpoint URLs enter the browser bundle. See [.env.example](../.env.example).
 
 The current deployment artifact is a local Node service, not a proven Vercel function integration. Existing Vercel support for Node HTTP/ws servers makes that a candidate, but the max-duration/occupied-runner and overlapping-deployment tests have not run. Plan A versus Plan B remains undecided until the [M1 host gate](milestones/M1_LOCAL_RESULTS.md) has evidence. No production service has been provisioned.
+
+## M1 hosted follow-up
+
+The existing `teradas/astraworld` Vercel project now hosts Next.js session, health and WebSocket routes in `app/api/meadow/`, backed by `apps/game-server/vercel.ts` and the existing runner. The Vercel experimental upgrade API supplies ordinary ws sockets to the same admission/intent handler. The hosted lifecycle and rolling-deployment experiment passed; true TCP packet-loss validation remains before full M1 acceptance. No fallback host or new service was provisioned. [Deployment evidence](milestones/M1_DEPLOYMENT.md) supersedes the earlier local-only hosting status above.

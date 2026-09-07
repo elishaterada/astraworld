@@ -1,6 +1,6 @@
 # M1 mission: authoritative two-player multiplayer
 
-**Status: local implementation verified; deployed-host gate pending. M1 was authorized by “Great, next step” after M0. See [local results](M1_LOCAL_RESULTS.md). Do not start M2.**
+**Status: local and deployed lifecycle verified; true TCP packet-loss validation pending. M1 was authorized by “Great, next step” after M0. See [local results](M1_LOCAL_RESULTS.md) and [deployment results](M1_DEPLOYMENT.md). Do not start M2.**
 
 ## Mission
 
