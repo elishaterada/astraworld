@@ -1,6 +1,38 @@
 import { Assets, Rectangle, Texture } from "pixi.js";
 import atlas from "../public/art/meadow-atlas.json";
 import { CHUNK_SIZE, SIZE, seedHash, type World } from "../packages/world";
+import characterAtlas from "../public/art/characters-v1.json";
+import { CHARACTER_IDS, type CharacterId } from "../packages/characters";
+
+let characterLoading: Promise<Record<CharacterId, Texture[]>> | undefined;
+export function loadCharacterArt(): Promise<Record<CharacterId, Texture[]>> {
+  return (characterLoading ??= Promise.all(
+    CHARACTER_IDS.map(async (id) => {
+      const atlas = characterAtlas[id];
+      const source = await Assets.load<Texture>(`/art/${atlas.source}`);
+      source.source.scaleMode = "nearest";
+      return [
+        id,
+        atlas.frames.map(
+          (frame) =>
+            new Texture({
+              source: source.source,
+              frame: new Rectangle(frame.x, frame.y, frame.width, frame.height),
+            }),
+        ),
+      ] as const;
+    }),
+  )
+    .then(
+      (entries) =>
+        Object.fromEntries(entries) as Record<CharacterId, Texture[]>,
+    )
+    .catch((error) => {
+      characterLoading = undefined;
+      throw error;
+    }));
+}
+
 let loading: Promise<Texture[]> | undefined;
 /** One shared atlas per page, reused across canvas remounts; frames retain the source alpha. */
 export function loadMeadowArt(): Promise<Texture[]> {

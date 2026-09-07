@@ -75,3 +75,7 @@ Visual review checks text legibility, target overlap, friendly/hostile distincti
 ## Eight-player M1 capacity
 
 `tests/capacity.test.ts` verifies atomic cross-gateway admission under 20 competing joins, the eight-actor schema bound, safe spawn slots and retained resume credentials. `tests/e2e/eight-players.spec.ts` opens nine isolated contexts: eight play together, a ninth is refused, and a member resumes the full room. It checks accepted server position before waiting for the next rendered frame. Run with the normal local services and `BASE_URL=http://127.0.0.1:3002`; private hosted automation access is optional. [Local and hosted results](milestones/M1_EIGHT_PLAYERS.md) distinguish this focused capacity test from unrun eight-player soak and TCP-loss checks.
+
+## Four-character art checks
+
+`tests/character-art.test.ts` validates the four IDs and separate RGBA sheets with disjoint bounded frames. `tests/e2e/character-art.spec.ts` exercises each look's front/back/side walking and idle textures in solo mode. The existing character selector test checks four distinct nonempty portraits; the eight-player test now uses all four designs, verifies actual rendered direction frames across observers and resumes Hazel. [Results and limitations](milestones/M1_CHARACTER_ART.md) preserve the earlier milestone evidence.

@@ -2,6 +2,8 @@
 
 Implemented 2026-09-06 within M1. No M2 mechanics or new services.
 
+Historical colorway evidence below is superseded by [four distinct character sheets](M1_CHARACTER_ART.md) and [eight-player capacity](M1_EIGHT_PLAYERS.md).
+
 Players start a private Meadow, then use Menu → Invite a friend → Copy invite link. A friend opens that URL, chooses a name and appearance, and enters the same world. Capacity remains two identities. Loopback links are only usable on the same computer; use the hosted URL for separate devices. Hosted access still requires the existing Vercel authorization.
 
 Fern, Ember and Iris are placeholder colorways of the existing atlas, with matching circle, diamond and star name markers. Selection is cosmetic, not a class or unique account. Choices may repeat; friends should choose different looks. The server validates and stores the selection with temporary membership. Both clients render that membership choice, including after reconnect. Existing sessions without a selection default to Fern. Reload offers Resume Meadow with the saved name/look instead of silently ignoring a new selection. Leave Meadow clears the tab's resume capability.

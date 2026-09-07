@@ -39,6 +39,23 @@ test("character selection, private invitation, shared movement and saved appeara
     );
   try {
     await a.goto("/?debug=1");
+    await expect(a.getByRole("radio")).toHaveCount(4);
+    await expect
+      .poll(async () =>
+        a.locator(".character-card canvas").evaluateAll((canvases) =>
+          canvases.every((c) => {
+            const ctx = (c as HTMLCanvasElement).getContext("2d")!;
+            return ctx
+              .getImageData(0, 0, 128, 160)
+              .data.some((v, i) => i % 4 === 3 && v > 128);
+          }),
+        ),
+      )
+      .toBe(true);
+    const portraits = await a
+      .locator(".character-card canvas")
+      .evaluateAll((cs) => cs.map((c) => (c as HTMLCanvasElement).toDataURL()));
+    expect(new Set(portraits).size).toBe(4);
     await a.getByLabel("What should we call you?").fill("Rowan");
     await a.getByRole("radio", { name: "Ember" }).check();
     await expect(a.getByRole("radio", { name: "Ember" })).toBeChecked();

@@ -1,0 +1,109 @@
+{
+  "browser": "153.0.8010.12",
+  "results": [
+    {
+      "character": "Fern",
+      "poses": [
+        {
+          "key": "d",
+          "movingFrame": 7,
+          "standingFrame": 6
+        },
+        {
+          "key": "w",
+          "movingFrame": 5,
+          "standingFrame": 3
+        },
+        {
+          "key": "s",
+          "movingFrame": 1,
+          "standingFrame": 0
+        },
+        {
+          "key": "a",
+          "movingFrame": 8,
+          "standingFrame": 6
+        }
+      ],
+      "errors": []
+    },
+    {
+      "character": "Ember",
+      "poses": [
+        {
+          "key": "d",
+          "movingFrame": 7,
+          "standingFrame": 6
+        },
+        {
+          "key": "w",
+          "movingFrame": 5,
+          "standingFrame": 3
+        },
+        {
+          "key": "s",
+          "movingFrame": 1,
+          "standingFrame": 0
+        },
+        {
+          "key": "a",
+          "movingFrame": 8,
+          "standingFrame": 6
+        }
+      ],
+      "errors": []
+    },
+    {
+      "character": "Iris",
+      "poses": [
+        {
+          "key": "d",
+          "movingFrame": 7,
+          "standingFrame": 6
+        },
+        {
+          "key": "w",
+          "movingFrame": 5,
+          "standingFrame": 3
+        },
+        {
+          "key": "s",
+          "movingFrame": 1,
+          "standingFrame": 0
+        },
+        {
+          "key": "a",
+          "movingFrame": 8,
+          "standingFrame": 6
+        }
+      ],
+      "errors": []
+    },
+    {
+      "character": "Hazel",
+      "poses": [
+        {
+          "key": "d",
+          "movingFrame": 7,
+          "standingFrame": 6
+        },
+        {
+          "key": "w",
+          "movingFrame": 5,
+          "standingFrame": 3
+        },
+        {
+          "key": "s",
+          "movingFrame": 1,
+          "standingFrame": 0
+        },
+        {
+          "key": "a",
+          "movingFrame": 8,
+          "standingFrame": 6
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

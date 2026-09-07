@@ -5,7 +5,7 @@ import {
   CHARACTER_IDS,
   type CharacterId,
 } from "../packages/characters";
-import atlas from "../public/art/meadow-atlas.json";
+import atlas from "../public/art/characters-v1.json";
 
 function Portrait({ character }: { character: CharacterId }) {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -15,35 +15,28 @@ function Portrait({ character }: { character: CharacterId }) {
     image.onload = () => {
       const context = canvas.current?.getContext("2d");
       if (cancelled || !context) return;
-      const frame = atlas.frames[8];
-      context.clearRect(0, 0, 116, 199);
+      const frame = atlas[character].frames[0];
+      context.clearRect(0, 0, 128, 160);
+      context.imageSmoothingEnabled = false;
+      const scale = 148 / frame.height;
       context.drawImage(
         image,
         frame.x,
         frame.y,
         frame.width,
         frame.height,
-        0,
-        0,
-        116,
-        199,
+        (128 - frame.width * scale) / 2,
+        6,
+        frame.width * scale,
+        148,
       );
-      // Match Pixi's per-channel sprite tint, including transparent edges.
-      const pixels = context.getImageData(0, 0, 116, 199);
-      const tint = CHARACTERS[character].tint;
-      for (let i = 0; i < pixels.data.length; i += 4) {
-        pixels.data[i] *= ((tint >> 16) & 255) / 255;
-        pixels.data[i + 1] *= ((tint >> 8) & 255) / 255;
-        pixels.data[i + 2] *= (tint & 255) / 255;
-      }
-      context.putImageData(pixels, 0, 0);
     };
-    image.src = "/art/meadow-atlas-v2.png";
+    image.src = `/art/${atlas[character].source}`;
     return () => {
       cancelled = true;
     };
   }, [character]);
-  return <canvas ref={canvas} width={116} height={199} aria-hidden="true" />;
+  return <canvas ref={canvas} width={128} height={160} aria-hidden="true" />;
 }
 export function CharacterSelector({
   value,
@@ -81,7 +74,7 @@ export function CharacterSelector({
         ))}
       </div>
       <p className="character-help">
-        Placeholder colorways · same abilities, your own look.
+        Four adventurers · same abilities, your own look.
       </p>
     </fieldset>
   );

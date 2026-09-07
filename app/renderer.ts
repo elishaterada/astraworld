@@ -20,7 +20,7 @@ import {
   STEP_SECONDS,
   type Position,
 } from "../packages/simulation";
-import { loadMeadowArt, terrainTexture } from "./art";
+import { loadMeadowArt, loadCharacterArt, terrainTexture } from "./art";
 import { screenToWorld, TILE_PIXELS, worldToScreen } from "./camera";
 
 import { DT, type RealtimeActor } from "../packages/protocol/realtime";
@@ -65,6 +65,7 @@ export type DebugSnapshot = {
   username: string;
   character: CharacterId;
   sharedAtlasFrames: number;
+  characterFrame: number;
   network?: {
     status: string;
     epoch: number;
@@ -86,6 +87,7 @@ export type DebugSnapshot = {
       id: string;
       name: string;
       character: CharacterId;
+      characterFrame: number;
       position: Position;
       facing: number;
       moving: boolean;
@@ -112,7 +114,10 @@ export function mountMeadow(
   let disposed = false,
     cleanup: (() => void) | undefined;
   void (async () => {
-    const art = await loadMeadowArt();
+    const [art, characterArt] = await Promise.all([
+      loadMeadowArt(),
+      loadCharacterArt(),
+    ]);
     if (disposed) return;
     const app = new Application();
     await app.init({
@@ -208,8 +213,7 @@ export function mountMeadow(
     const shadow = new Graphics()
       .ellipse(0, 0, 10, 4)
       .fill({ color: 0x193d30, alpha: 0.3 });
-    const body = new Sprite(art[8]);
-    body.tint = CHARACTERS[character].tint;
+    const body = new Sprite(characterArt[character][0]);
     body.anchor.set(0.5, 1);
     body.scale.set(48 / body.texture.height);
     const waveLabel = new Text({
@@ -270,6 +274,7 @@ export function mountMeadow(
         username,
         character,
         sharedAtlasFrames: art.length,
+        characterFrame: characterArt[character].indexOf(body.texture),
         ...(network
           ? {
               network: {
@@ -293,6 +298,12 @@ export function mountMeadow(
                   id: a.id,
                   name: a.name,
                   character: characterId(a.character),
+                  characterFrame: characterArt[
+                    characterId(a.character)
+                  ].indexOf(
+                    (peers.get(a.id)?.children[0] as Sprite | undefined)
+                      ?.texture as Texture,
+                  ),
                   position: { ...a.position },
                   facing: a.facing,
                   moving: a.moving,
@@ -415,6 +426,7 @@ export function mountMeadow(
     }) as EventListener);
     function pose(
       sprite: Sprite,
+      look: CharacterId,
       direction: number,
       moving: boolean,
       time: number,
@@ -430,20 +442,12 @@ export function mountMeadow(
       const gait = [0, 1, 0, 2][
         moving && !reducedMotion ? Math.floor(time * 8) % 4 : 0
       ];
-      sprite.texture =
-        art[
-          face === "up"
-            ? gait
-              ? 15
-              : 11
-            : face === "down"
-              ? 8 + gait
-              : 12 + gait
-        ];
-      sprite.scale.set(
-        ((face === "left" ? -1 : 1) * 48) / art[8].height,
-        48 / art[8].height,
-      );
+      const frames = characterArt[look];
+      const row = face === "up" ? 3 : face === "down" ? 0 : 6;
+      sprite.texture = frames[row + gait];
+      // Each direction uses its standing reference scale; frame anchors stay at feet.
+      const scale = 48 / frames[row].height;
+      sprite.scale.set((face === "left" ? -1 : 1) * scale, scale);
     }
     function draw() {
       const alpha = accumulator / STEP_SECONDS;
@@ -467,11 +471,12 @@ export function mountMeadow(
         let peer = peers.get(actor.id);
         if (!peer) {
           peer = new Container();
-          const sprite = new Sprite(art[8]);
+          const sprite = new Sprite(
+            characterArt[characterId(actor.character)][0],
+          );
           sprite.anchor.set(0.5, 1);
           sprite.scale.set(48 / sprite.texture.height);
           const look = CHARACTERS[characterId(actor.character)];
-          sprite.tint = look.tint;
           const label = new Text({
             text: `${look.mark} ${actor.name}`,
             style: {
@@ -492,11 +497,16 @@ export function mountMeadow(
         const look = CHARACTERS[characterId(actor.character)];
         const sprite = peer.children[0] as Sprite;
         const label = peer.children[1] as Text;
-        sprite.tint = look.tint;
         const waving =
           actor.action && network!.tick - actor.action.startedTick < 48;
         label.text = `${waving ? "✋\n" : ""}${look.mark} ${actor.name}`;
-        pose(sprite, actor.facing, actor.moving, walkTime);
+        pose(
+          sprite,
+          characterId(actor.character),
+          actor.facing,
+          actor.moving,
+          walkTime,
+        );
         label.style.fill = look.color;
         peer.position.set(actor.position.x * 32, actor.position.y * 32);
         peer.zIndex = actor.position.y;
@@ -517,23 +527,22 @@ export function mountMeadow(
               ? "down"
               : "up";
       }
-      const frame = moving && !reducedMotion ? Math.floor(walkTime * 8) % 4 : 0;
-      const gait = [0, 1, 0, 2][frame];
-      const index =
-        facing === "up"
-          ? gait
-            ? 15
-            : 11
-          : facing === "down"
-            ? 8 + gait
-            : 12 + gait;
-      body.texture = art[index];
-      body.scale.set(
-        ((facing === "left" ? -1 : 1) * 48) / art[8].height,
-        48 / art[8].height,
-      );
+      if (!network)
+        pose(
+          body,
+          character,
+          { right: 0, down: 2, left: 4, up: 6 }[facing],
+          moving,
+          walkTime,
+        );
       if (network) {
-        pose(body, network.actor.facing, network.actor.moving, walkTime);
+        pose(
+          body,
+          character,
+          network.actor.facing,
+          network.actor.moving,
+          walkTime,
+        );
         waveLabel.visible =
           !!network.actor.action &&
           network.tick +

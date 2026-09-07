@@ -26,7 +26,7 @@ test("eight real players share movement, facing and waves; ninth is refused and 
       () => window.__MEADOW__?.snapshot().network?.status === "Connected",
     );
   const names = ["Rowan", "Mika", "Alex", "Jun", "Sage", "Robin", "Ash", "Sky"];
-  const looks = ["Fern", "Ember", "Iris"];
+  const looks = ["Fern", "Ember", "Iris", "Hazel"];
   const createPage = async (index: number) => {
     const c = await browser.newContext({
       extraHTTPHeaders,
@@ -71,7 +71,7 @@ test("eight real players share movement, facing and waves; ninth is refused and 
       const p = await createPage(i);
       await p.goto(`${invite}&debug=1`);
       await p.getByLabel("What should we call you?").fill(names[i]);
-      await p.getByRole("radio", { name: looks[i % 3] }).check();
+      await p.getByRole("radio", { name: looks[i % looks.length] }).check();
       await p
         .getByRole("button", { name: "Enter Meadow", exact: true })
         .click();
@@ -83,7 +83,22 @@ test("eight real players share movement, facing and waves; ninth is refused and 
           timeout: 15000,
         })
         .toBe(7);
+    await expect
+      .poll(async () =>
+        (await snapshot(host)).network!.remotes.every(
+          (a) => a.characterFrame >= 0,
+        ),
+      )
+      .toBe(true);
     const initial = await Promise.all(pages.map(snapshot));
+    for (let i = 0; i < 8; i++) {
+      expect(initial[i].character).toBe(looks[i % looks.length].toLowerCase());
+      for (const remote of initial[i].network!.remotes) {
+        const owner = initial.find((s) => s.network!.selfId === remote.id)!;
+        expect(remote.character).toBe(owner.character);
+        expect(remote.characterFrame).toBeGreaterThanOrEqual(0);
+      }
+    }
     expect(new Set(initial.map((s) => s.network!.selfId)).size).toBe(8);
     expect(new Set(initial.map((s) => `${s.state.x},${s.state.y}`)).size).toBe(
       8,
@@ -133,8 +148,12 @@ test("eight real players share movement, facing and waves; ninth is refused and 
           const s = await snapshot(p);
           return (
             s.network!.facing === 4 &&
+            s.characterFrame === 6 &&
             s.network!.remotes.every(
-              (a) => a.facing === 4 && a.action?.kind === "wave",
+              (a) =>
+                a.facing === 4 &&
+                a.characterFrame === 6 &&
+                a.action?.kind === "wave",
             )
           );
         })
@@ -182,6 +201,7 @@ test("eight real players share movement, facing and waves; ninth is refused and 
     const resumed = await snapshot(pages[7]);
     expect(resumed.network!.selfId).toBe(before.network!.selfId);
     expect(resumed.collision).toBe(false);
+    expect(resumed.character).toBe("hazel");
     expect(
       Math.hypot(
         resumed.state.x - before.state.x,
@@ -201,6 +221,10 @@ test("eight real players share movement, facing and waves; ninth is refused and 
         {
           browser: browser.version(),
           members: 8,
+          characters: looks,
+          allAppearancesSynchronized: true,
+          renderedFacingVerified: true,
+          resumedHazel: true,
           independentContexts: 9,
           ninthRejected: true,
           resumedSameIdentity: true,

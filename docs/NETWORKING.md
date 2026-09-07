@@ -89,3 +89,7 @@ A new client pointed explicitly at an old gateway cannot use the new hello capab
 ## Responsiveness review
 
 The user requested immediate client-side response with bounded synchronization traffic. The [2026-09-06 responsiveness research](research/MULTIPLAYER_RESPONSIVENESS.md) distinguishes verified game-developer sources from inference and proposes an M1 revision. It identifies prediction/send-clock coupling, acknowledgement semantics, correction smoothing, Redis waits and routine hosted handoffs as investigation targets. Its proposed targets and architecture changes are not yet implemented or accepted performance results. The previous recovery pass must not be treated as proof of smooth ordinary play.
+
+## Four-character membership compatibility
+
+The cosmetic enum now accepts `fern`, `ember`, `iris`, and `hazel`. Appearance is chosen only at membership admission; snapshots and recovery retain that server-stored choice. New clients and Vercel/local gateways use `ROOM_REVISION=p8-c4` for Redis namespaces and tab session storage. This isolates older three-character strict validators during deployment overlap. Old temporary rooms/invitations are not migrated; refresh and create a new Meadow. Capacity remains eight, with no new movement or action messages.

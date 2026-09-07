@@ -799,8 +799,9 @@ kbd {
     background 150ms;
 }
 .character-card canvas {
-  width: 36px;
-  height: 62px;
+  width: 56px;
+  height: 70px;
+  image-rendering: pixelated;
   margin-bottom: 6px;
 }
 .character-choice input:checked + .character-card {
@@ -856,5 +857,16 @@ kbd {
   }
   .ornament {
     margin: 14px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .entry-content h1 {
+    font-size: clamp(40px, 14vw, 64px);
+    letter-spacing: -3px;
+  }
+  .character-choices {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
