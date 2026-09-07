@@ -2,7 +2,7 @@
 
 A top-down 2D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
 
-**Status: M1 multiplayer works locally; deployed-host gate pending.** Two private browser sessions can explore the same Meadow with server-owned movement, prediction and Redis-backed recovery. The concept-inspired art, username entry and fullscreen experience remain. No cloud service or deployment has been created. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md); M2 has not started.
+**Status: M1 multiplayer runs locally and on Vercel; final hosting verification is in progress.** Two private browser sessions can explore the same Meadow with server-owned movement, prediction and Redis-backed recovery. The concept-inspired art, username entry and fullscreen experience remain. The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md); M2 has not started.
 
 ## Start here
 
@@ -39,6 +39,12 @@ Reloading the same tab keeps its temporary session credential. **Leave meadow** 
 The offline M0 sandbox remains available at [solo mode](http://127.0.0.1:3002/?solo=1), including its seed controls, without Redis or gateways. Artwork is a provisional [concept study](docs/art-reference/early-game-concept.png).
 
 For the optimized frontend use `npm run build`, then `npm start -- --port 3002` instead of the dev server. [Environment examples](.env.example) document the public endpoint list and server-only settings. The standalone runner reads process environment; it does not automatically load Next.js `.env` files.
+
+## Hosted play
+
+[Open the deployed Meadow](https://astraworld-teradas.vercel.app). The deployment retains Vercel authentication protection, so access requires your authorized Vercel session. Hosted clients use same-origin `/api/meadow` endpoints automatically; they do not connect to the visitor's localhost. `REDIS_URL` remains server-only. See [hosting evidence](docs/milestones/M1_DEPLOYMENT.md).
+
+Production and preview rooms use separate Redis namespaces. The hosted lifecycle exercise sets a 60-second function duration and rotates room ownership at 45 seconds. Brief reconnect feedback can appear during these transitions. The deployed world remains a temporary session prototype.
 
 ## Verification
 
