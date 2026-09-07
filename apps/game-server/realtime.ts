@@ -1,3 +1,14 @@
+import { encodeDepletion } from "../../packages/protocol/resources";
+import {
+  emptyGathering,
+  gather,
+  type GatheringState,
+} from "../../packages/simulation/gathering";
+import { freshProgress, type GatherCommand } from "../../packages/content";
+import {
+  resourceNodes,
+  type ResourceNode,
+} from "../../packages/world/resources";
 import { MAX_PLAYERS } from "../../packages/protocol/capacity";
 import http from "node:http";
 import { randomUUID } from "node:crypto";
@@ -41,13 +52,19 @@ export async function createRealtimeGateway(options: {
     player: string;
     generation: number;
   };
-  type State = { tick: number; actors: RealtimeActor[] };
+  type State = {
+    tick: number;
+    actors: RealtimeActor[];
+    gathering: GatheringState;
+  };
   type Room = {
     epoch: number;
     token: string;
     state: State;
     world: ReturnType<typeof generateWorld>;
     seed: string;
+    nodes: Map<string, ResourceNode>;
+    gathers: Map<string, { command: GatherCommand; generation: number }>;
     timelines: Map<string, InputTimeline>;
     seen: Map<string, number>;
     busy: boolean;
@@ -194,11 +211,22 @@ export async function createRealtimeGateway(options: {
     if (!compatible(loaded.meta)) throw Error("Expired room");
     r.seed = loaded.meta!.seed;
     r.world = generateWorld(r.seed);
+    r.nodes = new Map(resourceNodes(r.world).map((n) => [n.id, n]));
+    r.state = {
+      ...r.state,
+      gathering: {
+        ...r.state.gathering,
+        players: { ...r.state.gathering.players },
+      },
+    };
+    for (const member of loaded.members)
+      r.state.gathering.players[member.id] ??= freshProgress();
     r.state.actors = loaded.members.map((m, index) => {
       const prior = r.state.actors.find((a) => a.id === m.id),
         generation = Number(gens[m.id] ?? 0);
       if (prior?.generation === generation) return prior;
       r.timelines.set(m.id, new InputTimeline());
+      r.gathers.delete(m.id);
       const committed = (
         loaded.checkpoint?.actors as RealtimeActor[] | undefined
       )?.find((a) => a.id === m.id);
@@ -229,10 +257,12 @@ export async function createRealtimeGateway(options: {
     const r: Room = {
       epoch: 0,
       token: "",
-      state: { tick: 0, actors: [] },
-      committed: { tick: 0, actors: [] },
+      state: { tick: 0, actors: [], gathering: emptyGathering() },
+      committed: { tick: 0, actors: [], gathering: emptyGathering() },
       seed: "meadow-001",
       world: generateWorld("meadow-001"),
+      nodes: new Map(),
+      gathers: new Map(),
       timelines: new Map(),
       seen: new Map(),
       busy: false,
@@ -247,7 +277,11 @@ export async function createRealtimeGateway(options: {
     rooms.set(world, r);
     r.ready = (async () => {
       await subscriber.subscribe(store.key(world, "snapshots"), (raw) => {
-        const projection = JSON.parse(raw) as { actors: RealtimeActor[] };
+        const projection = JSON.parse(raw) as {
+          actors: RealtimeActor[];
+          gathering: { players: GatheringState["players"]; depleted: string };
+        };
+        const { gathering, ...publicProjection } = projection;
         for (const c of clients) {
           if (c.world !== world) continue;
           const self = projection.actors.find((a) => a.id === c.player);
@@ -257,7 +291,9 @@ export async function createRealtimeGateway(options: {
           }
           if (!self || self.generation !== c.generation) continue;
           send(c.socket, {
-            ...projection,
+            ...publicProjection,
+            progress: gathering.players[c.player],
+            depleted: gathering.depleted,
             selfId: c.player,
             actors: projection.actors.filter(
               (a) =>
@@ -277,6 +313,7 @@ export async function createRealtimeGateway(options: {
           player: string;
           generation: number;
           runs: Run[];
+          gather?: GatherCommand;
         };
         const actor = r.state.actors.find((a) => a.id === data.player);
         if (!actor || actor.generation < data.generation) {
@@ -293,6 +330,11 @@ export async function createRealtimeGateway(options: {
         r.seen.set(actor.id, performance.now());
         try {
           r.timelines.get(actor.id)!.enqueue(data.runs, actor.ack);
+          if (data.gather && !r.gathers.has(actor.id))
+            r.gathers.set(actor.id, {
+              command: data.gather,
+              generation: data.generation,
+            });
         } catch {
           metrics.rejected++;
         }
@@ -304,7 +346,7 @@ export async function createRealtimeGateway(options: {
     let client: Client | undefined,
       authenticating = false,
       publishing = false;
-    let queued: Run[] | undefined,
+    let queued: { runs: Run[]; gather?: GatherCommand } | undefined,
       tokens = 40,
       rateAt = performance.now();
     const deadline = setTimeout(
@@ -321,7 +363,7 @@ export async function createRealtimeGateway(options: {
       publishing = true;
       try {
         while (queued && socket.readyState === WebSocket.OPEN) {
-          const runs = queued;
+          const batch = queued;
           queued = undefined;
           const ok = await store.redis.eval(
             `if tonumber(redis.call('HGET',KEYS[1],ARGV[1]))~=tonumber(ARGV[2]) then return 0 end
@@ -337,7 +379,7 @@ export async function createRealtimeGateway(options: {
                 JSON.stringify({
                   player: client.player,
                   generation: client.generation,
-                  runs,
+                  ...batch,
                 }),
               ],
             },
@@ -401,7 +443,7 @@ export async function createRealtimeGateway(options: {
         return;
       }
       // The latest batch includes every unacknowledged frame, including discrete actions.
-      queued = message.runs;
+      queued = { runs: message.runs, gather: message.gather };
       void publish();
     });
     socket.on("close", () => {
@@ -439,9 +481,14 @@ export async function createRealtimeGateway(options: {
         if (!epoch) return;
         r.token = `${owner}:${epoch}`;
         const loaded = await store.read(world);
-        r.state = (loaded.checkpoint as State) ?? { tick: 0, actors: [] };
+        r.state = (loaded.checkpoint as State) ?? {
+          tick: 0,
+          actors: [],
+          gathering: emptyGathering(),
+        };
         r.committed = r.state;
         r.timelines.clear();
+        r.gathers.clear();
         r.seen.clear();
         await refresh(world, r);
         for (const a of r.state.actors) {
@@ -480,6 +527,13 @@ export async function createRealtimeGateway(options: {
         epoch,
         tick: state.tick,
         owner,
+        gathering: {
+          players: state.gathering.players,
+          depleted: encodeDepletion(
+            [...r.nodes.values()],
+            state.gathering.depleted,
+          ),
+        },
         actors: state.actors.filter(
           (a) => performance.now() - (r.seen.get(a.id) ?? 0) < 3000,
         ),
@@ -538,11 +592,47 @@ export async function createRealtimeGateway(options: {
         const tick = r.state.tick + 1,
           start = performance.now();
         r.state = {
+          ...r.state,
           tick,
           actors: r.state.actors.map((a) =>
             r.timelines.get(a.id)!.advance(r.world, a, tick),
           ),
         };
+        for (const [player, pending] of r.gathers) {
+          const { command, generation } = pending;
+          const actor = r.state.actors.find((a) => a.id === player);
+          if (!actor || actor.generation !== generation) continue;
+          const prior = r.state.gathering;
+          const next = gather(
+            r.world,
+            r.nodes,
+            prior,
+            player,
+            actor.position,
+            command,
+            tick,
+          );
+          r.state = { ...r.state, gathering: next };
+          if (
+            next !== prior &&
+            next.players[player].receipt?.result === "gathered"
+          )
+            r.state.actors = r.state.actors.map((a) =>
+              a.id === player
+                ? {
+                    ...a,
+                    action: {
+                      kind: "gather",
+                      resource: r.nodes.get(command.target)!.kind,
+                      seq: command.seq,
+                      generation: a.generation,
+                      startedTick: tick,
+                    },
+                  }
+                : a,
+            );
+        }
+        r.gathers.clear();
         metrics.ticks++;
         metrics.steps.push(performance.now() - start);
         if (metrics.steps.length > 12000) metrics.steps.shift();

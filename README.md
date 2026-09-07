@@ -2,7 +2,7 @@
 
 A cozy 3D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
 
-**Status: M1 complete within the recorded test envelope.** Hosted lifecycle, real TCP-loss/recovery, and ten-minute eight-player verification passed; see [M1 completion](docs/milestones/M1_COMPLETION.md). Up to eight private browser sessions can explore the same Meadow with immediate local prediction, synchronized facing/walking/waves, server-owned movement and Redis-backed recovery. The user-authorized visual migration replaces sprites with original modular Three.js models, while retaining username entry and fullscreen. See [3D migration](docs/milestones/VISUAL_3D_MIGRATION.md). The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md); M2 has not started.
+**Status: M2 gathering and inventory complete locally; verification recorded in [the M2 mission](docs/milestones/M2_GATHERING_INVENTORY.md).** M1 is complete within its recorded test envelope. Hosted lifecycle, real TCP-loss/recovery, and ten-minute eight-player verification passed; see [M1 completion](docs/milestones/M1_COMPLETION.md). Up to eight private browser sessions can explore the same Meadow with immediate local prediction, synchronized facing/walking/waves, server-owned movement and Redis-backed recovery. The user-authorized visual migration replaces sprites with original modular Three.js models, while retaining username entry and fullscreen. See [3D migration](docs/milestones/VISUAL_3D_MIGRATION.md). The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md); M2 has not started.
 
 ## Start here
 
@@ -106,3 +106,12 @@ tests/                Cross-package integration and browser scenarios
 ```
 
 Do not create a package per mechanic until ownership or dependency boundaries justify it. The layout is a guide, not a requirement to scaffold empty packages.
+
+
+## Gathering in the Meadow (M2)
+
+Walk near a pink berry bush or a tree. The gold ground ring marks your nearest available resource. Press **E** to gather: a bush gives three Sweet Berries and a tree gives three Wood. Trees leave solid stumps, bushes lose their berries, and every player sees the same change. Your 12-slot satchel includes a starter hatchet and a blade (blade use begins in M3). Items stack to 99; full inventories reject the whole harvest.
+
+Only confirmed server results change the satchel. Resume the same browser session to recover items and depleted resources within the existing 30-minute recovery window. Leaving starts a new adventurer; Redis loss still loses progress. This is not permanent saving. Old M1 invitations/sessions are isolated from M2; create a new Meadow and share its new invite.
+
+M2 uses the existing local launch commands above and the existing Vercel/Redis stack. No new services or credentials are required. Combat, taming, crafting and building remain later milestones.

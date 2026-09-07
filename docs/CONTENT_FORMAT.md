@@ -43,3 +43,7 @@ Record `contentVersion` on each world. Definitions use stable IDs; rename displa
 ## Luna expansion task template
 
 Specify the reference definition, existing allowed handler IDs, number of new entries, exact allowed files, schema/reference checks, balance constraints and visual descriptions. Require no engine or protocol changes. If a concept needs a new ability handler, report that dependency and return the system work to Astra. Test that the added content loads in a representative world and does not violate progression reachability.
+
+## M2 reference
+
+`packages/content/index.ts` supplies typed TypeScript literals validated by strict Zod schemas at module initialization (including build/startup). Four items and two resource definitions use schema version 1. Closed item/resource/visual ID sets, positive bounded quantities, duplicate detection and referential checks reject invalid content. `gatherDuration` is 30 server ticks of recovery after an accepted harvest. M2 world content version is `gathering-1`; incompatible rooms use `p8-c4-m2`. No arbitrary handlers or scripts are supported.

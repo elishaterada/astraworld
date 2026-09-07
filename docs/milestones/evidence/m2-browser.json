@@ -1,0 +1,47 @@
+{
+  "browser": "153.0.8010.12",
+  "content": "gathering-1",
+  "race": [
+    {
+      "seq": 1,
+      "target": "resource:meadow-2:gathering-1:meadow-001:65:63",
+      "result": "depleted",
+      "tick": 139
+    },
+    {
+      "seq": 1,
+      "target": "resource:meadow-2:gathering-1:meadow-001:65:63",
+      "result": "gathered",
+      "tick": 139
+    }
+  ],
+  "inventory": [
+    {
+      "item": "hatchet",
+      "quantity": 1
+    },
+    {
+      "item": "starter-blade",
+      "quantity": 1
+    },
+    {
+      "item": "wood",
+      "quantity": 3
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "depleted": [
+    "resource:meadow-2:gathering-1:meadow-001:62:58",
+    "resource:meadow-2:gathering-1:meadow-001:65:63"
+  ],
+  "reload": true,
+  "errors": []
+}

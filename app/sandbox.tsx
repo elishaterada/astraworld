@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { normalizeSeed } from "../packages/world";
+import { itemDefinition } from "../packages/content";
 import { validateUsername } from "./profile";
 import { CharacterSelector } from "./character-selector";
 import {
@@ -89,7 +90,7 @@ function Meadow({
         className="playfield"
         tabIndex={0}
         role="application"
-        aria-label="Meadow game. Move with WASD or arrow keys. Point to face. Space waves. Escape pauses and releases keyboard focus."
+        aria-label="Meadow game. Move with WASD or arrow keys. Point to face. Space waves. E gathers the highlighted resource. Escape pauses and releases keyboard focus."
       />
       <div className="game-vignette" aria-hidden="true" />
       <div className="location-hud">
@@ -172,6 +173,79 @@ function Meadow({
             )}
           </div>
         </div>
+      )}
+      {status?.progress && (
+        <aside className="gather-hud" aria-label="Inventory">
+          <div className="inventory-heading">
+            <span className="overline">YOUR SATCHEL</span>
+            <span>{status.progress.inventory.filter(Boolean).length} / 12</span>
+          </div>
+          <div className="inventory-slots">
+            {status.progress.inventory.map((slot, i) => (
+              <div
+                className={`inventory-slot ${slot?.item ?? "empty"}`}
+                key={i}
+                title={
+                  slot ? itemDefinition(slot.item).displayName : "Empty slot"
+                }
+                aria-label={
+                  slot
+                    ? `${itemDefinition(slot.item).displayName}: ${slot.quantity}`
+                    : "Empty slot"
+                }
+              >
+                {slot && (
+                  <>
+                    <span className="item-symbol" aria-hidden="true">
+                      {
+                        {
+                          "sweet-berry": "●",
+                          wood: "▰",
+                          hatchet: "⚒",
+                          "starter-blade": "†",
+                        }[slot.item]
+                      }
+                    </span>
+                    <small>
+                      {slot.item === "sweet-berry"
+                        ? "Berries"
+                        : slot.item === "wood"
+                          ? "Wood"
+                          : slot.item === "hatchet"
+                            ? "Hatchet"
+                            : "Blade"}
+                    </small>
+                    <b>{slot.quantity}</b>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+          <p className="gather-prompt">
+            <kbd>E</kbd>{" "}
+            {status.gathering
+              ? "Gathering…"
+              : status.target === "tree"
+                ? "Chop tree · +3 wood"
+                : status.target
+                  ? "Pick berries · +3 berries"
+                  : "Find berries or a tree"}
+          </p>
+          <p className="gather-result" role="status">
+            {status.progress.receipt
+              ? {
+                  gathered: "Tucked safely into your satchel.",
+                  depleted: "Already gathered by another adventurer.",
+                  range: "Step a little closer.",
+                  blocked: "Find a clear path to the resource.",
+                  tool: "You need a starter hatchet.",
+                  cooldown: "Catch your breath, then gather again.",
+                  full: "Your satchel is full. Nothing was taken.",
+                  missing: "That resource is unavailable.",
+                }[status.progress.receipt.result]
+              : "Tools provided · Blade use comes later"}
+          </p>
+        </aside>
       )}
       <div className="walk-hint">
         <span className="key-group">

@@ -140,7 +140,22 @@ export function createModelKit() {
       box(body, c.shirt, [0.57, 0.23, 0.33], [0, 0.64, 0]);
       box(body, c.coat, [0.16, 0.38, 0.04], [0.08, 0.84, 0.16]);
     }
-    return { root, body, legs, arms, id, rotation: 0, gait: 0, waving: false };
+    const hatchet = new T.Group();
+    arms[1].add(hatchet);
+    box(hatchet, 0x8c6843, [0.06, 0.56, 0.06], [0, -0.42, 0.13]);
+    box(hatchet, 0xa6bec1, [0.29, 0.18, 0.1], [0.09, -0.17, 0.13]);
+    hatchet.visible = false;
+    return {
+      root,
+      body,
+      legs,
+      arms,
+      hatchet,
+      id,
+      rotation: 0,
+      gait: 0,
+      waving: false,
+    };
   }
   return {
     character,

@@ -1,10 +1,10 @@
 # Milestone roadmap
 
-**M0 is complete locally (G0/R0/R1 and ten-minute performance PASS)**; see [its completion evidence](milestones/M0_COMPLETION.md). M1 is [complete within the recorded test envelope](milestones/M1_COMPLETION.md), including deployed lifecycle/overlap, real TCP loss and the eight-player soak; M2–M9 are **not started**. Milestone names below normalize the different numbering used in the conversation; use these IDs in future tasks.
+**M0 is complete locally (G0/R0/R1 and ten-minute performance PASS)**; see [its completion evidence](milestones/M0_COMPLETION.md). M1 is [complete within the recorded test envelope](milestones/M1_COMPLETION.md), including deployed lifecycle/overlap, real TCP loss and the eight-player soak; M2 gathering and inventory is [complete locally](milestones/M2_GATHERING_INVENTORY.md); M3–M9 are **not started**. Milestone names below normalize the different numbering used in the conversation; use these IDs in future tasks.
 
 M1 responsiveness revision: [protocol 2 contract and evidence](milestones/M1_RESPONSIVENESS.md), including Vercel-only hosting, predicted input, facing and wave synchronization.
 
-The user authorized a **3D visual migration between M1 and M2** on 2026-09-07. It changes presentation only; see [migration evidence](milestones/VISUAL_3D_MIGRATION.md). M2 remains unstarted.
+The user authorized a **3D visual migration between M1 and M2** on 2026-09-07. It changes presentation only; see [migration evidence](milestones/VISUAL_3D_MIGRATION.md). M2 was subsequently authorized after the user accepted Living Meadow.
 
 The subsequent [Living Meadow environment pass](milestones/LIVING_MEADOW.md) adds natural landmarks and atmosphere within this pre-M2 scope.
 

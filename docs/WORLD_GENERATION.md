@@ -55,3 +55,7 @@ Generation and collision are unchanged. Three.js renders tile `(x,y)` at `(x,0,y
 ## Living Meadow baseline — 2026-09-07 (current)
 
 The explicit environment request supersedes the migration-only compatibility paragraph above. Current identity is `meadow-2 / environment-1`; `p8-c4-env1` isolates older rooms/clients. Six seeded pond landmarks and four camp clearings add `water`/`shore` terrain and `water`/`campfire`/`log` blockers. Pond banks, camp seats and fire pits use full-tile collision shared by server and client. Clears around landmarks preserve paths and reachable dry ground. Fire and water have no interactive mechanics. [Contract and acceptance](milestones/LIVING_MEADOW.md).
+
+## M2 resource overlay (current)
+
+`meadow-2 / gathering-1` keeps all Living Meadow terrain/collision rules and adds a separate deterministic resource baseline in `packages/world/resources.ts`. Every baseline tree is harvestable; seeded nonblocking bushes appear on grass, plus guaranteed bushes at (65.5,63.5) and (63.5,65.5). Reserved clear curious-creature slots are (61.5,64.5) and (64.5,68.5); no creatures spawn yet. Resource IDs prefix the versioned tile ID. Depletion overlays never alter collision and survive session checkpoints; tree stumps remain solid. A full bitset in canonical resource order transmits depletion compactly on every snapshot; no missing-delta dependency.

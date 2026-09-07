@@ -99,3 +99,7 @@ An existing tab session offers Resume Meadow and locks the name/look to the stor
 ## Living Meadow follow-up — 2026-09-07
 
 [Environment contract and evidence](milestones/LIVING_MEADOW.md) supersedes the migration's simple scenery: four instanced categories per chunk (ground, water, props, leaves), richer vegetation, depth fog, water/foliage material animation and `app/three/atmosphere.ts` for bounded mist, smoke, sparks, glowing bonfires and two pooled point lights. The read-only debug `environment` projection reports effect phase/counts. Reduced motion freezes cosmetic time; hidden documents stop drawing. All effect resources dispose with the view. The new world collision version is an explicit environment decision, not a rendering-side alteration to server state.
+
+## M2 resource presentation
+
+Original modular berry bushes carry pink fruit cubes; a gold ring marks the nearest resource within interaction range. E animates the right arm immediately; a hatchet appears for tree chopping and confirmed gather gestures reach observers. Harvested tree crown/trunk instances are zero-scaled once, leaving a solid mossy stump. Bush fruit instances disappear once. Shared geometry/materials and instance buffers are disposed with the world; no sprite generation or per-resource React component is used. The low-frequency HUD displays only committed inventory.

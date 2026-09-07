@@ -3,7 +3,7 @@ import { meadowLandmarks, pondDistance } from "./landmarks";
 export const SIZE = 128;
 export const CHUNK_SIZE = 16;
 export const GENERATION_VERSION = "meadow-2";
-export const CONTENT_VERSION = "environment-1";
+export const CONTENT_VERSION = "gathering-1";
 export const SPAWN = Object.freeze({ x: 64.5, y: 64.5 });
 export type Tile = Readonly<{
   x: number;

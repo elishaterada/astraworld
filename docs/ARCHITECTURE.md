@@ -82,3 +82,7 @@ The existing `teradas/astraworld` Vercel project now hosts Next.js session, heal
 ## 2026-09-07 visual migration
 
 `app/renderer.ts` owns input, timing and the unchanged prediction/transport adapter. `app/three/view.ts` renders read-only actors and deterministic tile instances. `app/three/characters.ts` supplies original modular cosmetic models and shared limb animation; `portrait.ts` renders those same models once for entry. No physics engine, new service, protocol change or M2 mechanism is introduced. Simulation `(x,y)` maps to Three.js `(x,0,z=y)`. See [rendering](RENDERING.md) and [migration evidence](milestones/VISUAL_3D_MIGRATION.md).
+
+## M2 gathering
+
+`packages/content` owns immutable validated definitions; `packages/simulation/gathering.ts` owns pure inventory and gather transitions. The existing 60 Hz room applies bounded gather commands after movement. Inventory, high-water receipts, starter grants and depletion are one immutable checkpoint state, fenced and published atomically by the existing Redis adapter. Client actions may animate immediately but inventory/depletion are confirmed only. The renderer consumes the resource overlay without modifying the flat collision world. See [M2 mission](milestones/M2_GATHERING_INVENTORY.md).

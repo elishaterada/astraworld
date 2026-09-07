@@ -1,3 +1,6 @@
+import { decodeDepletion } from "../packages/protocol/resources";
+import { resourceNodes } from "../packages/world/resources";
+import { type Progress, type GatherCommand } from "../packages/content";
 import { SESSION_STORAGE_KEY } from "../packages/protocol/capacity";
 import { type Session } from "../packages/protocol";
 import {
@@ -84,6 +87,9 @@ export async function joinMeadow(
 }
 
 export class MeadowConnection {
+  progress?: Progress;
+  depleted: string[] = [];
+  private gatherPending?: GatherCommand;
   status = "Connecting…";
   position: Position = { ...SPAWN };
   authoritative: Position = this.position;
@@ -114,9 +120,11 @@ export class MeadowConnection {
   private baseline = false;
   private offset = { x: 0, y: 0 };
   private world;
+  private nodes;
   private waveQueued = false;
   constructor(readonly session: Session) {
     this.world = generateWorld(session.seed);
+    this.nodes = resourceNodes(this.world);
     this.actor = {
       id: session.playerId,
       name: session.name,
@@ -136,6 +144,20 @@ export class MeadowConnection {
   }
   get snapshotAge() {
     return performance.now() - this.lastSnapshot;
+  }
+  get gathering() {
+    return !!this.gatherPending;
+  }
+  gather(target: string) {
+    if (
+      !this.baseline ||
+      this.snapshotAge > 750 ||
+      !this.progress ||
+      this.gatherPending
+    )
+      return false;
+    this.gatherPending = { seq: (this.progress.receipt?.seq ?? 0) + 1, target };
+    return true;
   }
   wave() {
     this.waveQueued = true;
@@ -220,6 +242,15 @@ export class MeadowConnection {
       this.epoch = s.epoch;
       this.tick = s.tick;
       this.owner = s.owner;
+      this.progress = s.progress;
+      if (s.depleted)
+        this.depleted =
+          decodeDepletion(this.nodes, s.depleted) ?? this.depleted;
+      if (
+        this.gatherPending &&
+        (s.progress?.receipt?.seq ?? 0) >= this.gatherPending.seq
+      )
+        this.gatherPending = undefined;
       this.authoritative = self.position;
       this.pending = this.pending.filter((f) => f.seq > self.ack);
       this.actor = this.pending.reduce(
@@ -285,7 +316,12 @@ export class MeadowConnection {
       socket.close();
       return;
     }
-    if (!this.pending.length && now - this.lastSend < 1000) return;
+    if (
+      !this.gatherPending &&
+      !this.pending.length &&
+      now - this.lastSend < 1000
+    )
+      return;
     this.lastSend = now;
     const raw = JSON.stringify({
       type: "frames",
@@ -293,6 +329,7 @@ export class MeadowConnection {
       worldId: this.session.worldId,
       generation: this.generation,
       runs: packFrames(this.pending),
+      ...(this.gatherPending ? { gather: this.gatherPending } : {}),
     });
     socket.send(raw);
     this.sent++;

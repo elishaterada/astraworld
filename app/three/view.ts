@@ -1,3 +1,4 @@
+import { resourceNodes } from "../../packages/world/resources";
 import { createAtmosphere } from "./atmosphere";
 import * as T from "three";
 import { type World, SIZE, CHUNK_SIZE, seedHash } from "../../packages/world";
@@ -18,12 +19,15 @@ export type VisualActor = {
   facing: number;
   moving: boolean;
   waving: boolean;
+  gathering?: boolean;
+  chopping?: boolean;
 };
 type Cube = {
   position: [number, number, number];
   scale: [number, number, number];
   color: number;
   rotation?: number;
+  resource?: string;
 };
 export function createMeadowView(
   host: HTMLElement,
@@ -90,6 +94,17 @@ export function createMeadowView(
       if (offset.z > 0.0 && abs(offset.x) < 0.65 && abs(projectedY) < 0.85 && mod(gl_FragCoord.x + gl_FragCoord.y * 2.0, 4.0) > 0.5) discard;`,
     );
   };
+  const resources = resourceNodes(world);
+  const berryTiles = new Map(
+    resources
+      .filter((n) => n.kind === "berry-bush")
+      .map((n) => [Math.floor(n.y) * SIZE + Math.floor(n.x), n]),
+  );
+  const resourceInstances = new Map<
+    string,
+    { mesh: T.InstancedMesh; index: number }[]
+  >();
+  const removed = new Set<string>();
   const chunks: { center: Position; meshes: T.InstancedMesh[] }[] = [];
   const dummy = new T.Object3D(),
     color = new T.Color();
@@ -97,6 +112,11 @@ export function createMeadowView(
     const mesh = new T.InstancedMesh(geometry, m, cubes.length);
     for (let i = 0; i < cubes.length; i++) {
       const c = cubes[i];
+      if (c.resource) {
+        const entries = resourceInstances.get(c.resource) ?? [];
+        entries.push({ mesh, index: i });
+        resourceInstances.set(c.resource, entries);
+      }
       dummy.position.set(...c.position);
       dummy.scale.set(...c.scale);
       dummy.rotation.set(0, c.rotation || 0, 0);
@@ -186,6 +206,24 @@ export function createMeadowView(
                 : (t.terrain === "grass" ? grass : path)[v],
           );
           const hash = seedHash(t.id);
+          const berry = berryTiles.get(y * SIZE + x);
+          if (berry) {
+            add(props, px, 0.28, pz, 0.76, 0.56, 0.67, 0x315f41);
+            add(props, px - 0.22, 0.42, pz, 0.45, 0.4, 0.49, 0x518447);
+            for (let k = 0; k < 7; k++) {
+              add(
+                props,
+                px + Math.cos(k * 2.4) * 0.3,
+                0.57 + (k % 2) * 0.09,
+                pz + Math.sin(k * 2.4) * 0.28,
+                0.13,
+                0.13,
+                0.13,
+                0xd05272,
+              );
+              props.at(-1)!.resource = berry.id;
+            }
+          }
           if (t.terrain === "water") {
             add(water, px, -0.07, pz, 1, 0.04, 1, 0xffffff);
             if (v === 1 || v === 6) {
@@ -244,6 +282,8 @@ export function createMeadowView(
             add(props, px + 0.51, 0.23, pz, 0.025, 0.18, 0.2, 0x775334);
             add(props, px - 0.1, 0.48, pz, 0.5, 0.05, 0.35, 0x55724a);
           } else if (t.blocker === "tree") {
+            const propStart = props.length,
+              leafStart = leaves.length;
             // The mossy plinth communicates the exact full-tile solid footprint.
             add(props, px, 0.09, pz, 0.98, 0.18, 0.98, 0x435e43);
             add(props, px, 0.73, pz, 0.39, 1.32, 0.38, 0x705036);
@@ -310,6 +350,12 @@ export function createMeadowView(
                 0x4d7c4e,
                 0.2,
               );
+            for (const cube of [
+              ...props.slice(propStart + 1),
+              ...leaves.slice(leafStart),
+            ])
+              cube.resource = `resource:${t.id}`;
+            add(props, px, 0.17, pz, 0.48, 0.34, 0.46, 0x8b6840);
           } else if (t.blocker === "rock") {
             add(props, px, 0.12, pz, 0.98, 0.24, 0.98, 0x656e5b);
             add(props, px, 0.43, pz, 0.83, 0.65, 0.79, 0x858c79, v * 0.13);
@@ -422,6 +468,17 @@ export function createMeadowView(
         ],
       });
     }
+  const targetRing = new T.Mesh(
+    new T.RingGeometry(0.53, 0.57, 32),
+    new T.MeshBasicMaterial({
+      color: 0xf4d58d,
+      side: T.DoubleSide,
+      depthWrite: false,
+    }),
+  );
+  targetRing.rotation.x = -Math.PI / 2;
+  targetRing.visible = false;
+  scene.add(targetRing);
   const kit = createModelKit(),
     local = kit.character(look);
   scene.add(local.root);
@@ -463,6 +520,11 @@ export function createMeadowView(
       time,
       reduced,
     );
+    model.hatchet.visible = !!actor.gathering && !!actor.chopping;
+    if (actor.gathering) {
+      model.arms[1].rotation.x = reduced ? -1 : -1 + Math.sin(time * 18) * 0.7;
+      model.arms[1].rotation.z = -0.35;
+    }
   }
   return {
     get width() {
@@ -536,6 +598,21 @@ export function createMeadowView(
       }
       renderer.render(scene, camera);
     },
+    resources(depleted: string[], target?: { x: number; y: number }) {
+      for (const id of depleted)
+        if (!removed.has(id)) {
+          removed.add(id);
+          for (const entry of resourceInstances.get(id) ?? []) {
+            entry.mesh.setMatrixAt(
+              entry.index,
+              new T.Matrix4().makeScale(0, 0, 0),
+            );
+            entry.mesh.instanceMatrix.needsUpdate = true;
+          }
+        }
+      targetRing.visible = !!target;
+      if (target) targetRing.position.set(target.x, 0.025, target.y);
+    },
     environment: () => atmosphere.snapshot(),
     stats() {
       return {
@@ -547,6 +624,8 @@ export function createMeadowView(
     },
     dispose() {
       for (const c of chunks) for (const mesh of c.meshes) mesh.dispose();
+      targetRing.geometry.dispose();
+      targetRing.material.dispose();
       geometry.dispose();
       material.dispose();
       leavesMaterial.dispose();

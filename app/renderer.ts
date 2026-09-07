@@ -1,3 +1,6 @@
+import { resourceNodes } from "../packages/world/resources";
+import { freshProgress, type Progress } from "../packages/content";
+import { emptyGathering, gather } from "../packages/simulation/gathering";
 import { generateWorld, SPAWN } from "../packages/world";
 import {
   collides,
@@ -28,8 +31,14 @@ export type SandboxReport = {
   fps: number;
   connection?: string;
   players?: number;
+  progress?: Progress;
+  target?: string;
+  gathering?: boolean;
 };
 export type DebugSnapshot = {
+  progress?: Progress;
+  depleted: string[];
+  target?: { id: string; kind: string; x: number; y: number };
   state: Position;
   rendered: Position;
   camera: Position;
@@ -110,6 +119,12 @@ export function mountMeadow(
   void (async () => {
     if (disposed) return;
     const world = generateWorld(seed);
+    const nodes = resourceNodes(world),
+      nodeMap = new Map(nodes.map((n) => [n.id, n]));
+    let soloGathering = emptyGathering();
+    soloGathering.players.solo = freshProgress();
+    let gatherUntil = 0,
+      gatherKind = "";
     const view = createMeadowView(host, world, character);
     const blockerCount = world.tiles.filter((t) => t.blocker).length;
     let animationFrame = 0,
@@ -136,6 +151,23 @@ export function mountMeadow(
     }
     let observer: ResizeObserver | undefined;
     const network = session ? new MeadowConnection(session) : null;
+    const progress = () =>
+      network ? network.progress : soloGathering.players.solo;
+    const depleted = () =>
+      network ? network.depleted : soloGathering.depleted;
+    const nearest = () => {
+      const gone = new Set(depleted());
+      return nodes
+        .filter(
+          (n) =>
+            !gone.has(n.id) && Math.hypot(n.x - state.x, n.y - state.y) <= 1.5,
+        )
+        .sort(
+          (a, b) =>
+            Math.hypot(a.x - state.x, a.y - state.y) -
+            Math.hypot(b.x - state.x, b.y - state.y),
+        )[0];
+    };
     const keys = new Set<string>();
     const removers: (() => void)[] = [];
     let tickerAttached = false;
@@ -175,6 +207,9 @@ export function mountMeadow(
       new URLSearchParams(location.search).get("debug") === "1";
     debug = {
       snapshot: (): DebugSnapshot => ({
+        progress: progress() ? structuredClone(progress()) : undefined,
+        depleted: [...depleted()],
+        target: nearest(),
         state: { ...state },
         rendered: { ...rendered },
         camera: { ...camera },
@@ -246,6 +281,9 @@ export function mountMeadow(
         fps: 1000 / Math.max(1, deltaMS),
         connection: network?.status,
         players: network ? network.remotes().length + 1 : 1,
+        progress: progress(),
+        target: nearest()?.kind,
+        gathering: network?.gathering,
       });
     const pause = () => {
       keys.clear();
@@ -295,6 +333,33 @@ export function mountMeadow(
               (Math.round(Math.atan2(y, x) / (Math.PI / 4)) + 8) % 8;
         }
       }
+      if (e.code === "KeyE") {
+        e.preventDefault();
+        const target = nearest();
+        if (!paused && !e.repeat && target) {
+          facingIndex =
+            (Math.round(
+              Math.atan2(target.y - state.y, target.x - state.x) /
+                (Math.PI / 4),
+            ) +
+              8) %
+            8;
+          if (network ? network.gather(target.id) : true) {
+            gatherUntil = walkTime + 0.5;
+            gatherKind = target.kind;
+          }
+          if (!network)
+            soloGathering = gather(
+              world,
+              nodeMap,
+              soloGathering,
+              "solo",
+              state,
+              { seq: (progress()?.receipt?.seq ?? 0) + 1, target: target.id },
+              ticks * 3,
+            );
+        }
+      }
       if (e.code === "Space") {
         e.preventDefault();
         if (!paused && !e.repeat) {
@@ -329,7 +394,7 @@ export function mountMeadow(
       if (document.hidden) stop();
       else start();
     });
-    // This transform is shared with future targeting; M0 has no interaction commands.
+    // Pointer facing uses the same ground-plane transform as rendering.
     listen(host, "pointermove", ((e: PointerEvent) => {
       const bounds = host.getBoundingClientRect();
       const p = screenToWorld(
@@ -361,6 +426,7 @@ export function mountMeadow(
         Math.abs(state.x - previous.x) + Math.abs(state.y - previous.y) >
           0.0001;
       const actor = network?.actor;
+      view.resources(depleted(), nearest());
       view.draw(
         {
           id: session?.playerId ?? "solo",
@@ -369,8 +435,16 @@ export function mountMeadow(
           position: rendered,
           facing: actor?.facing ?? facingIndex,
           moving: actor?.moving ?? moving,
+          chopping:
+            walkTime < gatherUntil
+              ? gatherKind === "tree"
+              : actor?.action?.resource === "tree",
+          gathering:
+            walkTime < gatherUntil ||
+            (actor?.action?.kind === "gather" &&
+              network!.tick - actor.action.startedTick < 30),
           waving: actor
-            ? !!actor.action &&
+            ? actor.action?.kind === "wave" &&
               network!.tick +
                 Math.max(0, actor.ack - network!.ack) -
                 actor.action.startedTick <
@@ -384,7 +458,13 @@ export function mountMeadow(
           position: a.position,
           facing: a.facing,
           moving: a.moving,
-          waving: !!a.action && network!.tick - a.action.startedTick < 48,
+          waving:
+            a.action?.kind === "wave" &&
+            network!.tick - a.action.startedTick < 48,
+          chopping: a.action?.resource === "tree",
+          gathering:
+            a.action?.kind === "gather" &&
+            network!.tick - a.action.startedTick < 30,
         })),
         walkTime,
         reducedMotion,

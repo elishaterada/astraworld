@@ -2,7 +2,7 @@
 
 ## Current status
 
-M0 and M1 have executable pure-rule, integration and Chromium gameplay checks. [M1 completion](milestones/M1_COMPLETION.md) records passed N0–N4, hosted lifecycle/overlap, true TCP packet loss and the ten-minute eight-player soak. Rows for M2 onward remain future requirements; no gathering, combat or durable gameplay implementation is authorized by this test matrix.
+M0 and M1 have executable pure-rule, integration and Chromium gameplay checks. [M1 completion](milestones/M1_COMPLETION.md) records passed N0–N4, hosted lifecycle/overlap, true TCP packet loss and the ten-minute eight-player soak. M2 gathering was subsequently authorized and its I0/I1 evidence is recorded below. M3 onward remain future requirements.
 
 ## Test layers
 
@@ -93,3 +93,7 @@ The focused renderer load check uses `VISUAL_3D_PERF=1` with `eight-players.spec
 ## Living Meadow environment
 
 `tests/environment.test.ts` covers landmark collision, open spawn/main paths and old-world hello rejection. The 100-seed generator suite verifies all dry ground stays reachable and pins `meadow-2 / environment-1`. `tests/e2e/environment.spec.ts` uses two independent authenticated sessions approaching pond/fire blockers through real input and checks authoritative/remote agreement; it also checks reduced-motion effects. `VISUAL_PERFORMANCE_EVIDENCE` selects the focused performance output file to preserve prior evidence. G0 screenshot equality now explicitly uses reduced motion so animated atmosphere does not invalidate deterministic geometry checks. [Results](milestones/LIVING_MEADOW.md).
+
+## M2 executable coverage
+
+`tests/gathering.test.ts` covers content, stacking, contention, retry, invalid range/tool/line/cooldown/capacity, deterministic 100-seed resource minimums and compact overlay recovery. `tests/gathering-network.test.ts` uses real Redis and two gateways for atomic receipts, duplicate retries, generation replacement, owner fencing and backend pause/recovery. `tests/e2e/gathering.spec.ts` races two authenticated browser contexts, checks shared depletion, harvests a tree and reloads inventory. See [M2 results](milestones/M2_GATHERING_INVENTORY.md) for executed checks and limitations.

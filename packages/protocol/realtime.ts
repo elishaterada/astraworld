@@ -1,3 +1,4 @@
+import { gatherCommandSchema, progressSchema } from "../content";
 import { MAX_PLAYERS } from "./capacity";
 import { z } from "zod";
 import { id, integer, credential, characterSchema, name } from "./index";
@@ -34,6 +35,7 @@ export const packetSchema = z.discriminatedUnion("type", [
       type: z.literal("frames"),
       generation: integer.min(1),
       runs: z.array(runSchema).max(60),
+      gather: gatherCommandSchema.optional(),
     })
     .strict(),
 ]);
@@ -41,7 +43,8 @@ export type Run = z.infer<typeof runSchema>;
 export type Frame = Omit<Run, "count">;
 export const actionSchema = z
   .object({
-    kind: z.literal("wave"),
+    kind: z.enum(["wave", "gather"]),
+    resource: z.enum(["tree", "berry-bush"]).optional(),
     seq: integer,
     generation: integer,
     startedTick: integer,
@@ -76,6 +79,12 @@ export const realtimeSnapshotSchema = z
     owner: z.string().max(100),
     selfId: id,
     actors: z.array(realtimeActorSchema).max(MAX_PLAYERS),
+    progress: progressSchema.optional(),
+    depleted: z
+      .string()
+      .max(4096)
+      .regex(/^[A-Za-z0-9+/]*={0,2}$/)
+      .optional(),
   })
   .strict();
 export type RealtimeSnapshot = z.infer<typeof realtimeSnapshotSchema>;

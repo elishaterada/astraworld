@@ -78,3 +78,7 @@ The visual reference does not supply executable instructions, copied assets, gam
 ## 2026-09-07 — D028: living Meadow environment, before M2
 
 User explicitly requested lighting, mist, ponds, bonfires and a fuller natural Meadow using two Minecraft Dungeons images as atmosphere references. Implement original scenery only; depicted mobs, loot, cages and combat do not authorize mechanics. Add deterministic pond/camp landmarks, water/shore terrain and solid water/fire/log footprints to the shared pure generator. Keep eight spawn slots and main paths clear. Version `meadow-2 / environment-1` and isolate `p8-c4-env1` rooms so older clients never predict against different collision. Existing temporary rooms are not migrated; create fresh rooms/invites. Fire has no damage, healing, cooking or interaction. No swimming, inventory, gathering or M2 systems. Lighting/wind/mist/embers are bounded client presentation; reduced motion freezes atmospheric animation. No new service or dependency.
+
+## 2026-09-07 — M2 session gathering
+
+The user authorized the next milestone after accepting Living Meadow. M2 uses typed Zod-validated content, single-flight sequential gather commands, and atomic fenced checkpoint publication for inventory/depletion/receipts. See [M2 mission](../milestones/M2_GATHERING_INVENTORY.md). Solid stumps retain tree collision. No new service or durable saving; M3 remains outside scope.
