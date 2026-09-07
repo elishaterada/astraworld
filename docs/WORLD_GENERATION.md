@@ -59,3 +59,7 @@ The explicit environment request supersedes the migration-only compatibility par
 ## M2 resource overlay (current)
 
 `meadow-2 / gathering-1` keeps all Living Meadow terrain/collision rules and adds a separate deterministic resource baseline in `packages/world/resources.ts`. Every baseline tree is harvestable; seeded nonblocking bushes appear on grass, plus guaranteed bushes at (65.5,63.5) and (63.5,65.5). Reserved clear curious-creature slots are (61.5,64.5) and (64.5,68.5); no creatures spawn yet. Resource IDs prefix the versioned tile ID. Depletion overlays never alter collision and survive session checkpoints; tree stumps remain solid. A full bitset in canonical resource order transmits depletion compactly on every snapshot; no missing-delta dependency.
+
+## M5 gated Forest skeleton
+
+`meadow-3 / utility-1 / p8-c4-m5` supersedes the wholly connected Meadow requirement. The baseline gate is closed. A fixed closed perimeter bounds the small Forest entry at x58–70, y26–38; three vine tiles at x63–65, y38 are its only passage. `packages/world/forest.ts` owns this skeleton. Seeded surroundings, chunk order and node IDs remain deterministic. The 100-seed oracle now requires all ordinary Meadow dry ground reachable while the Forest interior is inaccessible, then all dry ground connected with `World.gateOpen` applied. Both spawn berry bushes and Moss sites remain outside the gate. The optional gate overlay changes queries rather than mutating baseline tiles; resource IDs/depletion order remain stable within this new version.

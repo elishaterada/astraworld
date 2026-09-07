@@ -125,3 +125,51 @@ export function GatherNotice({ progress }: { progress?: Progress }) {
     </div>
   );
 }
+
+const COMPANION_MESSAGES: Record<string, string> = {
+  channeling: "Moss is dissolving the vines…",
+  opened: "The Forest path is open for everyone",
+  "already-open": "The Forest path is already open",
+  cancelled: "Dissolve interrupted — stay close and try again",
+  fed: "Sweet Berry shared",
+  tamed: "Moss Slime befriended!",
+  following: "Moss is following",
+  staying: "Moss will stay here",
+  recovering: "Finding a safe way back",
+  claimed: "Another adventurer is feeding this Slime",
+  owned: "Already befriended",
+  "already-companion": "You already have a companion",
+  food: "Gather Sweet Berries first",
+  range: "Move closer to Moss",
+  blocked: "Path blocked",
+  dead: "Recover before feeding",
+  busy: "Finish your action first",
+  cooldown: "Give Moss a moment",
+  missing: "Moss is unavailable",
+  forbidden: "Only Moss’s owner can give commands",
+};
+export function CompanionNotice({
+  receipt,
+}: {
+  receipt?: import("../packages/protocol/taming").CompanionReceipt;
+}) {
+  const [message, setMessage] = useState("");
+  const previous = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (!receipt) {
+      previous.current = undefined;
+      return;
+    }
+    const key = `${receipt.seq}:${receipt.result}`;
+    if (previous.current === key) return;
+    previous.current = key;
+    setMessage(COMPANION_MESSAGES[receipt.result]);
+    const timer = setTimeout(() => setMessage(""), 3500);
+    return () => clearTimeout(timer);
+  }, [receipt?.seq, receipt?.result]);
+  return (
+    <div className="companion-notice" role="status">
+      {message}
+    </div>
+  );
+}

@@ -1,3 +1,9 @@
+import type { Gate } from "../packages/protocol/utility";
+import type {
+  Moss,
+  CompanionCommand,
+  CompanionReceipt,
+} from "../packages/protocol/taming";
 import type { Slime } from "../packages/protocol/combat";
 import { decodeDepletion } from "../packages/protocol/resources";
 import { resourceNodes } from "../packages/world/resources";
@@ -88,6 +94,10 @@ export async function joinMeadow(
 }
 
 export class MeadowConnection {
+  gate?: Gate;
+  moss: Moss[] = [];
+  companionReceipt?: CompanionReceipt;
+  private companionPending?: CompanionCommand;
   progress?: Progress;
   slime?: Slime;
   private attackQueued = false;
@@ -151,6 +161,16 @@ export class MeadowConnection {
   }
   get gathering() {
     return !!this.gatherPending;
+  }
+  companion(action: CompanionCommand["action"], target: string) {
+    if (!this.baseline || this.snapshotAge > 750 || this.companionPending)
+      return false;
+    this.companionPending = {
+      seq: (this.companionReceipt?.seq ?? 0) + 1,
+      action,
+      target,
+    };
+    return true;
   }
   gather(target: string) {
     if (
@@ -257,6 +277,15 @@ export class MeadowConnection {
       this.owner = s.owner;
       this.progress = s.progress;
       this.slime = s.slime;
+      this.gate = s.gate;
+      this.world = { ...this.world, gateOpen: s.gate?.open ?? false };
+      this.moss = s.moss ?? [];
+      this.companionReceipt = s.companionReceipt;
+      if (
+        this.companionPending &&
+        (s.companionReceipt?.seq ?? 0) >= this.companionPending.seq
+      )
+        this.companionPending = undefined;
       if (s.depleted)
         this.depleted =
           decodeDepletion(this.nodes, s.depleted) ?? this.depleted;
@@ -331,6 +360,7 @@ export class MeadowConnection {
       return;
     }
     if (
+      !this.companionPending &&
       !this.gatherPending &&
       !this.pending.length &&
       now - this.lastSend < 1000
@@ -344,6 +374,7 @@ export class MeadowConnection {
       generation: this.generation,
       runs: packFrames(this.pending),
       ...(this.gatherPending ? { gather: this.gatherPending } : {}),
+      ...(this.companionPending ? { companion: this.companionPending } : {}),
     });
     socket.send(raw);
     this.sent++;

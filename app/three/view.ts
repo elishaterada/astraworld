@@ -1,3 +1,8 @@
+import { createForestView } from "./forest";
+import type { Gate } from "../../packages/protocol/utility";
+import { inForest } from "../../packages/world/forest";
+import { createMossView } from "./moss";
+import type { Moss } from "../../packages/protocol/taming";
 import { createCombatView } from "./combat";
 import type { Slime } from "../../packages/protocol/combat";
 import { resourceNodes } from "../../packages/world/resources";
@@ -61,7 +66,7 @@ export function createMeadowView(
   scene.add(sky);
   const sun = new T.DirectionalLight(0xffd29a, 2.15);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(1024, 1024);
   Object.assign(sun.shadow.camera, {
     left: -23,
     right: 23,
@@ -208,9 +213,13 @@ export function createMeadowView(
             1,
             t.terrain === "water"
               ? 0x2d5555
-              : t.terrain === "shore"
-                ? 0x8e9770
-                : (t.terrain === "grass" ? grass : path)[v],
+              : inForest(x, y)
+                ? Math.abs(x - 64) <= 1
+                  ? 0x77917a
+                  : 0x486d5b
+                : t.terrain === "shore"
+                  ? 0x8e9770
+                  : (t.terrain === "grass" ? grass : path)[v],
           );
           const hash = seedHash(t.id);
           const berry = berryTiles.get(y * SIZE + x);
@@ -496,6 +505,10 @@ export function createMeadowView(
   const labels = document.createElement("div");
   labels.className = "world-labels";
   labels.setAttribute("aria-hidden", "true");
+  const mossView = createMossView(scene, labels, world);
+  const forestView = createForestView(scene, labels);
+  let currentGate: Gate | undefined;
+  let moss: Moss[] = [];
   const enemyLabel = document.createElement("div");
   enemyLabel.className = "world-name slime-label";
   labels.append(enemyLabel);
@@ -569,6 +582,13 @@ export function createMeadowView(
     local,
     peers,
     resize,
+    gate(gate: Gate | undefined) {
+      currentGate = gate;
+      mossView.gate(gate?.open ?? false);
+    },
+    companions(creatures: Moss[]) {
+      moss = creatures;
+    },
     combat(slime: Slime | undefined, tick: number) {
       currentSlime = slime;
       combatTick = tick;
@@ -608,6 +628,7 @@ export function createMeadowView(
         if (!ids.has(id)) {
           scene.remove(peer.model.root);
           peer.label.remove();
+          peer.model.dispose();
           peers.delete(id);
         }
       for (const remote of remotes) {
@@ -646,6 +667,25 @@ export function createMeadowView(
           (currentSlime.health === 0 &&
             combatTick - currentSlime.phaseTick > 180);
       } else enemyLabel.hidden = true;
+      forestView.update(
+        currentGate,
+        combatTick,
+        time,
+        reduced,
+        p,
+        width,
+        height,
+      );
+      mossView.update(
+        moss,
+        new Map([actor, ...remotes].map((a) => [a.id, a.name])),
+        p,
+        width,
+        height,
+        time,
+        reduced,
+        combatTick,
+      );
       renderer.render(scene, camera);
     },
     resources(depleted: string[], target?: { x: number; y: number }) {
@@ -682,6 +722,8 @@ export function createMeadowView(
       waterMaterial.dispose();
       atmosphere.dispose();
       combatView.dispose();
+      mossView.dispose();
+      forestView.dispose();
       kit.dispose();
       sun.shadow.dispose();
       renderer.dispose();

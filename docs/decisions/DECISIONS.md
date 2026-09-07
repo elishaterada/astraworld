@@ -87,3 +87,7 @@ The user authorized the next milestone after accepting Living Meadow. M2 uses ty
 ## 2026-09-07 — M3 combat authorized
 
 The user accepted the M3 proposal with “lets implement.” Implement one blade, dodge, hostile Slime, health and retained-item respawn using the existing Vercel-compatible runner and Redis checkpoint. No cloud provisioning, durable saves, drops or M4 mechanics. Scope and evidence: [M3 mission](../milestones/M3_COMBAT.md).
+
+## 2026-09-07 — M5 shared vine gate
+
+The user authorized M5 by “proceed” after M4. Introduce one three-tile dissolvable gate and a fully bounded Forest entry clearing in `meadow-3 / utility-1 / p8-c4-m5`. The existing temporary checkpoint owns its channel/open state and client collision consumes the full confirmed overlay. Q initiates a one-second owner ability with two-second cooldown; observed disconnect/generation replacement and invalid range/state cancel it. This is a new simulation mechanism owned by Astra, with no model delegation, new service or permanent saving. Human first-time loop feedback and the remaining measured acceptance gates must precede M6. See [M5 mission](../milestones/M5_COMPANION_UTILITY.md).

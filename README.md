@@ -2,7 +2,7 @@
 
 A cozy 3D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
 
-**Status: M3 combat implemented and verified locally and on Vercel; see [M3 results and limitations](docs/milestones/M3_COMBAT.md).** M1 is complete within its recorded test envelope. Hosted lifecycle, real TCP-loss/recovery, and ten-minute eight-player verification passed; see [M1 completion](docs/milestones/M1_COMPLETION.md). Up to eight private browser sessions can explore the same Meadow with immediate local prediction, synchronized facing/walking/waves, server-owned movement and Redis-backed recovery. The user-authorized visual migration replaces sprites with original modular Three.js models, while retaining username entry and fullscreen. See [3D migration](docs/milestones/VISUAL_3D_MIGRATION.md). The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md).
+**Status: M5 companion utility implemented locally; [human playtest and remaining acceptance gates](docs/milestones/M5_COMPANION_UTILITY.md) are pending. Hosted deployment remains M3.** M1 is complete within its recorded test envelope. Hosted lifecycle, real TCP-loss/recovery, and ten-minute eight-player verification passed; see [M1 completion](docs/milestones/M1_COMPLETION.md). Up to eight private browser sessions can explore the same Meadow with immediate local prediction, synchronized facing/walking/waves, server-owned movement and Redis-backed recovery. The user-authorized visual migration replaces sprites with original modular Three.js models, while retaining username entry and fullscreen. See [3D migration](docs/milestones/VISUAL_3D_MIGRATION.md). The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md).
 
 ## Start here
 
@@ -66,7 +66,7 @@ BASE_URL=http://127.0.0.1:3002 M1_EIGHT_SOAK=1 npx playwright test tests/e2e/eig
 
 The rule/integration suite launches a disposable Redis process itself; Redis must be on PATH. The ordinary browser suite skips the separate ten-minute M0 and M1 soaks. Read-only `?debug=1` reports measurements without a state-mutation API. [M1 results](docs/milestones/M1_LOCAL_RESULTS.md) distinguish local evidence from outstanding deployed-host and network gates.
 
-The next eligible milestone is **M4 taming and following**, after M3 is accepted and explicitly requested. See [M3 evidence and limitations](docs/milestones/M3_COMBAT.md).
+The active milestone is **M5 companion utility and slice polish**. Finish its [playtest and acceptance gates](docs/milestones/M5_COMPANION_UTILITY.md) before M6 durable persistence; no M6 implementation is authorized.
 
 ## Document map
 
@@ -117,7 +117,7 @@ Walk near a pink berry bush or a tree. The gold ground ring marks your nearest a
 
 Only confirmed server results change the satchel. Resume the same browser session to recover items and depleted resources within the existing 30-minute recovery window. Leaving starts a new adventurer; Redis loss still loses progress. This is not permanent saving. Old M1 invitations/sessions are isolated from M2; create a new Meadow and share its new invite.
 
-M2 uses the existing local launch commands above and the existing Vercel/Redis stack. No new services or credentials are required. M3 adds combat; taming, crafting and building remain later milestones.
+M2 uses the existing local launch commands above and the existing Vercel/Redis stack. No new services or credentials are required. M3 adds combat and M4 adds taming; companion utility, crafting and building remain later milestones.
 
 The compact game HUD keeps your satchel closed until you press **I** or click its bottom-right button. **I** or **Escape** closes it; Escape during play opens the pause menu. Movement guidance appears once per browser and can always be found under **Menu → Controls**. Nearby gathering prompts and brief pickup notifications remain visible without opening inventory.
 
@@ -129,3 +129,17 @@ Refresh and create a **new Meadow**; M3 uses new room/session IDs, so send a fre
 The Slime has 30 health and takes three blade hits. Step or dodge outside its amber circle before the slam, then counterattack during recovery. Your compact lower-left health bar shows server-confirmed health. At zero health you recover at safe spawn after two seconds with your items retained. Players cannot hurt one another. Defeated Slimes remain defeated for the temporary room; create a new Meadow for another encounter. There are no drops, healing items, taming or new weapons in M3.
 
 Combat and inventory recover together through the existing temporary Redis checkpoint. This is not permanent saving or lag compensation. See [the complete M3 contract, checks and limitations](docs/milestones/M3_COMBAT.md). M3 is deployed through the existing Vercel project; refresh and create a new Meadow for its isolated room version.
+
+
+## Befriend a Moss Slime (M4, local)
+
+Run `npm run dev` and open [the stable local Meadow](https://astraworld.localhost:1355). Refresh and create a **new Meadow**, then share its new invitation; M3 room invitations cannot join M4 rooms. Gather Sweet Berries with **E** near a berry bush. Find a green, leaf-topped Moss Slime just west or south of the starting clearing, approach it, and press **E three times**, waiting one second between feeds. Each feed uses one berry. The first feed reserves the Slime for you for sixty seconds, renewed by the next feed; expiry resets progress without refund.
+
+Your companion follows automatically. **C** toggles Stay/Follow; **R** resumes following and safely recalls a distant or stuck companion. The compact companion panel offers the same controls. Each player can own one companion; this reference Meadow has two tameable Slimes shared by up to eight players. Ownership, food and commands recover with the temporary room session. This adds no permanent saving, companion attacks or vine ability. The offline solo harness does not simulate taming; use ordinary room entry.
+
+
+## Open the Forest path (M5, local)
+
+Refresh and create a **new Meadow** at [the stable local address](https://astraworld.localhost:1355). Invite a friend, gather berries/wood and try the wild Slime encounter on the north trail. Befriend a green Moss Slime with three berries, then follow the central trail farther north to the tangled vines. With Moss in **Follow** mode and close to the passage, press **Q**. Remain nearby for the one-second dissolve. The opened passage is shared: everyone can enter the cooler Forest clearing and see the discovery cue. This is the slice's destination; no further Forest progression is implemented. Combat is not required to unlock it.
+
+**Menu → Your first adventure** provides the route; **Menu → Controls** lists keys. Leaving range, entering combat, dying or an observed disconnect cancels a channel; wait out the two-second cooldown and try again. Opened gates recover within the temporary room session, including for late joiners, but this is not permanent saving. [M5 decisions, evidence and limitations](docs/milestones/M5_COMPANION_UTILITY.md).

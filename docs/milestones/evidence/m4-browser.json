@@ -1,0 +1,73 @@
+{
+  "browser": "153.0.8010.12",
+  "independentContexts": 2,
+  "claimRace": [
+    "claimed",
+    "fed"
+  ],
+  "tamed": {
+    "id": "meadow-2:taming-1:meadow-001:moss:0",
+    "kind": "moss-slime",
+    "position": {
+      "x": 61.5,
+      "y": 64.5
+    },
+    "home": {
+      "x": 61.5,
+      "y": 64.5
+    },
+    "owner": "5e509761-c216-4999-ab51-0dd5956603c5",
+    "claim": null,
+    "feeds": 3,
+    "mode": "follow",
+    "facing": 2,
+    "moving": false,
+    "fedTick": 431
+  },
+  "berriesConsumed": 3,
+  "loserBerries": 3,
+  "stayed": {
+    "x": 64.44101371201528,
+    "y": 61.15657397965527
+  },
+  "recalled": {
+    "id": "meadow-2:taming-1:meadow-001:moss:0",
+    "kind": "moss-slime",
+    "position": {
+      "x": 79.5,
+      "y": 63.5
+    },
+    "home": {
+      "x": 61.5,
+      "y": 64.5
+    },
+    "owner": "5e509761-c216-4999-ab51-0dd5956603c5",
+    "claim": null,
+    "feeds": 3,
+    "mode": "follow",
+    "facing": 6,
+    "moving": false,
+    "fedTick": 431
+  },
+  "resumed": {
+    "id": "meadow-2:taming-1:meadow-001:moss:0",
+    "kind": "moss-slime",
+    "position": {
+      "x": 79.5,
+      "y": 63.5
+    },
+    "home": {
+      "x": 61.5,
+      "y": 64.5
+    },
+    "owner": "5e509761-c216-4999-ab51-0dd5956603c5",
+    "claim": null,
+    "feeds": 3,
+    "mode": "follow",
+    "facing": 6,
+    "moving": false,
+    "fedTick": 431
+  },
+  "inventoryRetained": true,
+  "errors": []
+}

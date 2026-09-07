@@ -28,14 +28,14 @@ it("ponds, bonfires and seating are solid while eight spawn slots and their main
   }
 });
 it("isolates incompatible old terrain sessions", () => {
-  expect(SESSION_STORAGE_KEY).toContain("m3");
+  expect(SESSION_STORAGE_KEY).toContain("m5");
   const hello = {
     type: "hello",
     protocolVersion: 2,
     worldId: "00000000-0000-4000-8000-000000000001",
     token: "a".repeat(43),
-    generationVersion: "meadow-2",
-    contentVersion: "combat-1",
+    generationVersion: "meadow-3",
+    contentVersion: "utility-1",
   };
   expect(packetSchema.safeParse(hello).success).toBe(true);
   expect(

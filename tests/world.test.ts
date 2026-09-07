@@ -1,3 +1,4 @@
+import { inForest } from "../packages/world/forest";
 import { describe, it, expect } from "vitest";
 import { createHash } from "node:crypto";
 import {
@@ -51,7 +52,33 @@ describe("G0 deterministic Meadow", () => {
           }
         }
       }
-      expect(visited.size).toBe(baseline.filter((t) => !t.blocker).length);
+      expect(visited.size).toBe(
+        baseline.filter((t) => !t.blocker && !inForest(t.x, t.y)).length,
+      );
+      expect(visited.has(32 * SIZE + 64)).toBe(false);
+      const openWorld = { ...world, gateOpen: true };
+      const openVisited = new Set<number>([64 * SIZE + 64]),
+        openQueue = [64 * SIZE + 64];
+      for (let i = 0; i < openQueue.length; i++) {
+        const x = openQueue[i] % SIZE,
+          y = Math.floor(openQueue[i] / SIZE);
+        for (const [nx, ny] of [
+          [x - 1, y],
+          [x + 1, y],
+          [x, y - 1],
+          [x, y + 1],
+        ]) {
+          const id = ny * SIZE + nx;
+          if (!isSolid(openWorld, nx, ny) && !openVisited.has(id)) {
+            openVisited.add(id);
+            openQueue.push(id);
+          }
+        }
+      }
+      expect(openVisited.has(32 * SIZE + 64)).toBe(true);
+      expect(openVisited.size).toBe(
+        baseline.filter((t) => !isSolid(openWorld, t.x, t.y)).length,
+      );
     }
   }, 30000);
   it("varies with seed, bounds chunks and normalizes empty/long seeds", () => {
@@ -75,8 +102,8 @@ it("handles Unicode seeds even when the input limit splits a surrogate pair", ()
   );
 });
 
-it("locks the meadow-2 / combat-1 baseline to its recorded reference hash", () => {
+it("locks the meadow-3 / utility-1 baseline to its recorded reference hash", () => {
   expect(hash(generateWorld("meadow-001").tiles)).toBe(
-    "dde9569c5be08924747ec6f206c35dd6946bb8fccf3ea4c073b6cc26c2a7bcf6",
+    "5303396fe038d498ecaa6ae12952d05719a4dc890dfe8969eb7969961106fd15",
   );
 });

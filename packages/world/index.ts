@@ -1,19 +1,24 @@
+import { inForest, forestBoundary, isVineTile } from "./forest";
 import { meadowLandmarks, pondDistance } from "./landmarks";
 /** Pure baseline generation. Coordinates are tiles; no renderer or platform imports. */
 export const SIZE = 128;
 export const CHUNK_SIZE = 16;
-export const GENERATION_VERSION = "meadow-2";
-export const CONTENT_VERSION = "combat-1";
+export const GENERATION_VERSION = "meadow-3";
+export const CONTENT_VERSION = "utility-1";
 export const SPAWN = Object.freeze({ x: 64.5, y: 64.5 });
 export type Tile = Readonly<{
   x: number;
   y: number;
   terrain: "grass" | "path" | "shore" | "water";
   variant: number;
-  blocker: "tree" | "rock" | "water" | "campfire" | "log" | null;
+  blocker: "tree" | "rock" | "water" | "campfire" | "log" | "vine" | null;
   id: string;
 }>;
-export type World = Readonly<{ seed: string; tiles: readonly Tile[] }>;
+export type World = Readonly<{
+  seed: string;
+  tiles: readonly Tile[];
+  gateOpen?: boolean;
+}>;
 
 export function seedHash(seed: string): number {
   let h = 2166136261;
@@ -73,32 +78,42 @@ export function generateChunk(rawSeed: string, cx: number, cy: number): Tile[] {
         x % 2 === 0 &&
         y % 2 === 0 &&
         sample(hash, x, y, 719) < 0.64;
-      const blocker: Tile["blocker"] = fire
-        ? "campfire"
-        : bench
-          ? "log"
-          : pond < 1
-            ? "water"
-            : edge
-              ? "rock"
-              : prop
-                ? sample(hash, x, y, 131) < 0.7
-                  ? sample(hash, x, y, 853) < 0.09
-                    ? "log"
-                    : "tree"
-                  : "rock"
-                : null;
+      const blocker: Tile["blocker"] = isVineTile(x, y)
+        ? "vine"
+        : forestBoundary(x, y)
+          ? "rock"
+          : inForest(x, y)
+            ? null
+            : fire
+              ? "campfire"
+              : bench
+                ? "log"
+                : pond < 1
+                  ? "water"
+                  : edge
+                    ? "rock"
+                    : prop
+                      ? sample(hash, x, y, 131) < 0.7
+                        ? sample(hash, x, y, 853) < 0.09
+                          ? "log"
+                          : "tree"
+                        : "rock"
+                      : null;
       tiles.push({
         x,
         y,
         terrain:
-          pond < 1
-            ? "water"
-            : pond < 1.3
-              ? "shore"
-              : path || clearing || camp
-                ? "path"
-                : "grass",
+          inForest(x, y) || forestBoundary(x, y)
+            ? Math.abs(x - 64) <= 1
+              ? "path"
+              : "grass"
+            : pond < 1
+              ? "water"
+              : pond < 1.3
+                ? "shore"
+                : path || clearing || camp
+                  ? "path"
+                  : "grass",
         variant: Math.floor(sample(hash, x, y, 37) * 8),
         blocker,
         id: `${GENERATION_VERSION}:${CONTENT_VERSION}:${encodeURIComponent(seed)}:${x}:${y}`,
@@ -123,6 +138,7 @@ export function isSolid(world: World, x: number, y: number): boolean {
     y < 0 ||
     x >= SIZE ||
     y >= SIZE ||
-    world.tiles[y * SIZE + x].blocker !== null
+    (world.tiles[y * SIZE + x].blocker !== null &&
+      !(world.gateOpen && isVineTile(x, y)))
   );
 }

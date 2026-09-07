@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { FirstPlayHint, GatherNotice } from "./game-hints";
+import { FirstPlayHint, GatherNotice, CompanionNotice } from "./game-hints";
 import { normalizeSeed } from "../packages/world";
 import { itemDefinition } from "../packages/content";
 import { validateUsername } from "./profile";
@@ -119,11 +119,11 @@ function Meadow({
         className="playfield"
         tabIndex={0}
         role="application"
-        aria-label="Meadow game. Move with WASD or arrow keys. Point to face. Space waves. Click or J attacks. Shift dodges. E gathers the highlighted resource. Escape pauses and releases keyboard focus."
+        aria-label="Meadow game. Move with WASD or arrow keys. Point to face. Space waves. Click or J attacks. Shift dodges. E gathers or feeds nearby Moss Slimes. C toggles companion follow/stay. R recalls. Q dissolves nearby vines. Escape pauses and releases keyboard focus."
       />
       <div className="game-vignette" aria-hidden="true" />
       <div className="location-hud">
-        <h1>The Meadow</h1>
+        <h1>{status?.forest ? "Forest Clearing" : "The Meadow"}</h1>
         <span
           className="party-count"
           aria-label={`${status?.players ?? 1} players`}
@@ -284,16 +284,59 @@ function Meadow({
         </svg>
         <kbd>I</kbd>
       </button>
-      {!status?.paused && (status?.target || status?.gathering) && (
-        <div className="interaction-hint">
-          <kbd>E</kbd>{" "}
-          {status.gathering
-            ? "Gathering…"
-            : status.target === "tree"
-              ? "Chop tree"
-              : "Pick berries"}
+      {!status?.paused && status?.nearGate && !status.gate?.open && (
+        <div className="interaction-hint vine-prompt" role="status">
+          {status.gate?.channel ? (
+            "Moss is dissolving the vines…"
+          ) : status.companion ? (
+            <>
+              <kbd>Q</kbd> Dissolve Vines
+              <small>
+                Bring Moss close · Follow mode · Stay nearby for 1 second
+              </small>
+            </>
+          ) : (
+            <>
+              A Moss companion can clear these vines
+              <small>
+                Feed a green Moss Slime three Sweet Berries near camp
+              </small>
+            </>
+          )}
         </div>
       )}
+      {!status?.paused && status?.forest && status.gate?.open && (
+        <div className="forest-complete" role="status">
+          <span>DISCOVERY</span>
+          <strong>A path made together.</strong>
+          <p>
+            You reached the Forest clearing.
+            <br />
+            The adventure slice ends here. Explore or return to camp.
+          </p>
+        </div>
+      )}
+      {!status?.paused && !status?.nearGate && status?.mossTarget && (
+        <div className="interaction-hint moss-prompt">
+          <kbd>E</kbd> Feed Sweet Berry · {status.mossTarget.feeds}/3
+          <small>
+            Feed three times · Progress resets 1 minute after the last feed
+          </small>
+        </div>
+      )}
+      {!status?.paused &&
+        !status?.mossTarget &&
+        !status?.nearGate &&
+        (status?.target || status?.gathering) && (
+          <div className="interaction-hint">
+            <kbd>E</kbd>{" "}
+            {status.gathering
+              ? "Gathering…"
+              : status.target === "tree"
+                ? "Chop tree"
+                : "Pick berries"}
+          </div>
+        )}
       {status?.health !== undefined && (
         <div className="combat-hud" aria-label="Player health">
           <div className="health-caption">
@@ -306,6 +349,44 @@ function Meadow({
           )}
         </div>
       )}
+      {status?.companion && (
+        <div className="companion-hud" aria-label="Your companion">
+          <strong>Moss Slime</strong>
+          <span>
+            {status.companion.mode === "stay"
+              ? "Staying"
+              : status.companion.mode === "recovering"
+                ? "Recovering"
+                : "Following"}
+          </span>
+          <div>
+            {(
+              [
+                status.companion.mode === "stay" ? "follow" : "stay",
+                "recall",
+              ] as const
+            ).map((action) => (
+              <button
+                key={action}
+                onPointerDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  host.current?.focus();
+                  host.current?.dispatchEvent(
+                    new CustomEvent("companion-command", { detail: action }),
+                  );
+                }}
+              >
+                {action === "follow"
+                  ? "Follow [C]"
+                  : action === "stay"
+                    ? "Stay [C]"
+                    : "Recall [R]"}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      <CompanionNotice receipt={status?.companionReceipt} />
       <GatherNotice progress={status?.progress} />
       <FirstPlayHint
         combat={!!session}
@@ -331,6 +412,24 @@ function Meadow({
           Wandering as <strong>{username}</strong> ·{" "}
           {CHARACTERS[character].label}
         </p>
+        {session && (
+          <details className="controls-reference">
+            <summary>Your first adventure</summary>
+            <p>
+              Gather Sweet Berries near camp and chop a tree with E. Try your
+              blade and dodge against the wild Slime on the north trail.
+            </p>
+            <p>
+              Feed a green Moss Slime three berries near camp. Bring your new
+              companion north, past the wild Slime, to the tangled vines. Press
+              Q with Moss nearby to open the Forest for everyone.
+            </p>
+            <p>
+              Combat is optional for opening the passage. The Forest clearing is
+              the end of this temporary adventure slice.
+            </p>
+          </details>
+        )}
         <details className="controls-reference">
           <summary>Controls</summary>
           <dl>
@@ -340,6 +439,12 @@ function Meadow({
             <dd>Click / J</dd>
             <dt>Dodge</dt>
             <dd>Shift + direction</dd>
+            <dt>Feed nearby Moss</dt>
+            <dd>E · Sweet Berries</dd>
+            <dt>Companion</dt>
+            <dd>C follow/stay · R recall</dd>
+            <dt>Dissolve Vines</dt>
+            <dd>Q · Bring Moss to the north passage</dd>
             <dt>Gather</dt>
             <dd>E</dd>
             <dt>Satchel</dt>

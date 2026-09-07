@@ -1,3 +1,4 @@
+import { batchBoxes } from "./batch-boxes";
 import * as T from "three";
 import type { CharacterId } from "../../packages/characters";
 
@@ -34,6 +35,8 @@ export const LOOKS = {
 } as const;
 export function createModelKit() {
   const geometry = new T.BoxGeometry(1, 1, 1);
+  const batchMaterial = new T.MeshStandardMaterial({ roughness: 1 });
+  const batches = new Set<T.InstancedMesh>();
   const materials = new Map<number, T.MeshStandardMaterial>();
   function box(
     parent: T.Object3D,
@@ -151,7 +154,16 @@ export function createModelKit() {
     box(blade, 0xd7b477, [0.32, 0.07, 0.12], [0, -0.52, 0.13]);
     box(blade, 0xd4e3df, [0.14, 0.75, 0.06], [0, -0.92, 0.13]);
     blade.visible = false;
+    const rigidParts = [body, ...legs, ...arms, hatchet, blade].map((part) =>
+      batchBoxes(part, geometry, batchMaterial),
+    );
+    for (const batch of rigidParts) batches.add(batch);
     return {
+      dispose() {
+        for (const batch of rigidParts) {
+          if (batches.delete(batch)) batch.dispose();
+        }
+      },
       blade,
       root,
       body,
@@ -167,6 +179,9 @@ export function createModelKit() {
   return {
     character,
     dispose() {
+      for (const batch of batches) batch.dispose();
+      batches.clear();
+      batchMaterial.dispose();
       geometry.dispose();
       for (const material of materials.values()) material.dispose();
       materials.clear();

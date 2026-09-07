@@ -1,4 +1,19 @@
 import {
+  commandDissolve,
+  stepUtility,
+} from "../../packages/simulation/utility";
+import {
+  freshTaming,
+  commandCompanion,
+  stepTaming,
+  publicMoss,
+  type TamingState,
+} from "../../packages/simulation/taming";
+import type {
+  CompanionCommand,
+  CompanionReceipt,
+} from "../../packages/protocol/taming";
+import {
   freshCombat,
   freshSlime,
   stepCombat,
@@ -64,6 +79,7 @@ export async function createRealtimeGateway(options: {
     actors: RealtimeActor[];
     gathering: GatheringState;
     slime?: Slime;
+    taming?: TamingState;
   };
   type Room = {
     epoch: number;
@@ -72,6 +88,7 @@ export async function createRealtimeGateway(options: {
     world: ReturnType<typeof generateWorld>;
     seed: string;
     nodes: Map<string, ResourceNode>;
+    companions: Map<string, { command: CompanionCommand; generation: number }>;
     gathers: Map<string, { command: GatherCommand; generation: number }>;
     timelines: Map<string, InputTimeline>;
     seen: Map<string, number>;
@@ -220,6 +237,7 @@ export async function createRealtimeGateway(options: {
     r.seed = loaded.meta!.seed;
     r.world = generateWorld(r.seed);
     r.nodes = new Map(resourceNodes(r.world).map((n) => [n.id, n]));
+    r.state = { ...r.state, taming: r.state.taming ?? freshTaming(r.seed) };
     r.state = { ...r.state, slime: r.state.slime ?? freshSlime(r.seed) };
     r.state = {
       ...r.state,
@@ -236,6 +254,7 @@ export async function createRealtimeGateway(options: {
       if (prior?.generation === generation) return prior;
       r.timelines.set(m.id, new InputTimeline());
       r.gathers.delete(m.id);
+      r.companions.delete(m.id);
       const committed = (
         loaded.checkpoint?.actors as RealtimeActor[] | undefined
       )?.find((a) => a.id === m.id);
@@ -279,6 +298,7 @@ export async function createRealtimeGateway(options: {
       world: generateWorld("meadow-001"),
       nodes: new Map(),
       gathers: new Map(),
+      companions: new Map(),
       timelines: new Map(),
       seen: new Map(),
       busy: false,
@@ -295,9 +315,11 @@ export async function createRealtimeGateway(options: {
       await subscriber.subscribe(store.key(world, "snapshots"), (raw) => {
         const projection = JSON.parse(raw) as {
           actors: RealtimeActor[];
+          companionReceipts: Record<string, CompanionReceipt>;
           gathering: { players: GatheringState["players"]; depleted: string };
         };
-        const { gathering, ...publicProjection } = projection;
+        const { gathering, companionReceipts, ...publicProjection } =
+          projection;
         for (const c of clients) {
           if (c.world !== world) continue;
           const self = projection.actors.find((a) => a.id === c.player);
@@ -311,6 +333,7 @@ export async function createRealtimeGateway(options: {
             progress: gathering.players[c.player],
             depleted: gathering.depleted,
             selfId: c.player,
+            companionReceipt: companionReceipts?.[c.player],
             actors: projection.actors.filter(
               (a) =>
                 a.id === c.player ||
@@ -329,7 +352,9 @@ export async function createRealtimeGateway(options: {
           player: string;
           generation: number;
           runs: Run[];
+          disconnected?: boolean;
           gather?: GatherCommand;
+          companion?: CompanionCommand;
         };
         const actor = r.state.actors.find((a) => a.id === data.player);
         if (!actor || actor.generation < data.generation) {
@@ -343,9 +368,29 @@ export async function createRealtimeGateway(options: {
           return; // Client resends unacknowledged frames; nothing is lost on this race.
         }
         if (actor.generation !== data.generation) return;
+        if (data.disconnected) {
+          r.seen.delete(actor.id);
+          if (r.state.taming?.gate.channel?.player === actor.id)
+            r.state = {
+              ...r.state,
+              taming: stepUtility(
+                r.world,
+                r.state.taming,
+                r.state.actors,
+                new Set(),
+                r.state.tick,
+              ),
+            };
+          return;
+        }
         r.seen.set(actor.id, performance.now());
         try {
           r.timelines.get(actor.id)!.enqueue(data.runs, actor.ack);
+          if (data.companion && !r.companions.has(actor.id))
+            r.companions.set(actor.id, {
+              command: data.companion,
+              generation: data.generation,
+            });
           if (data.gather && !r.gathers.has(actor.id))
             r.gathers.set(actor.id, {
               command: data.gather,
@@ -362,7 +407,9 @@ export async function createRealtimeGateway(options: {
     let client: Client | undefined,
       authenticating = false,
       publishing = false;
-    let queued: { runs: Run[]; gather?: GatherCommand } | undefined,
+    let queued:
+        | { runs: Run[]; gather?: GatherCommand; companion?: CompanionCommand }
+        | undefined,
       tokens = 40,
       rateAt = performance.now();
     const deadline = setTimeout(
@@ -459,13 +506,30 @@ export async function createRealtimeGateway(options: {
         return;
       }
       // The latest batch includes every unacknowledged frame, including discrete actions.
-      queued = { runs: message.runs, gather: message.gather };
+      queued = {
+        runs: message.runs,
+        gather: message.gather,
+        companion: message.companion,
+      };
       void publish();
     });
     socket.on("close", () => {
       clearTimeout(deadline);
       clearTimeout(rotation);
-      if (client) clients.delete(client);
+      if (client) {
+        clients.delete(client);
+        void store.redis
+          .publish(
+            store.key(client.world, "commands"),
+            JSON.stringify({
+              player: client.player,
+              generation: client.generation,
+              runs: [],
+              disconnected: true,
+            }),
+          )
+          .catch(() => {});
+      }
     });
   });
   async function maintain(world: string, r: Room) {
@@ -505,6 +569,7 @@ export async function createRealtimeGateway(options: {
         r.committed = r.state;
         r.timelines.clear();
         r.gathers.clear();
+        r.companions.clear();
         r.seen.clear();
         await refresh(world, r);
         for (const a of r.state.actors) {
@@ -544,6 +609,9 @@ export async function createRealtimeGateway(options: {
         tick: state.tick,
         owner,
         slime: state.slime,
+        gate: state.taming?.gate,
+        moss: state.taming?.creatures.map(publicMoss),
+        companionReceipts: state.taming?.receipts ?? {},
         gathering: {
           players: state.gathering.players,
           depleted: encodeDepletion(
@@ -606,6 +674,7 @@ export async function createRealtimeGateway(options: {
       let count = 0;
       while (now - r.lastStep >= 1000 / 60 && count++ < 6) {
         r.lastStep += 1000 / 60;
+        r.world = { ...r.world, gateOpen: r.state.taming?.gate.open ?? false };
         const tick = r.state.tick + 1,
           start = performance.now();
         r.state = {
@@ -677,6 +746,60 @@ export async function createRealtimeGateway(options: {
             );
         }
         r.gathers.clear();
+        for (const [player, pending] of r.companions) {
+          const actor = r.state.actors.find((a) => a.id === player);
+          if (actor && actor.generation === pending.generation)
+            r.state = {
+              ...r.state,
+              ...(pending.command.action === "dissolve"
+                ? {
+                    taming: commandDissolve(
+                      r.world,
+                      r.state.taming!,
+                      actor,
+                      pending.command,
+                      tick,
+                    ),
+                  }
+                : commandCompanion(
+                    r.world,
+                    r.state.taming!,
+                    r.state.gathering,
+                    actor,
+                    pending.command,
+                    tick,
+                  )),
+            };
+        }
+        r.companions.clear();
+        r.state = {
+          ...r.state,
+          taming: stepTaming(
+            r.world,
+            r.state.taming!,
+            r.state.actors,
+            new Set(
+              r.state.actors
+                .filter((a) => now - (r.seen.get(a.id) ?? 0) < 3000)
+                .map((a) => a.id),
+            ),
+            tick,
+          ),
+        };
+        r.state = {
+          ...r.state,
+          taming: stepUtility(
+            r.world,
+            r.state.taming!,
+            r.state.actors,
+            new Set(
+              r.state.actors
+                .filter((a) => now - (r.seen.get(a.id) ?? 0) < 3000)
+                .map((a) => a.id),
+            ),
+            tick,
+          ),
+        };
         metrics.ticks++;
         metrics.steps.push(performance.now() - start);
         if (metrics.steps.length > 12000) metrics.steps.shift();

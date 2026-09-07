@@ -1,3 +1,10 @@
+import type { Gate } from "../packages/protocol/utility";
+import { VINE_TARGET, inForest } from "../packages/world/forest";
+import type {
+  Moss,
+  CompanionReceipt,
+  CompanionCommand,
+} from "../packages/protocol/taming";
 import type { CombatState, Slime } from "../packages/protocol/combat";
 import { resourceNodes } from "../packages/world/resources";
 import { freshProgress, type Progress } from "../packages/content";
@@ -26,6 +33,12 @@ const live = {
   textures: 0,
 };
 export type SandboxReport = {
+  gate?: Gate;
+  nearGate?: boolean;
+  forest?: boolean;
+  mossTarget?: Moss;
+  companion?: Moss;
+  companionReceipt?: CompanionReceipt;
   health?: number;
   slimeHealth?: number;
   x: number;
@@ -39,6 +52,9 @@ export type SandboxReport = {
   gathering?: boolean;
 };
 export type DebugSnapshot = {
+  gate?: Gate;
+  moss: Moss[];
+  companionReceipt?: CompanionReceipt;
   combat?: CombatState;
   slime?: Slime;
   progress?: Progress;
@@ -129,7 +145,7 @@ export function mountMeadow(
     cleanup: (() => void) | undefined;
   void (async () => {
     if (disposed) return;
-    const world = generateWorld(seed);
+    let world = generateWorld(seed);
     const nodes = resourceNodes(world),
       nodeMap = new Map(nodes.map((n) => [n.id, n]));
     let soloGathering = emptyGathering();
@@ -179,6 +195,20 @@ export function mountMeadow(
             Math.hypot(b.x - state.x, b.y - state.y),
         )[0];
     };
+    const owned = () =>
+      network?.moss.find((m) => m.owner === session?.playerId);
+    const mossTarget = () =>
+      network?.moss
+        .filter(
+          (m) =>
+            !m.owner &&
+            Math.hypot(m.position.x - state.x, m.position.y - state.y) <= 1.5,
+        )
+        .sort(
+          (a, b) =>
+            Math.hypot(a.position.x - state.x, a.position.y - state.y) -
+            Math.hypot(b.position.x - state.x, b.position.y - state.y),
+        )[0];
     const keys = new Set<string>();
     const removers: (() => void)[] = [];
     let tickerAttached = false;
@@ -218,6 +248,9 @@ export function mountMeadow(
       new URLSearchParams(location.search).get("debug") === "1";
     debug = {
       snapshot: (): DebugSnapshot => ({
+        gate: network?.gate,
+        moss: structuredClone(network?.moss ?? []),
+        companionReceipt: network?.companionReceipt,
         combat: network?.actor.combat
           ? structuredClone(network.actor.combat)
           : undefined,
@@ -303,6 +336,13 @@ export function mountMeadow(
         gathering: network?.gathering,
         health: network?.actor.combat?.health,
         slimeHealth: network?.slime?.health,
+        gate: network?.gate,
+        nearGate:
+          Math.hypot(state.x - VINE_TARGET.x, state.y - VINE_TARGET.y) < 4,
+        forest: inForest(state.x, state.y),
+        mossTarget: mossTarget(),
+        companion: owned(),
+        companionReceipt: network?.companionReceipt,
       });
     const pause = () => {
       keys.clear();
@@ -363,7 +403,31 @@ export function mountMeadow(
           else network?.dodge();
         }
       }
+      if (e.code === "KeyQ" && !paused && !e.repeat && network?.gate) {
+        e.preventDefault();
+        network.companion("dissolve", network.gate.id);
+      }
+      if ((e.code === "KeyC" || e.code === "KeyR") && !paused && !e.repeat) {
+        e.preventDefault();
+        const m = owned();
+        if (m)
+          network?.companion(
+            e.code === "KeyR"
+              ? "recall"
+              : m.mode === "stay"
+                ? "follow"
+                : "stay",
+            m.id,
+          );
+      }
       if (e.code === "KeyE") {
+        const moss = mossTarget();
+        if (moss && !paused && !e.repeat) {
+          e.preventDefault();
+          network?.companion("feed", moss.id);
+          return;
+        }
+
         e.preventDefault();
         const target = nearest();
         if (!paused && !e.repeat && target) {
@@ -415,6 +479,12 @@ export function mountMeadow(
       resume();
       if (!wasPaused && e.button === 0) network?.attack();
     }) as EventListener);
+    listen(host, "companion-command", ((
+      e: CustomEvent<CompanionCommand["action"]>,
+    ) => {
+      const m = owned();
+      if (m) network?.companion(e.detail, m.id);
+    }) as EventListener);
     listen(host, "focus", resume);
     listen(host, "blur", pause);
     listen(window, "blur", pause);
@@ -449,6 +519,8 @@ export function mountMeadow(
         host.dataset.pointerWorld = `${p.x.toFixed(3)},${p.y.toFixed(3)}`;
     }) as EventListener);
     function draw() {
+      world = { ...world, gateOpen: network?.gate?.open ?? false };
+      view.gate(network?.gate);
       rendered = network
         ? network.display(Math.min(deltaMS / 1000, 0.1))
         : interpolate(world, previous, state, accumulator / STEP_SECONDS);
@@ -470,6 +542,7 @@ export function mountMeadow(
           : undefined,
       });
       view.combat(network?.slime, network?.visualTick ?? 0);
+      view.companions(network?.moss ?? []);
       view.resources(
         depleted(),
         actor?.combat?.health === 0 ? undefined : nearest(),

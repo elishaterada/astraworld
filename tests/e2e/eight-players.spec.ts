@@ -102,6 +102,20 @@ test("eight real players share movement, facing and waves; ninth is refused and 
         ),
       )
       .toBe(true);
+    // Connected can precede the first simulation/render frame for a newly admitted member.
+    await Promise.all(
+      pages.map((p) =>
+        p.waitForFunction(() => {
+          const s = window.__MEADOW__!.snapshot();
+          return (
+            Math.hypot(
+              s.state.x - s.network!.authoritative.x,
+              s.state.y - s.network!.authoritative.y,
+            ) < 0.001
+          );
+        }),
+      ),
+    );
     const initial = await Promise.all(pages.map(snapshot));
     for (let i = 0; i < 8; i++) {
       expect(initial[i].character).toBe(looks[i % looks.length].toLowerCase());

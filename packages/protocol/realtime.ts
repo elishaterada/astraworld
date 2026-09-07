@@ -1,3 +1,9 @@
+import { gateSchema } from "./utility";
+import {
+  companionCommandSchema,
+  companionReceiptSchema,
+  mossSchema,
+} from "./taming";
 import { combatSchema, slimeSchema } from "./combat";
 import { gatherCommandSchema, progressSchema } from "../content";
 import { MAX_PLAYERS } from "./capacity";
@@ -39,6 +45,7 @@ export const packetSchema = z.discriminatedUnion("type", [
       generation: integer.min(1),
       runs: z.array(runSchema).max(60),
       gather: gatherCommandSchema.optional(),
+      companion: companionCommandSchema.optional(),
     })
     .strict(),
 ]);
@@ -85,6 +92,9 @@ export const realtimeSnapshotSchema = z
     actors: z.array(realtimeActorSchema).max(MAX_PLAYERS),
     progress: progressSchema.optional(),
     slime: slimeSchema.optional(),
+    gate: gateSchema.optional(),
+    moss: z.array(mossSchema).max(2).optional(),
+    companionReceipt: companionReceiptSchema.optional(),
     depleted: z
       .string()
       .max(4096)

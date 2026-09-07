@@ -1,0 +1,45 @@
+{
+  "cpu": "Apple M4 Pro",
+  "os": "25.6.0",
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "seconds": 30,
+  "results": [
+    {
+      "p95": 16.700000000000728,
+      "frames": 1801,
+      "max": 16.80000000000291
+    },
+    {
+      "p95": 16.799999999999272,
+      "frames": 1801,
+      "max": 16.80000000000291
+    }
+  ],
+  "states": [
+    {
+      "collision": false,
+      "peers": 1,
+      "renderer": {
+        "drawCalls": 132,
+        "triangles": 749286,
+        "geometries": 9,
+        "textures": 3
+      }
+    },
+    {
+      "collision": false,
+      "peers": 1,
+      "renderer": {
+        "drawCalls": 113,
+        "triangles": 550112,
+        "geometries": 9,
+        "textures": 3
+      }
+    }
+  ],
+  "errors": []
+}

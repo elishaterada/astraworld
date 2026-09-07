@@ -46,3 +46,11 @@ At completion revalidate, mark the barrier open and remove its collision togethe
 Boar food-luring, Wolf tracking, Golem mining, Salamander heating, Sprout farming, egg hatching, evolution and breeding are future concepts. They need new handlers and invariants, not just a species file. Astra creates those references before Luna adds variants.
 
 M4 checks three feeds, contention, expiry, disconnect, follow/stay/recall and no duplicate wild spawn. M5 checks gate targeting, interruption, both-player traversal and recovery. Test clients cannot command another character's companion or open a gate by sending an “ability succeeded” message.
+
+## Implemented M4 reference
+
+See [M4 taming](milestones/M4_TAMING.md) for the concrete rules and verification envelope. `packages/content/taming.ts` validates the definition; `packages/simulation/taming.ts` owns claims, receipts, ownership, routes and recovery. Two stable spawn instances serve the room; owned instances are retained rather than replaced. Follow/stay/recall has a half-second command cooldown, and commands cannot reset the one-second failed-recovery retry bound. M5 utility above remains a future contract.
+
+## Implemented M5 utility
+
+`packages/content/utility.ts` validates Dissolve Vines and `packages/simulation/utility.ts` executes the pure owner ability. Its one-second channel captures player, companion, generation and command sequence, revalidates at completion, and opens exactly one designated gate. Two-second cooldown applies after every start, including cancellation. Ordinary vegetation cannot be dissolved. Recall uses the same open/closed collision overlay and cannot bypass this Forest boundary. [M5 verification and limits](milestones/M5_COMPANION_UTILITY.md).

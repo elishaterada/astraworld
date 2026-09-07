@@ -121,7 +121,7 @@ it("M2 atomic contention, receipt replay, checkpoint recovery and starter grant 
     const c1 = await client(3197, first),
       c2 = await client(3198, second);
     await until(() => c2.snapshots.at(-1)!.actors.length === 2);
-    const target = `resource:meadow-2:${CONTENT_VERSION}:${first.seed}:65:63`;
+    const target = `resource:${GENERATION_VERSION}:${CONTENT_VERSION}:${first.seed}:65:63`;
     c1.gather(target);
     c2.gather(target);
     await until(

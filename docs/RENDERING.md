@@ -114,3 +114,15 @@ The permanent movement strip and verbose session/art footer are removed from gam
 ## M3 combat presentation
 
 `app/three/combat.ts` owns the original modular hostile Slime, expanding amber ground tell, impact flash and defeat shrink. Character rigs add a starter blade for replicated attack phases and a dodge lean; hit/death presentation consumes confirmed combat state. Shared geometries/materials are disposed with the view. Compact health updates use the existing four-Hz React report; inventory remains hidden until opened. Simulation geometry remains flat and independent of Three.js.
+
+## M4 Moss companion presentation
+
+`app/three/moss.ts` renders two original modular, leaf-topped green Slimes. Stable instance IDs survive taming; labels show the feeder/progress or owner and follow/stay/recovery mode. Server-confirmed movement, facing and feeding drive interpolation, hopping and a small feed pulse. Reduced motion freezes cosmetic hopping; resources dispose with the view. Contextual E feeding replaces the gathering prompt only near a wild Moss Slime. Owner-only C/R buttons occupy a compact companion panel; inventory remains closed by default. No visual effect awards food or ownership.
+
+## M5 Forest and utility presentation
+
+`app/three/forest.ts` renders the original stone-framed vine passage, channel progress, shrinking vine strands and cooler canopy around a small Forest clearing. The opened snapshot hides vines; baseline static batches do not render vine blockers. Moss interpolation receives the confirmed collision overlay; long authoritative recalls snap the model instead of visually racing through walls. Near-gate Q guidance and a Forest discovery cue supplement the compact HUD. Menu → Your first adventure explains the slice without restoring a permanent control strip. No art effect changes gate authority.
+
+M5's measured eight-browser performance pass batches each character's rigid body/limb/tool group and each Moss/Forest group into instanced colored boxes via `app/three/batch-boxes.ts`. Limb pivots and independent tool visibility remain intact. Removed peers dispose their instance buffers; kit/view disposal releases remaining batches and shared materials. No art style, player physics or animation timing is changed by batching.
+
+The final M5 directional shadow map uses 1024×1024 texels. Its measured eight-window p95 improves from about 50 ms to 33.4–33.5 ms, still outside the 20 ms acceptance target. Normal two-player performance and that stress limit are recorded separately.
