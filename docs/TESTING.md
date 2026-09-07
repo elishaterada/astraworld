@@ -71,3 +71,7 @@ Visual review checks text legibility, target overlap, friendly/hostile distincti
 ## M1 protocol 2 checks
 
 `tests/realtime*.test.ts` covers frame validation, normalized movement, exact replay, time budgets, wave idempotency/cooldown, client batching, generation fencing and independent Redis-backed gateways. `tests/e2e/realtime.spec.ts` uses two independent authenticated browser contexts, added application delay, a dropped wave message and a sustained application outage. These do not simulate TCP retransmissions. `REALTIME_LIFECYCLE=1 LIFECYCLE_MS=26000` runs the browser renewal observation against local gateways started with `SOCKET_AGE_MS=20000`. Hosted observation uses the normal 240-second renewal and at least 260000 ms. See [current acceptance evidence](milestones/M1_RESPONSIVENESS.md).
+
+## Eight-player M1 capacity
+
+`tests/capacity.test.ts` verifies atomic cross-gateway admission under 20 competing joins, the eight-actor schema bound, safe spawn slots and retained resume credentials. `tests/e2e/eight-players.spec.ts` opens nine isolated contexts: eight play together, a ninth is refused, and a member resumes the full room. It checks accepted server position before waiting for the next rendered frame. Run with the normal local services and `BASE_URL=http://127.0.0.1:3002`; private hosted automation access is optional. [Local and hosted results](milestones/M1_EIGHT_PLAYERS.md) distinguish this focused capacity test from unrun eight-player soak and TCP-loss checks.

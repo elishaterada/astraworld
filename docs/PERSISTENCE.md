@@ -64,3 +64,7 @@ The implemented Redis adapter stores room metadata, a two-entry membership hash,
 Active checkpoints/membership are refreshed to 1,800 seconds on successful fenced commits. Empty runners stop after a short grace; recovery expires about 30 minutes later. Invite lookup expires 30 minutes after creation. Epoch counters intentionally survive room TTL so an ID's epoch is never reused; production cleanup for permanently expired room IDs is not implemented. The finite local test workload is not a public capacity claim.
 
 Local Redis is launched without disk persistence. A Redis restart can lose all sessions, and explicit Leave discards that tab's credential. There is no Postgres schema or permanent-save claim. See [the local evidence](milestones/M1_LOCAL_RESULTS.md) for process death, stale-owner rejection and Redis-unavailability results.
+
+## M1 eight-member capacity update
+
+The user-authorized active capacity is now eight session members. Atomic admission reserves a stable spawn slot alongside membership; disconnected members retain their slot and resume credential. New `p8` namespaces isolate older two-player clients. This does not add durable saves, membership replacement or a database migration. See [implementation and local/hosted verification](milestones/M1_EIGHT_PLAYERS.md).

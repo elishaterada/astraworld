@@ -153,6 +153,32 @@ test("eight real players share movement, facing and waves; ninth is refused and 
       .getByRole("button", { name: "Resume Meadow", exact: true })
       .click();
     await ready(pages[7]);
+    const resumeAtConnected = await snapshot(pages[7]);
+    expect(
+      Math.hypot(
+        resumeAtConnected.network!.authoritative.x - before.state.x,
+        resumeAtConnected.network!.authoritative.y - before.state.y,
+      ),
+    ).toBeLessThan(0.2);
+    // Network readiness can arrive between Pixi frames. Verify the accepted position first,
+    // then wait for the renderer to display it instead of sampling its initial spawn frame.
+    const renderWaitStarted = Date.now();
+    await expect
+      .poll(
+        async () => {
+          const s = await snapshot(pages[7]);
+          return Math.max(
+            Math.hypot(s.state.x - before.state.x, s.state.y - before.state.y),
+            Math.hypot(
+              s.rendered.x - before.state.x,
+              s.rendered.y - before.state.y,
+            ),
+          );
+        },
+        { timeout: 3000 },
+      )
+      .toBeLessThan(0.2);
+    const resumeRenderWaitMs = Date.now() - renderWaitStarted;
     const resumed = await snapshot(pages[7]);
     expect(resumed.network!.selfId).toBe(before.network!.selfId);
     expect(resumed.collision).toBe(false);
@@ -178,6 +204,11 @@ test("eight real players share movement, facing and waves; ninth is refused and 
           independentContexts: 9,
           ninthRejected: true,
           resumedSameIdentity: true,
+          resumeRenderWaitMs,
+          resumeAtConnected: {
+            state: resumeAtConnected.state,
+            authoritative: resumeAtConnected.network!.authoritative,
+          },
           gateways: [...new Set(initial.map((s) => s.network!.gateway))],
           movementTiles: moved.map((s, i) => s.state.x - initial[i].state.x),
           allObserversSawSevenPeers: true,
