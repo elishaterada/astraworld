@@ -1,3 +1,7 @@
+import {
+  MAX_PLAYERS,
+  CAPACITY_REVISION,
+} from "../../packages/protocol/capacity";
 import { randomUUID } from "node:crypto";
 import { createRealtimeGateway } from "./realtime";
 import { joinSchema } from "../../packages/protocol";
@@ -9,8 +13,8 @@ export function gateway() {
     process.env.VERCEL_ENV === "production" ? "production" : "preview";
   const suffix =
     environment === "production"
-      ? "astraworld-m1v2"
-      : `astraworld-v2-${(process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 12)}`;
+      ? `astraworld-m1v2-${CAPACITY_REVISION}`
+      : `astraworld-v2-${CAPACITY_REVISION}-${(process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 12)}`;
   return (instance ??= createRealtimeGateway({
     redisUrl: process.env.REDIS_URL,
     owner: `${(process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 7)}-${randomUUID()}`,
@@ -69,7 +73,9 @@ export async function issueSession(request: Request) {
     return Response.json(s, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return Response.json(
-      { error: "This Meadow is unavailable or already has two adventurers." },
+      {
+        error: `This Meadow is unavailable or full (${MAX_PLAYERS} adventurers).`,
+      },
       { status: 503 },
     );
   }

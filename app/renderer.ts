@@ -222,7 +222,7 @@ export function mountMeadow(
       },
     });
     waveLabel.anchor.set(0.5, 1);
-    waveLabel.y = -62;
+    waveLabel.y = -80;
     waveLabel.visible = false;
     avatar.addChild(shadow, body, waveLabel);
     objects.addChild(avatar);
@@ -476,6 +476,7 @@ export function mountMeadow(
             text: `${look.mark} ${actor.name}`,
             style: {
               fontFamily: "Georgia",
+              align: "center",
               fontSize: 14,
               fill: look.color,
               stroke: { color: 0x15392d, width: 3 },
@@ -494,7 +495,7 @@ export function mountMeadow(
         sprite.tint = look.tint;
         const waving =
           actor.action && network!.tick - actor.action.startedTick < 48;
-        label.text = `${look.mark} ${actor.name}${waving ? " · ✋ wave" : ""}`;
+        label.text = `${waving ? "✋\n" : ""}${look.mark} ${actor.name}`;
         pose(sprite, actor.facing, actor.moving, walkTime);
         label.style.fill = look.color;
         peer.position.set(actor.position.x * 32, actor.position.y * 32);

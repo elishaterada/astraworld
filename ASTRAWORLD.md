@@ -8,7 +8,7 @@ The long-term world persists between visits. The first adventure slice is intent
 
 ## Product pillars
 
-1. **Cooperative discovery.** A small group shares discoveries and environmental changes. Two players prove the slice; four players are the first persistent-release capacity target.
+1. **Cooperative discovery.** A small group shares discoveries and environmental changes. Up to eight players share a Meadow (explicit user expansion after the two-player reference); the two-player walkthrough remains a minimum gameplay test.
 2. **Useful companions.** Every released species needs a recognizable personality, a combat role and an environmental role. The first Moss Slime proves following and vine dissolution before content expands.
 3. **A home worth returning to.** Gathering, crafting and modular building eventually turn exploration rewards into a settlement. These are later milestones, not prerequisites for the first taming loop.
 4. **Readable action and charm.** A top-down 2D view, expressive silhouettes, clear attack tells and colorful natural biomes keep the browser experience legible.
@@ -27,7 +27,7 @@ The long-term world persists between visits. The first adventure slice is intent
 
 ## First playable promise
 
-Two players join a procedural Meadow, move together, gather wood and berries, fight hostile Slimes, discover a curious Moss Slime, feed it three Sweet Berries, gain a following companion, dissolve a vine barrier and enter a Forest clearing. Stop at the clearing. Aim for a satisfying 10–15 minute first session.
+A group of up to eight players joins a procedural Meadow, move together, gather wood and berries, fight hostile Slimes, discover a curious Moss Slime, feed it three Sweet Berries, gain a following companion, dissolve a vine barrier and enter a Forest clearing. Stop at the clearing. Aim for a satisfying 10–15 minute first session.
 
 ## Explicit non-goals
 

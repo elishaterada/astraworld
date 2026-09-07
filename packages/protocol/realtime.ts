@@ -1,3 +1,4 @@
+import { MAX_PLAYERS } from "./capacity";
 import { z } from "zod";
 import { id, integer, credential, characterSchema, name } from "./index";
 import { CONTENT_VERSION, GENERATION_VERSION } from "../world";
@@ -74,7 +75,7 @@ export const realtimeSnapshotSchema = z
     tick: integer,
     owner: z.string().max(100),
     selfId: id,
-    actors: z.array(realtimeActorSchema).max(2),
+    actors: z.array(realtimeActorSchema).max(MAX_PLAYERS),
   })
   .strict();
 export type RealtimeSnapshot = z.infer<typeof realtimeSnapshotSchema>;

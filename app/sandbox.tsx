@@ -8,6 +8,10 @@ import {
   characterId,
   type CharacterId,
 } from "../packages/characters";
+import {
+  MAX_PLAYERS,
+  SESSION_STORAGE_KEY,
+} from "../packages/protocol/capacity";
 import { joinMeadow, savedSession } from "./network";
 import type { Session } from "../packages/protocol";
 import type { SandboxReport } from "./renderer";
@@ -166,7 +170,9 @@ function Meadow({
           <kbd>S</kbd>
           <kbd>D</kbd>
         </span>
-        <span>or arrows to wander{session ? " · Point to face · Space to wave" : ""}</span>
+        <span>
+          or arrows to wander{session ? " · Point to face · Space to wave" : ""}
+        </span>
         <i />
         <kbd>esc</kbd>
         <span>pause</span>
@@ -177,7 +183,7 @@ function Meadow({
       >
         <span className="status-dot" />{" "}
         {session
-          ? `${status?.connection ?? "Connecting…"} · ${status?.players ?? 1}/2 adventurers`
+          ? `${status?.connection ?? "Connecting…"} · ${status?.players ?? 1}/${MAX_PLAYERS} adventurers`
           : "SOLO MEADOW"}{" "}
         <span>·</span> ART STUDY
       </div>
@@ -232,12 +238,11 @@ function Meadow({
               {copyNote}
             </p>
             <p className="fine-print">
-              Share this private link with one friend. This session can recover
-              for 30 minutes after everyone leaves.
+              Share this private link with up to seven friends. This session can
+              recover for 30 minutes after everyone leaves.
             </p>
             <p role="status">
-              {status?.connection ?? "Connecting…"} · {status?.players ?? 1}/2
-              adventurers nearby
+              {`${status?.connection ?? "Connecting…"} · ${status?.players ?? 1}/${MAX_PLAYERS} adventurers nearby`}
             </p>
           </div>
         ) : (
@@ -373,7 +378,7 @@ export default function Sandbox() {
     setResuming(false);
     setInvited(false);
     setSession(undefined);
-    sessionStorage.removeItem("meadow-session-v2");
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
     setFullscreenNote("");
     if (document.fullscreenElement)
       void document.exitFullscreen().catch(() => {});
@@ -434,7 +439,7 @@ export default function Sandbox() {
                   ? "Welcome back. Your name and look are saved for this session."
                   : invited
                     ? "You’re joining a friend’s Meadow. Choose a name and look."
-                    : "Start a Meadow, then invite one friend from the menu."}
+                    : "Start a Meadow, then invite up to seven friends from the menu."}
               </p>
               <div className="name-field">
                 <span aria-hidden="true">✧</span>

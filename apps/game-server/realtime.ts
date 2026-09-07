@@ -1,3 +1,4 @@
+import { MAX_PLAYERS } from "../../packages/protocol/capacity";
 import http from "node:http";
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
@@ -22,7 +23,7 @@ export async function createRealtimeGateway(options: {
   socketAgeMs?: number;
 }) {
   const owner = options.owner ?? randomUUID(),
-    store = new Store(options.redisUrl, options.prefix, 1800);
+    store = new Store(options.redisUrl, options.prefix, 1800, MAX_PLAYERS);
   await store.connect();
   const subscriber = store.redis.duplicate();
   subscriber.on("error", () => {});
@@ -202,8 +203,13 @@ export async function createRealtimeGateway(options: {
         loaded.checkpoint?.actors as RealtimeActor[] | undefined
       )?.find((a) => a.id === m.id);
       return {
-        ...m,
-        position: committed?.position ?? { x: SPAWN.x + index, y: SPAWN.y },
+        id: m.id,
+        name: m.name,
+        character: m.character,
+        position: committed?.position ?? {
+          x: SPAWN.x + 2 * (m.spawnIndex ?? index),
+          y: SPAWN.y,
+        },
         generation,
         ack: 0,
         facing: committed?.facing ?? 2,

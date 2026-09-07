@@ -1,0 +1,24 @@
+{
+  "browser": "153.0.8010.12",
+  "members": 8,
+  "independentContexts": 9,
+  "ninthRejected": true,
+  "resumedSameIdentity": true,
+  "gateways": [
+    "local-a",
+    "local-b"
+  ],
+  "movementTiles": [
+    2.666666666666515,
+    2.599999999999852,
+    2.666666666666515,
+    2.599999999999852,
+    2.666666666666515,
+    2.599999999999852,
+    2.599999999999852,
+    2.599999999999852
+  ],
+  "allObserversSawSevenPeers": true,
+  "allFacingAndWaveSynchronized": true,
+  "errors": []
+}

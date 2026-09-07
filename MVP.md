@@ -23,7 +23,7 @@ Killing the hostile Slime is an encounter beat, not a hidden prerequisite for fe
 | Category | Required slice content |
 | --- | --- |
 | World | One finite seeded map, Meadow plus Forest entry clearing, one mandatory vine gate |
-| Players | Two concurrent humans, one test avatar appearance each |
+| Players | Up to eight concurrent humans, with a chosen cosmetic appearance each (M1 capacity expansion) |
 | Resources | Berry bush and tree; wood and Sweet Berry inventory stacks |
 | Equipment | Granted starter blade and hatchet; no crafting dependency |
 | Creatures | Hostile Slime and tameable Moss Slime using one creature framework |

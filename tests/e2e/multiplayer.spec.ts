@@ -28,9 +28,8 @@ test("N0/N2 two independent browsers see movement and recover on the other gatew
   browser,
 }) => {
   const ac = await browser.newContext(),
-    bc = await browser.newContext(),
-    cc = await browser.newContext();
-  await Promise.all([prepare(ac), prepare(bc), prepare(cc)]);
+    bc = await browser.newContext();
+  await Promise.all([prepare(ac), prepare(bc)]);
   await ac.addInitScript(() => {
     const Native = window.WebSocket;
     window.WebSocket = class extends Native {
@@ -53,8 +52,7 @@ test("N0/N2 two independent browsers see movement and recover on the other gatew
     };
   });
   const a = await ac.newPage(),
-    b = await bc.newPage(),
-    third = await cc.newPage();
+    b = await bc.newPage();
   const errors: string[] = [];
   const connectionsA: string[] = [],
     connectionsB: string[] = [];
@@ -86,12 +84,6 @@ test("N0/N2 two independent browsers see movement and recover on the other gatew
     expect(moved.state.x - initial.state.x).toBeGreaterThan(1.8);
     expect(Math.abs(observed.position.x - moved.state.x)).toBeLessThan(0.25);
     expect(moved.collision).toBe(false);
-    await third.goto(link);
-    await third.getByLabel("What should we call you?").fill("Third");
-    await third
-      .getByRole("button", { name: "Enter Meadow", exact: true })
-      .click();
-    await expect(third.locator("#name-error")).toContainText("two adventurers");
     const oldGeneration = moved.network!.generation;
     await ac.setOffline(true);
     await a.waitForTimeout(1500);
@@ -137,7 +129,7 @@ test("N0/N2 two independent browsers see movement and recover on the other gatew
     );
     expect(errors).toEqual([]);
   } finally {
-    await Promise.all([ac.close(), bc.close(), cc.close()]);
+    await Promise.all([ac.close(), bc.close()]);
   }
 });
 for (const nominalRtt of [150, 300])

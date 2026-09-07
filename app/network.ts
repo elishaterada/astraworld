@@ -1,3 +1,4 @@
+import { SESSION_STORAGE_KEY } from "../packages/protocol/capacity";
 import { type Session } from "../packages/protocol";
 import {
   REALTIME_VERSION,
@@ -25,7 +26,7 @@ import { characterId, type CharacterId } from "../packages/characters";
 export function savedSession(): Session | undefined {
   try {
     const value = JSON.parse(
-      sessionStorage.getItem("meadow-session-v2") ?? "null",
+      sessionStorage.getItem(SESSION_STORAGE_KEY) ?? "null",
     );
     if (
       value?.worldId &&
@@ -73,7 +74,7 @@ export async function joinMeadow(
         last = data.error ?? last;
         break;
       }
-      sessionStorage.setItem("meadow-session-v2", JSON.stringify(data));
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data));
       return data as Session;
     } catch {
       /* Try another configured gateway. */

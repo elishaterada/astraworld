@@ -6,7 +6,7 @@
 
 Clients submit intents. The server owns position, velocity bounds, collision, health, cooldowns, loot, inventories, creature ownership and world edits. Clients own input collection, camera, animation, sound and visual prediction.
 
-Start with a 20 Hz fixed simulation tick, up to 20 input messages/second/client, 10 Hz state snapshots and a 60 FPS render target. Use two players through M5 and test four at M6. These are engineering defaults to measure, not platform guarantees. Prefer readable JSON schemas first; binary packing waits for measured need.
+Start with a 20 Hz fixed simulation tick, up to 20 input messages/second/client, 10 Hz state snapshots and a 60 FPS render target. The current user-authorized capacity is eight players; M6 must revalidate that capacity with durable gameplay state. These are engineering defaults to measure, not platform guarantees. Prefer readable JSON schemas first; binary packing waits for measured need.
 
 ## Protocol sketch
 

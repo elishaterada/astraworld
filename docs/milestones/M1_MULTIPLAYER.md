@@ -1,10 +1,12 @@
-# M1 mission: authoritative two-player multiplayer
+# M1 mission: authoritative multiplayer (up to eight players)
 
 **Status: local and deployed lifecycle verified; true TCP packet-loss validation pending. M1 was authorized by “Great, next step” after M0. See [local results](M1_LOCAL_RESULTS.md) and [deployment results](M1_DEPLOYMENT.md). Do not start M2.**
 
+The user explicitly expanded the room limit from two to eight after the two-player reference. See [capacity decisions and checks](M1_EIGHT_PLAYERS.md).
+
 ## Mission
 
-Two independent browser sessions explore the same Meadow with server-owned movement, smooth local response and consistent reconnect behavior. Prove actual hosting lifecycle constraints before building gameplay systems on them.
+Up to eight independent browser sessions explore the same Meadow with server-owned movement, smooth local response and consistent reconnect behavior. Prove actual hosting lifecycle constraints before building gameplay systems on them.
 
 ## Required reading
 
@@ -25,4 +27,4 @@ N0–N4 in TESTING.md pass with actual network traffic; clean and degraded-netwo
 
 ## Stop line
 
-No resource rewards, inventory, attacks, taming, crafting, Postgres gameplay persistence, matchmaking or four-player scaling work. Minimal identity protects session authority; do not build account settings/admin UI. If service access blocks deployed verification, finish local tests and identify the exact missing prerequisite without advancing to M2.
+No resource rewards, inventory, attacks, taming, crafting, Postgres gameplay persistence, matchmaking or scaling beyond eight players. Minimal identity protects session authority; do not build account settings/admin UI. If service access blocks deployed verification, finish local tests and identify the exact missing prerequisite without advancing to M2.

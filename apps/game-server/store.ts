@@ -30,6 +30,7 @@ export class Store {
     url: string,
     readonly prefix: string,
     readonly leaseMs = LEASE_MS,
+    readonly maxPlayers = 2,
   ) {
     if (!/^(local|test|preview|production):[a-zA-Z0-9_-]+$/.test(prefix))
       throw Error("Use an explicit environment namespace");
@@ -73,7 +74,7 @@ export class Store {
       .hSet(
         this.key(worldId, "members"),
         playerId,
-        JSON.stringify({ name, character, hash: hash(token) }),
+        JSON.stringify({ name, character, hash: hash(token), spawnIndex: 0 }),
       )
       .expire(this.key(worldId, "members"), TTL)
       .set(`${this.prefix}:invite:${hash(invite)}`, worldId, { EX: TTL })
@@ -102,8 +103,9 @@ export class Store {
     const ok = await this.redis.eval(
       `local raw=redis.call('GET',KEYS[1]); if not raw then return 0 end
       local meta=cjson.decode(raw); if meta.contentVersion~=ARGV[3] or meta.generationVersion~=ARGV[4] then return 0 end
-      if redis.call('HLEN',KEYS[2])>=2 then return 0 end
-      redis.call('HSET',KEYS[2],ARGV[1],ARGV[2]); redis.call('EXPIRE',KEYS[2],1800); return 1`,
+      local count=redis.call('HLEN',KEYS[2]); if count>=tonumber(ARGV[5]) then return 0 end
+      local member=cjson.decode(ARGV[2]); member.spawnIndex=count
+      redis.call('HSET',KEYS[2],ARGV[1],cjson.encode(member)); redis.call('EXPIRE',KEYS[2],1800); return 1`,
       {
         keys: [this.key(worldId, "meta"), this.key(worldId, "members")],
         arguments: [
@@ -111,10 +113,12 @@ export class Store {
           JSON.stringify({ name, character, hash: hash(token) }),
           CONTENT_VERSION,
           GENERATION_VERSION,
+          String(this.maxPlayers),
         ],
       },
     );
-    if (ok !== 1) throw Error("This Meadow already has its two adventurers.");
+    if (ok !== 1)
+      throw Error(`This Meadow is full (${this.maxPlayers} adventurers).`);
     return {
       worldId,
       playerId,
@@ -245,6 +249,7 @@ export class Store {
         id,
         name: JSON.parse(raw).name as string,
         character: characterId(JSON.parse(raw).character),
+        spawnIndex: JSON.parse(raw).spawnIndex as number | undefined,
       })),
       inputs: Object.fromEntries(
         Object.entries(inputs).map(([id, raw]) => [
