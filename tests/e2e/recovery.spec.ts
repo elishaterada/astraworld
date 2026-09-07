@@ -61,13 +61,12 @@ test("M6 saved inventory resumes after reload and recovery-key import into a fre
     const q = await b.newPage();
     q.on("pageerror", (e) => errors.push(e.message));
     await q.goto("/?debug=1");
-    await q
-      .getByLabel("Restore recovery key")
-      .setInputFiles({
-        name: "astraworld-recovery.json",
-        mimeType: "application/json",
-        buffer,
-      });
+    await q.getByText("Restore a saved world", {exact:true}).click();
+    await q.getByLabel("Restore recovery key").setInputFiles({
+      name: "astraworld-recovery.json",
+      mimeType: "application/json",
+      buffer,
+    });
     await expect(
       q.getByRole("button", { name: "Resume Meadow", exact: true }),
     ).toBeVisible();
@@ -81,8 +80,11 @@ test("M6 saved inventory resumes after reload and recovery-key import into a fre
     await q.getByRole("button", { name: "Open menu" }).click();
     const prefix =
       process.env.RECOVERY_EVIDENCE_PREFIX ??
-      "docs/milestones/evidence/m6-recovery";
-    await q.screenshot({ path: `${prefix}.png` });
+      "docs/milestones/evidence/m6-recovery-key";
+    await q.screenshot({
+      path: `${prefix}.png`,
+      mask: [q.getByLabel("Invite a friend")],
+    });
     expect(errors).toEqual([]);
     writeFileSync(
       `${prefix}.json`,

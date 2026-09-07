@@ -502,8 +502,10 @@ function Meadow({
               {copyNote}
             </p>
             <p className="fine-print">
-              Share this private link with up to seven friends. This session can
-              recover for 30 minutes after everyone leaves.
+              Share this private link with up to seven friends.{" "}
+              {session.durable
+                ? "Your group can return to this saved world. Keep your recovery key."
+                : "This temporary session can recover for 30 minutes after everyone leaves."}
             </p>
             <p role="status">
               {`${status?.connection ?? "Connecting…"} · ${status?.players ?? 1}/${MAX_PLAYERS} adventurers nearby`}
@@ -542,7 +544,7 @@ function Meadow({
         </button>
         {session?.durable && (
           <button
-            className="menu-action"
+            className="quiet-button"
             onClick={() => downloadRecovery(session)}
           >
             Download recovery key
@@ -768,7 +770,7 @@ export default function Sandbox() {
               {resuming && (
                 <button
                   type="button"
-                  className="entry-note"
+                  className="quiet-button entry-note"
                   onClick={() => {
                     try {
                       localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -782,40 +784,43 @@ export default function Sandbox() {
                   Forget this browser’s key · start a new world
                 </button>
               )}
-              <label className="entry-note">
-                Restore a saved world
-                <input
-                  type="file"
-                  aria-label="Restore recovery key"
-                  accept="application/json,.json"
-                  disabled={joining}
-                  onChange={async (e) => {
-                    const file = e.currentTarget.files?.[0];
-                    if (!file) return;
-                    try {
-                      if (file.size > 4096)
-                        throw Error("Choose an Astraworld recovery file.");
-                      const restored = parseRecovery(await file.text());
-                      rememberSession(restored);
-                      setDraftName(restored.name);
-                      setCharacter(characterId(restored.character));
-                      setResuming(true);
-                      setNameError("");
-                      const url = new URL(location.href);
-                      url.searchParams.delete("invite");
-                      url.searchParams.delete("solo");
-                      history.replaceState(null, "", url);
-                      setInvited(false);
-                    } catch (error) {
-                      setNameError(
-                        error instanceof Error
-                          ? error.message
-                          : "Could not restore this key.",
-                      );
-                    }
-                  }}
-                />
-              </label>
+              <details className="entry-recovery">
+                <summary>Restore a saved world</summary>
+                <label className="entry-note">
+                  Choose your recovery key
+                  <input
+                    type="file"
+                    aria-label="Restore recovery key"
+                    accept="application/json,.json"
+                    disabled={joining}
+                    onChange={async (e) => {
+                      const file = e.currentTarget.files?.[0];
+                      if (!file) return;
+                      try {
+                        if (file.size > 4096)
+                          throw Error("Choose an Astraworld recovery file.");
+                        const restored = parseRecovery(await file.text());
+                        rememberSession(restored);
+                        setDraftName(restored.name);
+                        setCharacter(characterId(restored.character));
+                        setResuming(true);
+                        setNameError("");
+                        const url = new URL(location.href);
+                        url.searchParams.delete("invite");
+                        url.searchParams.delete("solo");
+                        history.replaceState(null, "", url);
+                        setInvited(false);
+                      } catch (error) {
+                        setNameError(
+                          error instanceof Error
+                            ? error.message
+                            : "Could not restore this key.",
+                        );
+                      }
+                    }}
+                  />
+                </label>
+              </details>
               <p className="entry-note">
                 A little wilderness, better with a friend.
               </p>

@@ -20,7 +20,7 @@ The reference retains validated saved poses and tick state, including acknowledg
 
 ## Evidence
 
-Implementation verified locally; hosted preview verification and provider backup-setting confirmation are the remaining M6 release checks.
+Implementation verified locally and on the Neon-backed Vercel preview. Provider backup-setting confirmation and the carried-forward M5 gates remain open.
 
 ### Verified implementation (2026-09-07)
 
@@ -29,7 +29,7 @@ Implementation verified locally; hosted preview verification and provider backup
 - [71 rule/network tests](evidence/m6-tests.json) passed, including real TCP database interruption (no premature reward), SIGKILL plus Redis FLUSHDB, duplicate replay, independent durable owner fencing, and lost COMMIT reply after a real Postgres commit. Full gathering → taming → opened Forest recovery retains inventory and one owned companion. Eight durable slots are enforced; ninth admission fails.
 - The same durable transaction and complete network recovery tests passed against Neon (3.67 s and 27.91 s respectively); the TCP fault test intentionally targets only disposable loopback Postgres.
 - [Neon test-world restore](evidence/m6-neon-restore.json) passed: 2 worlds, 9 memberships, 12 command records and 22 outbox records restored into an isolated local database and compared by checksum. This proves an application-schema logical restore, not provider point-in-time recovery.
-- [Two-player rendered slice](evidence/m6-browser.json) passed locally in 1.3 minutes with 75 ms each-way application delay on one client. [Recovery-key browser check](evidence/m6-recovery.json) passed: confirmed inventory survives reload and fresh browser import, with no page errors. Typecheck and optimized build passed.
+- [Two-player rendered slice](evidence/m6-browser.json) passed locally in 1.3 minutes with 75 ms each-way application delay on one client. [Recovery-key browser check](evidence/m6-recovery-key.json) passed: confirmed inventory survives reload and fresh browser import, with no page errors. Typecheck and optimized build passed.
 
 ### Remaining release gates
 
@@ -44,3 +44,8 @@ On this Mac, `npm run db:local` prepares `.local/postgres`; `node --env-file=.en
 M6 durable worlds start in a new namespace; M5's temporary worlds are not silently imported. Keep a private recovery key from the in-game menu. Leave returns to entry while preserving the browser's key; forgetting a browser key does not delete the database world. Saved pose/tick state is retained on cold recovery, and generation replacement cancels stale actions through the existing pure rules; there is no automatic refund or broad world reset.
 
 - [Eight authenticated browser contexts](evidence/m6-eight.json) passed in 42.7 seconds: distinct membership, synchronized movement/facing/waves, ninth rejection and same-character resume. The initial check exposed generic admission feedback and an insufficient nine-window UI wait; feedback was corrected and the error wait extended to 15 seconds. This is a correctness check, not a frame-time pass.
+
+
+### Hosted M6 preview
+
+Source `4846db3` deployed successfully as `dpl_fFJ5vAJsNL6aU4vD8Dp1X6yw4PQX` ([preview](https://astraworld-ebenj4b8p-teradas.vercel.app)). All three actual-browser checks passed in 1.9 minutes: [eight-player identity/actions/admission](evidence/m6-hosted-eight.json), [fresh-browser durable recovery](evidence/m6-hosted-recovery-key.json), and [full two-player adventure](evidence/m6-hosted-browser.json). Production remains the verified M4/M5 deployment. Recovery-menu presentation was polished afterward; its final preview and follow-up check are recorded below.

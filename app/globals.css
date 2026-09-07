@@ -1223,3 +1223,25 @@ kbd {
 .forest-complete strong {font-family:Georgia,serif;font-size:23px;color:#f4ebd7;}
 .forest-complete p {font-size:12px;line-height:1.6;color:#d4e0cb;margin:9px 0 0;}
 .vine-label {color:#e8f1d9;border:1px solid #90b36a55;}
+
+.entry-recovery {
+  margin-top: 1rem;
+  color: var(--cream, #efe8d5);
+  font-size: 0.75rem;
+}
+.entry-recovery summary {
+  cursor: pointer;
+}
+.entry-recovery input {
+  display: block;
+  max-width: 100%;
+  margin-top: 0.5rem;
+}
+.entry-recovery input::file-selector-button {
+  border: 1px solid #658679;
+  border-radius: 4px;
+  padding: 0.5rem;
+  background: #193e36;
+  color: #efe8d5;
+  cursor: pointer;
+}

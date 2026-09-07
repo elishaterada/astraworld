@@ -143,7 +143,7 @@ Combat and inventory recover together through the existing temporary Redis check
 
 Run `npm run dev` and open [the stable local Meadow](https://astraworld.localhost:1355). Refresh and create a **new Meadow**, then share its new invitation; M3 room invitations cannot join M4 rooms. Gather Sweet Berries with **E** near a berry bush. Find a green, leaf-topped Moss Slime just west or south of the starting clearing, approach it, and press **E three times**, waiting one second between feeds. Each feed uses one berry. The first feed reserves the Slime for you for sixty seconds, renewed by the next feed; expiry resets progress without refund.
 
-Your companion follows automatically. **C** toggles Stay/Follow; **R** resumes following and safely recalls a distant or stuck companion. The compact companion panel offers the same controls. Each player can own one companion; this reference Meadow has two tameable Slimes shared by up to eight players. Ownership, food and commands recover with the temporary room session. This adds no permanent saving, companion attacks or vine ability. The offline solo harness does not simulate taming; use ordinary room entry.
+Your companion follows automatically. **C** toggles Stay/Follow; **R** resumes following and safely recalls a distant or stuck companion. The compact companion panel offers the same controls. Each player can own one companion; this reference Meadow has two tameable Slimes shared by up to eight players. M6 saves ownership, food and command receipts to Postgres. M5 adds the vine ability; companion attacks remain out of scope. The offline solo harness does not simulate taming; use ordinary room entry.
 
 
 ## Open the Forest path (M5)

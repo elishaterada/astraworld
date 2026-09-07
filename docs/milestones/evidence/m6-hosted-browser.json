@@ -5,7 +5,7 @@
     "id": "meadow-3:utility-1:meadow-001:vine:0",
     "tag": "dissolvable-vines",
     "open": true,
-    "openedTick": 4200,
+    "openedTick": 4321,
     "channel": null
   },
   "disconnectedChannelCancelled": true,
@@ -25,13 +25,13 @@
     },
     "attack": null,
     "attackReady": 0,
-    "dodgeUntil": 680,
-    "dodgeReady": 725,
-    "dodgeSteps": 1,
+    "dodgeUntil": 737,
+    "dodgeReady": 782,
+    "dodgeSteps": 0,
     "dodgeFacing": 2,
-    "invulnerableUntil": 674,
+    "invulnerableUntil": 731,
     "respawnAt": 0,
-    "damageTick": 615,
+    "damageTick": 664,
     "deaths": 0
   },
   "death": {
@@ -43,12 +43,12 @@
     "attack": null,
     "attackReady": 0,
     "dodgeUntil": 0,
-    "dodgeReady": 725,
+    "dodgeReady": 782,
     "dodgeSteps": 0,
     "dodgeFacing": 2,
-    "invulnerableUntil": 674,
-    "respawnAt": 1485,
-    "damageTick": 1365,
+    "invulnerableUntil": 731,
+    "respawnAt": 1535,
+    "damageTick": 1415,
     "deaths": 1
   },
   "respawn": {
@@ -63,7 +63,7 @@
     "dodgeReady": 0,
     "dodgeSteps": 0,
     "dodgeFacing": 2,
-    "invulnerableUntil": 1605,
+    "invulnerableUntil": 1655,
     "respawnAt": 0,
     "damageTick": 0,
     "deaths": 1
@@ -81,14 +81,14 @@
     },
     "health": 0,
     "phase": "dead",
-    "phaseTick": 1922,
+    "phaseTick": 1979,
     "target": null,
     "impact": {
       "x": 64.5,
       "y": 52.93333333333308
     },
-    "damageTick": 1922,
-    "deathTick": 1922
+    "damageTick": 1979,
+    "deathTick": 1979
   },
   "inventoryRetained": true,
   "reload": true,
