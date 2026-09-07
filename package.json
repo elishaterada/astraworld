@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --hostname 127.0.0.1",
+    "dev": "node scripts/dev-local.mjs",
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
@@ -13,7 +13,8 @@
     "game:server": "tsx apps/game-server/main.ts",
     "game:redis": "redis-server --bind 127.0.0.1 --port 6380 --save \"\" --appendonly no",
     "test:multiplayer-soak": "M1_SOAK=1 playwright test tests/e2e/multiplayer-soak.spec.ts",
-    "game:realtime": "tsx apps/game-server/main-realtime.ts"
+    "game:realtime": "tsx apps/game-server/main-realtime.ts",
+    "dev:next": "next dev --hostname 127.0.0.1"
   },
   "dependencies": {
     "@vercel/functions": "3.9.5",

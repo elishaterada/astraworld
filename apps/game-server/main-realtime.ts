@@ -9,7 +9,7 @@ const gateway = await createRealtimeGateway({
   owner: process.env.GATEWAY_ID,
   socketAgeMs: Number(process.env.SOCKET_AGE_MS) || undefined,
 });
-const port = Number(process.env.GAME_PORT ?? 3103);
+const port = Number(process.env.GAME_PORT || process.env.PORT || 3103);
 gateway.server.listen(port, "127.0.0.1", () =>
   console.log(`Meadow gateway ${gateway.owner} on http://127.0.0.1:${port}`),
 );

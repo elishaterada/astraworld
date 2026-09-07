@@ -14,29 +14,32 @@ A cozy 3D cooperative browser adventure where befriending creatures gives player
 
 ## Launch and play
 
-Requires Node.js 22.12+, npm and Redis (`brew install redis` on macOS). Run `npm ci`, then keep these four terminals open from `~/repos/astraworld`:
+Development requires Node.js 24+, npm, Redis and the installed Vercel Portless CLI. Run `npm ci`, then:
 
 ```sh
-# Terminal 1: temporary local Redis, no disk persistence
-npm run game:redis
-
-# Terminal 2: first gateway / runner candidate
-GATEWAY_ID=local-a npm run game:realtime
-
-# Terminal 3: second gateway / runner candidate
-GAME_PORT=3104 GATEWAY_ID=local-b npm run game:realtime
-
-# Terminal 4: frontend
-npm run dev -- --port 3002
+npm run dev
 ```
 
-Open [Astraworld locally](http://127.0.0.1:3002), choose an adventurer name and one of four distinct adventurers (Fern, Ember, Iris or Hazel), and press **Enter Meadow**. The game requests fullscreen; unavailable fullscreen falls back to the full browser viewport. **WASD / arrows** move, **pointing** sets facing, **Space** waves, **Escape** releases focus, and **Menu** pauses your input. Other players keep exploring while your menu is open. Trees, rocks, logs, water and fire pits are solid. Wander northwest from spawn to Willow Pond or southeast to Wayfarer’s Rest.
+This starts local Redis when needed, two game gateways and Next.js through Portless. The stable address on this machine is **https://astraworld.localhost:1355**; `portless get astraworld` prints the address for your proxy configuration. Portless selects internal ports automatically, so neither the browser URL nor the gateway URLs need to change. HTTPS and WebSocket connections use the local trusted Portless certificate. On a machine where Portless can bind port 443, the same hostname has no port suffix.
+
+Stop the launcher with Ctrl+C. It stops the children it started; it leaves an existing Redis process and the shared Portless proxy alone. Its own Redis is temporary with no disk persistence, so stopping it discards local sessions. Standalone gateways read process environment, not Next.js `.env` files.
+
+For fixed-port network fault tests or production-build review, the previous separate-terminal flow remains available:
+
+```sh
+npm run game:redis
+GATEWAY_ID=local-a npm run game:realtime
+GAME_PORT=3104 GATEWAY_ID=local-b npm run game:realtime
+npm run dev:next -- --port 3002
+```
+
+Open [Astraworld locally](https://astraworld.localhost:1355), choose an adventurer name and one of four distinct adventurers (Fern, Ember, Iris or Hazel), and press **Enter Meadow**. The game requests fullscreen; unavailable fullscreen falls back to the full browser viewport. **WASD / arrows** move, **pointing** sets facing, **Space** waves, **Escape** releases focus, and **Menu** pauses your input. Other players keep exploring while your menu is open. Trees, rocks, logs, water and fire pits are solid. Wander northwest from spawn to Willow Pond or southeast to Wayfarer’s Rest.
 
 In **Menu → Invite a friend**, press **Copy invite link** and send it to your friend. They open it, choose their own name and look, then enter the same world. For a local two-player test, open the link in another browser profile or incognito window. The private link admits up to seven additional players. A ninth member is rejected. Local loopback links work on this computer only. Nearby friends show their selected character and a name marker (circle, diamond, star or square). Reloading offers **Resume Meadow** with the same identity and look. Choices are cosmetic and are not reserved; choose different looks to distinguish the group. The connection indicator reports connecting, connected or reconnecting.
 
 Reloading the same tab keeps its temporary session credential. **Leave meadow** returns to entry and forgets it. Session recovery lasts about 30 minutes after everyone leaves, and Redis loss can lose the session. Invitations expire 30 minutes after creation. This is not permanent saving. Shared seeds cannot be changed from the client.
 
-The offline M0 sandbox remains available at [solo mode](http://127.0.0.1:3002/?solo=1), including its seed controls, without Redis or gateways. Artwork is a provisional [concept study](docs/art-reference/early-game-concept.png).
+The offline M0 sandbox remains available at [solo mode](https://astraworld.localhost:1355/?solo=1), including its seed controls, without Redis or gateways. Artwork is a provisional [concept study](docs/art-reference/early-game-concept.png).
 
 For the optimized frontend use `npm run build`, then `npm start -- --port 3002` instead of the dev server. [Environment examples](.env.example) document the public endpoint list and server-only settings. The standalone runner reads process environment; it does not automatically load Next.js `.env` files.
 
