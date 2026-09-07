@@ -25,4 +25,8 @@ Environment: macOS, Node 24.13.0, Chromium 153.0.8010.12, production Next fronte
 
 Generated art remains provisional. Walking is a short stylized loop; left-facing mirrors asymmetric accessories. No separate waving-body animation is added; the existing wave cue is retained. Four full-resolution sheets add about 6.2 MiB of PNG downloads, cached and loaded concurrently per page; this is not a compressed final asset pipeline. No long-duration eight-player soak or Safari/Firefox art pass was run. The existing true TCP packet-loss validation remains the next M1 gate; M2 has not started.
 
-Hosted verification is recorded below after deployment.
+## Hosted result
+
+Runtime commit `1df7cf6` was pushed to `origin/main`; Vercel reported deployment complete. On `https://astraworld-teradas.vercel.app`, the protected-deployment browser checks passed in 36.2 seconds: selector/invitation/resume (8.5s) and eight-player/full-room/reconnect (27.2s). Nine isolated browser contexts exercised all four designs. Every member moved 2.6 tiles, all observers agreed on appearances and rendered facing, wave cues synchronized, the ninth entrant was rejected, and Hazel resumed with the same identity/appearance. No page exceptions. Hosted screenshots were visually inspected. Evidence: `evidence/m1-four-character-hosted-*` and `evidence/m1-four-eight-hosted.*`.
+
+The health endpoint returned ready with Redis available in `iad1` and owner revision `1df7cf6`. Existing Vercel authentication protection was retained; the private temporary automation access file was removed after testing. No new services or credentials were committed. This focused check does not repeat the earlier hosted lifecycle soak or close the pending TCP-loss gate.
