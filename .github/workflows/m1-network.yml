@@ -57,7 +57,7 @@ jobs:
           tshark -r /tmp/m1-game.pcap -Y 'tcp.analysis.retransmission || tcp.analysis.fast_retransmission || tcp.analysis.spurious_retransmission' -T fields -e frame.time_relative -e ip.src -e tcp.srcport -e tcp.dstport -e tcp.seq -e tcp.ack -e tcp.len > test-results/m1-network/retransmissions.tsv
           test -s test-results/m1-network/retransmissions.tsv
           bash scripts/netem.sh stats > test-results/m1-network/qdisc-final.json
-          rm /tmp/m1-game.pcap
+          sudo rm /tmp/m1-game.pcap
           exit "$TEST_STATUS"
       - name: Upload measurements (no packet payloads or credentials)
         if: always()
