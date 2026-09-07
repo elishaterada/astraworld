@@ -4,6 +4,8 @@
 
 M1 responsiveness revision: [protocol 2 contract and evidence](milestones/M1_RESPONSIVENESS.md), including Vercel-only hosting, predicted input, facing and wave synchronization.
 
+The user authorized a **3D visual migration between M1 and M2** on 2026-09-07. It changes presentation only; see [migration evidence](milestones/VISUAL_3D_MIGRATION.md). M2 remains unstarted.
+
 ## Sequence and gates
 
 | Milestone | Entry / owner | Deliverable and exit gate | Explicit stop line |

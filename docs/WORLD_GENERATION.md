@@ -47,3 +47,7 @@ A string hash plus independent coordinate-hash streams choose terrain decoration
 Spawn is (64.5, 64.5), protected by a five-tile-radius clearing. Three-tile-wide north/south and east/west trails connect the finite map. Sparse tree/rock placeholders occupy only even-coordinate cells outside the clearing and paths, leaving connected walking lanes. The outermost tile ring and out-of-world queries are solid. Tree/rock placeholders have no resource or interaction state.
 
 G0 checks all 100 seeds (`seed-0`…`seed-99`) in forward, reverse and permuted chunk orders, unique IDs, and flood-fill reachability of every non-solid cell. Berry supplies, creatures, Forest routes, edits and overlays are intentionally absent and their generation tests remain later work.
+
+## 3D presentation compatibility — 2026-09-07
+
+Generation and collision are unchanged. Three.js renders tile `(x,y)` at `(x,0,y)`; block heights and per-variant tree geometry are cosmetic. There is no voxel editing, elevation pathfinding or new terrain kind. Existing seeds, stable IDs and room namespaces remain compatible across the visual migration.

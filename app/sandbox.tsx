@@ -185,7 +185,7 @@ function Meadow({
         {session
           ? `${status?.connection ?? "Connecting…"} · ${status?.players ?? 1}/${MAX_PLAYERS} adventurers`
           : "SOLO MEADOW"}{" "}
-        <span>·</span> ART STUDY
+        <span>·</span> 3D ART STUDY
       </div>
       <dialog
         ref={menu}
@@ -277,8 +277,8 @@ function Meadow({
           Leave meadow
         </button>
         <p className="menu-footnote">
-          An early art study. Session recovery is temporary; there is no
-          permanent saving.
+          Original 3D placeholder models. Session recovery is temporary; there
+          is no permanent saving.
         </p>
       </dialog>
     </section>
@@ -411,7 +411,7 @@ export default function Sandbox() {
               <span aria-hidden="true">✦</span> ASTRAWORLD
             </a>
             <span className="study-tag">
-              <i /> THE MEADOW · ART STUDY
+              <i /> THE MEADOW · 3D ART STUDY
             </span>
           </header>
           <div className="entry-content">
@@ -499,7 +499,7 @@ export default function Sandbox() {
               PLAY IN YOUR BROWSER <i>·</i> KEYBOARD REQUIRED
             </span>
             <span>
-              CONCEPT ART STUDY <i>·</i> NO PROGRESS SAVED
+              3D ART STUDY <i>·</i> NO PROGRESS SAVED
             </span>
           </footer>
         </section>

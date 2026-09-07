@@ -5,33 +5,19 @@ import {
   CHARACTER_IDS,
   type CharacterId,
 } from "../packages/characters";
-import atlas from "../public/art/characters-v1.json";
 
 function Portrait({ character }: { character: CharacterId }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     let cancelled = false;
-    const image = new Image();
-    image.onload = () => {
-      const context = canvas.current?.getContext("2d");
-      if (cancelled || !context) return;
-      const frame = atlas[character].frames[0];
-      context.clearRect(0, 0, 128, 160);
-      context.imageSmoothingEnabled = false;
-      const scale = 148 / frame.height;
-      context.drawImage(
-        image,
-        frame.x,
-        frame.y,
-        frame.width,
-        frame.height,
-        (128 - frame.width * scale) / 2,
-        6,
-        frame.width * scale,
-        148,
-      );
-    };
-    image.src = `/art/${atlas[character].source}`;
+    void import("./three/portrait")
+      .then(({ drawPortrait }) => {
+        if (!cancelled && canvas.current)
+          drawPortrait(canvas.current, character);
+      })
+      .catch(() => {
+        if (canvas.current) canvas.current.dataset.unavailable = "true";
+      });
     return () => {
       cancelled = true;
     };

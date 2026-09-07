@@ -1,3 +1,31 @@
+# Rendering contract — Three.js visual migration
+
+The user authorized this replacement on 2026-09-07 before M2. Historical PixiJS implementation notes below are superseded for presentation; M1 network authority and recovery contracts remain current.
+
+## Ownership and coordinates
+
+React owns entry, fullscreen, menus and low-frequency status. Dynamically imported `app/renderer.ts` owns browser input and the frame loop. `app/three/view.ts` consumes read-only local/remote projections. Simulation remains pure, flat and server-owned: tile `(x,y)` maps to Three.js `(x,0,y)`. Height is cosmetic. Existing world IDs, generation, full-tile blockers, body size and eight-player protocol are unchanged.
+
+The orthographic camera is elevated 45 degrees from the south and follows the rendered feet position. East stays screen-right and south stays screen-down; WASD retains its established meaning. Scale is 48 CSS pixels/world unit horizontally. Ground depth compresses by sin(45°). `app/camera.ts` owns the inverse pointer transform; tests compare it against actual Three.js projection after resize and at map edges. Facing rotates the model through all eight protocol directions, without mirrored accessories.
+
+## Assets and rendering
+
+Three.js 0.185.1 and types 0.185.4 are pinned. No React Three Fiber or physics engine is needed. Each 16×16 chunk batches ground, solid props/details and leaves into three instanced cube meshes with per-instance colors. Seeded tile variants drive cosmetic dimensions/colors only. Mossy bases show full-tile collision footprints. Nearby foliage dithers where it obscures the local character; this is a visual shader, never a collision change. Off-camera chunks are culled with a shadow margin. A hemisphere light and one PCF directional shadow provide warmth and depth; DPR is capped at 1.5. There is no postprocessing pipeline.
+
+One box geometry and a per-view material palette build four original characters with distinct hair, clothing and accessories. Shared shoulder/hip pivots animate walking and an actual raised-arm wave. Reduced motion keeps legs and body still and holds a static raised arm for waves. Name markers remain; remote labels are bounded DOM projections, written as text. Character choice remains cosmetic and non-exclusive.
+
+Entry portraits render the same models once into 2D previews and immediately dispose their temporary WebGL contexts. Gameplay does not load sprite sheets. Historical assets and provenance remain archived; PixiJS and the unused sprite adapter are removed.
+
+## Lifetime and evidence
+
+Disposal cancels animation, clears all registered input listeners, disconnects ResizeObserver and the network client, removes labels/canvas, and disposes instance buffers, geometries, materials, shadow targets and WebGL renderer/context. Hidden pages stop drawing and clear input; visible shared peers still animate while the local menu pauses input. Read-only debug snapshots expose actual limb rotation, renderer resource/draw statistics and bounded frame measurements; no state setters are exposed.
+
+See [verification and limitations](milestones/VISUAL_3D_MIGRATION.md). Earlier PixiJS ten-minute performance results are historical evidence, not measurements of the new renderer. Reference APIs: [orthographic camera](https://threejs.org/docs/pages/OrthographicCamera.html), [instancing](https://threejs.org/docs/pages/InstancedMesh.html), [resource disposal](https://threejs.org/manual/en/cleanup.html).
+
+---
+
+## Historical PixiJS contracts (superseded presentation)
+
 # Rendering contract
 
 **Current M1 implementation:** [protocol 2 responsiveness contract](milestones/M1_RESPONSIVENESS.md). It supersedes the earlier 20 Hz prediction / per-tick Redis / 45-second rotation reference. Broader future-system proposals below remain outside M1.

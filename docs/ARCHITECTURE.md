@@ -4,13 +4,13 @@
 
 ## Decision summary
 
-Build a TypeScript monorepo around a pure 2D simulation. Next.js hosts web UI on Vercel. PixiJS is the preferred client renderer. WebSockets carry player intents and authoritative snapshots. Redis coordinates hot room state; Postgres stores durable changes from M6 onward.
+Build a TypeScript monorepo around a pure 2D simulation. Next.js hosts web UI on Vercel. Three.js owns the client presentation (2026-09-07 visual migration). Simulation remains flat and renderer-independent. WebSockets carry player intents and authoritative snapshots. Redis coordinates hot room state; Postgres stores durable changes from M6 onward.
 
 The hosting topology is provisional until the M1 deployment spike demonstrates room ownership, timer behavior, cross-instance routing and forced reconnects. Do not assume that accepting a WebSocket automatically solves authoritative simulation hosting.
 
 ```mermaid
 flowchart TD
-  Browser[Next.js UI and PixiJS canvas] -->|HTTPS session and world join| Web[Next.js web routes on Vercel]
+  Browser[Next.js UI and Three.js canvas] -->|HTTPS session and world join| Web[Next.js web routes on Vercel]
   Browser <-->|WebSocket intents and snapshots| Gateway[Realtime gateway]
   Gateway <-->|routed commands and projections| Runner[One authoritative owner per world]
   Runner --> Sim[Pure TypeScript simulation]
@@ -25,7 +25,7 @@ Gateway and runner may share deployment code, but they have separate responsibil
 
 | Module | Responsibility | Must not depend on |
 | --- | --- | --- |
-| packages/simulation | Fixed-step movement, interactions, combat, creature state | React, PixiJS, network or DB clients |
+| packages/simulation | Fixed-step movement, interactions, combat, creature state | React, Three.js, network or DB clients |
 | packages/world | Seeded generation, spatial queries, baseline collision | Rendering and HTTP |
 | packages/protocol | Wire schemas, validation, version compatibility | Server secrets or concrete storage |
 | packages/content | Versioned definition schemas and lookup | Mutable world state |
@@ -78,3 +78,7 @@ The current deployment artifact is a local Node service, not a proven Vercel fun
 ## M1 hosted follow-up
 
 The existing `teradas/astraworld` Vercel project now hosts Next.js session, health and WebSocket routes in `app/api/meadow/`, backed by `apps/game-server/vercel.ts` and the existing runner. The Vercel experimental upgrade API supplies ordinary ws sockets to the same admission/intent handler. The hosted lifecycle and rolling-deployment experiment passed; [final real TCP-loss and eight-player soak checks](milestones/M1_COMPLETION.md) complete M1 within the recorded test envelope. No fallback host or new service was provisioned. [Deployment evidence](milestones/M1_DEPLOYMENT.md) supersedes the earlier local-only hosting status above.
+
+## 2026-09-07 visual migration
+
+`app/renderer.ts` owns input, timing and the unchanged prediction/transport adapter. `app/three/view.ts` renders read-only actors and deterministic tile instances. `app/three/characters.ts` supplies original modular cosmetic models and shared limb animation; `portrait.ts` renders those same models once for entry. No physics engine, new service, protocol change or M2 mechanism is introduced. Simulation `(x,y)` maps to Three.js `(x,0,z=y)`. See [rendering](RENDERING.md) and [migration evidence](milestones/VISUAL_3D_MIGRATION.md).

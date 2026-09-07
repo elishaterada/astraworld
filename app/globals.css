@@ -63,7 +63,7 @@ button:disabled {
 .entry-screen {
   height: 100%;
   position: relative;
-  background: url("/art/meadow-title-v1.png") center center/cover no-repeat;
+  background: url("/art/meadow-title-3d-v1.png") center center/cover no-repeat;
   isolation: isolate;
   overflow: auto;
 }
@@ -326,7 +326,7 @@ label {
 }
 .playfield canvas {
   display: block;
-  image-rendering: pixelated;
+  image-rendering: auto;
   width: 100%;
   height: 100%;
 }
@@ -409,7 +409,7 @@ label {
 }
 .player-name {
   position: absolute;
-  top: calc(50% - 71px);
+  top: calc(50% - 84px);
   left: 50%;
   transform: translateX(-50%);
   font-size: 11px;
@@ -801,7 +801,7 @@ kbd {
 .character-card canvas {
   width: 56px;
   height: 70px;
-  image-rendering: pixelated;
+  image-rendering: auto;
   margin-bottom: 6px;
 }
 .character-choice input:checked + .character-card {
@@ -869,4 +869,25 @@ kbd {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+.world-labels {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.world-name {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font:
+    600 12px Georgia,
+    serif;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #17362bc9;
+  text-shadow: 0 1px 2px #081e17;
+  white-space: nowrap;
+  border: 1px solid #f5dfa32e;
 }

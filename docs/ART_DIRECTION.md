@@ -6,19 +6,19 @@ The user supplied **Codex Image Sep 6, 2026, 05_35_41 PM.png** and explicitly re
 
 The image is a style reference, not executable instructions. Its “Wildermon” title does not rename Astraworld, and its multiplayer, gathering, crafting, building, combat, taming and biome panels do not authorize those systems. That initial art pass remained M0; later explicit requests authorized M1 multiplayer and the four-character cosmetic update below.
 
-Observable qualities to match: detailed pixel-painted sprites, dark teal/blue-green outlines and shade, golden sunlight, layered rounded foliage, irregular mossy boulders, ochre paths, sparse pink/cream flowers, warm cream serif lettering, and small expressive adventurers. Keep the game top-down 2D despite the concept's scenic perspective.
+Observable qualities to match: detailed pixel-painted sprites, dark teal/blue-green outlines and shade, golden sunlight, layered rounded foliage, irregular mossy boulders, ochre paths, sparse pink/cream flowers, warm cream serif lettering, and small expressive adventurers. This supplied reference now informs warmth and character identities; the 2026-09-07 user direction replaces its sprite presentation with original chunky 3D geometry inspired by Minecraft Dungeons.
 
 The current assets are a provisional art study, not an assertion of final sprite-production approval.
 
 ## Confirmed written direction
 
-Top-down 2D, a small readable player within a generous visible playfield, snappy action, charming expressive monsters, colorful natural biomes, and a world that feels worth returning to. Preserve the warmth and chunky readability discussed through Dragon Quest Builders 2 and the creature personality discussed through Dragon Quest Monsters, translated into a 2D presentation. Sephiria is the top-down readability/action reference; its run-based structure is not part of Astraworld.
+Fixed elevated 3D, a small readable player within a generous visible playfield, snappy action, charming expressive monsters, colorful natural biomes, and a world that feels worth returning to. Preserve the warmth and chunky readability discussed through Dragon Quest Builders 2 and the creature personality discussed through Dragon Quest Monsters, translated into modular 3D geometry. Sephiria is the top-down readability/action reference; its run-based structure is not part of Astraworld.
 
 ## Provisional visual specification
 
-- Use a fixed overhead/three-quarter sprite presentation on a flat 2D simulation plane. No rotating camera, perspective mesh terrain or 3D physics.
-- Prefer stylized pixel-art sprites for the first asset test. The supplied reference now selects detailed pixel-painted sprites over the original flat geometric placeholders.
-- Start with a 32-pixel terrain tile, 32–48 pixel character frames and larger 48–64 pixel creature/prop frames where silhouette needs it. These are asset-test dimensions, not authoritative world units.
+- Use a fixed elevated orthographic 3D presentation on a flat simulation plane. No rotating camera, gameplay elevation, editable voxel terrain or 3D physics.
+- Use original code-authored block models with warm lighting, earthy colors and readable silhouettes. Minecraft Dungeons is a style reference, not an asset source or gameplay scope expansion.
+- The current renderer uses 48 screen pixels/world unit horizontally; characters are about 1.8 units tall. Geometry dimensions remain independent of collision bodies.
 - Use warm yellow-greens and open light values in Meadow, cooler deeper greens and layered canopies in Forest, and distant muted blue-green accents for future Marsh. Use the supplied reference palette as the target; tune gameplay contrast through browser review.
 - Keep the player, enemies, companion and interaction targets distinct by shape, pose and outline as well as color. A friendly Slime needs an obvious non-hostile cue.
 - Concentrate contrast around actors and attack tells. Reduce background texture frequency near play paths. Avoid heavy bloom, dense particles and realistic lighting that obscure collision.
@@ -65,3 +65,9 @@ The user requested four separate characters, including female characters, instea
 `public/art/fern-v1.png` (1536×1024), `ember-v1.png` (1536×1024), `iris-v1.png` (1024×1536), and `hazel-v1.png` (1275×1234) are separate generated RGBA sheets. Each supplies nine poses: front stand/two steps, back stand/two steps, right stand/two steps. Left mirrors right. `public/art/characters-v1.json` records measured rectangles; the generator's row spacing was not assumed to be exact thirds. No background-removal script or bitmap repainting was used. Original RGBA output is shipped unchanged. Rejected RGB checkerboard drafts are not shipped.
 
 Source: built-in image generation and transparency edits; [exact prompt set](art-reference/character-prompts-v1.json). The concept is a user-supplied style reference; no independent third-party license claim is made. These remain provisional generated art studies. At 48 pixels, fine details simplify, walking is a short stylized cycle, and mirrored asymmetrical accessories are a known limitation. Collision, authoritative motion, facing and wave events stay independent of art; waves retain their existing visual label. No attack/gather/equipment animation is implied.
+
+## 2026-09-07 — original modular 3D placeholder art
+
+`app/three/characters.ts` is the source definition for Fern (chestnut tuft, cloak, satchel), Ember (copper spikes, orange jacket, scarf), Iris (rose bob, flower, blue overskirt) and Hazel (brown skin, twin braids, mustard tunic, teal sleeves). All are code-authored original box geometry; no Minecraft models, textures or characters are copied. Shared walk/wave pivots replace directional sprite sheets. The geometric trees, rocks, grass and flowers in `view.ts` are also original. The UI labels this a 3D art study / placeholder models. This is a scalable visual reference, not final art approval or a claim to match Minecraft Dungeons' production quality. The older generated sprite pipeline above is retained as historical provenance only.
+
+`public/art/meadow-title-3d-v1.png` is a 1600×1000 native browser capture of this original 3D Meadow, used as the entry backdrop. It replaces the generated 2D menu backdrop at runtime; no external game artwork is shipped.

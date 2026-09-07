@@ -1,0 +1,80 @@
+{
+  "browser": "153.0.8010.12",
+  "viewport": "1440×900",
+  "initial": {
+    "state": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "rendered": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "camera": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "tick": 0,
+    "paused": false,
+    "collision": false,
+    "width": 1440,
+    "height": 900,
+    "actorScreen": {
+      "x": 720,
+      "y": 450
+    },
+    "live": {
+      "applications": 1,
+      "inputListeners": 9,
+      "tickers": 1,
+      "observers": 1,
+      "textures": 0
+    },
+    "blockerCount": 2924,
+    "visibleProps": 6263,
+    "seed": "meadow-001",
+    "username": "Rowan",
+    "character": "fern",
+    "visual": {
+      "rotation": 0,
+      "gait": 0,
+      "waving": false
+    },
+    "renderer": {
+      "drawCalls": 140,
+      "triangles": 210984,
+      "geometries": 2,
+      "textures": 3
+    }
+  },
+  "straight": {
+    "x": 68.50000000000006,
+    "y": 64.5
+  },
+  "diagonal": {
+    "x": 67.32842712474633,
+    "y": 67.32842712474633
+  },
+  "diagonalDistance": 4.000000000000194,
+  "props": {
+    "x": 74.39949493661214,
+    "y": 72.99259018078071
+  },
+  "resized": {
+    "width": 960,
+    "height": 720,
+    "actorScreen": {
+      "x": 480,
+      "y": 360
+    }
+  },
+  "edge": {
+    "x": 1.24,
+    "y": 64.5
+  },
+  "slide": {
+    "x": 1.24,
+    "y": 68.74264068711949
+  },
+  "errors": []
+}

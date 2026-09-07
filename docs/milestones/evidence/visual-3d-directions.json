@@ -1,0 +1,109 @@
+{
+  "browser": "153.0.8010.12",
+  "results": [
+    {
+      "character": "Fern",
+      "poses": [
+        {
+          "key": "d",
+          "movingFrame": 0.5144513922556534,
+          "rotation": 1.5707963267948966
+        },
+        {
+          "key": "w",
+          "movingFrame": 0.382309693863287,
+          "rotation": -3.141592653589793
+        },
+        {
+          "key": "s",
+          "movingFrame": -0.6499999999605356,
+          "rotation": 0
+        },
+        {
+          "key": "a",
+          "movingFrame": 0.47931075318376587,
+          "rotation": -1.5707963267948966
+        }
+      ],
+      "errors": []
+    },
+    {
+      "character": "Ember",
+      "poses": [
+        {
+          "key": "d",
+          "movingFrame": 0.590611772494739,
+          "rotation": 1.5707963267948966
+        },
+        {
+          "key": "w",
+          "movingFrame": 0.25431440020939144,
+          "rotation": -3.141592653589793
+        },
+        {
+          "key": "s",
+          "movingFrame": -0.6055440663625385,
+          "rotation": 0
+        },
+        {
+          "key": "a",
+          "movingFrame": 0.28624280522129575,
+          "rotation": -1.5707963267948966
+        }
+      ],
+      "errors": []
+    },
+    {
+      "character": "Iris",
+      "poses": [
+        {
+          "key": "d",
+          "movingFrame": 0.5925507892773666,
+          "rotation": 1.5707963267948966
+        },
+        {
+          "key": "w",
+          "movingFrame": 0.24928074096605152,
+          "rotation": -3.141592653589793
+        },
+        {
+          "key": "s",
+          "movingFrame": -0.6069506875554057,
+          "rotation": 0
+        },
+        {
+          "key": "a",
+          "movingFrame": 0.2911347169149498,
+          "rotation": -1.5707963267948966
+        }
+      ],
+      "errors": []
+    },
+    {
+      "character": "Hazel",
+      "poses": [
+        {
+          "key": "d",
+          "movingFrame": 0.5442712764620794,
+          "rotation": 1.5707963267948966
+        },
+        {
+          "key": "w",
+          "movingFrame": 0.3395209432222209,
+          "rotation": -3.141592653589793
+        },
+        {
+          "key": "s",
+          "movingFrame": -0.6169234409626839,
+          "rotation": 0
+        },
+        {
+          "key": "a",
+          "movingFrame": 0.1980495874384193,
+          "rotation": -1.5707963267948966
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

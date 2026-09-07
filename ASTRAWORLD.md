@@ -11,17 +11,17 @@ The long-term world persists between visits. The first adventure slice is intent
 1. **Cooperative discovery.** A small group shares discoveries and environmental changes. Up to eight players share a Meadow (explicit user expansion after the two-player reference); the two-player walkthrough remains a minimum gameplay test.
 2. **Useful companions.** Every released species needs a recognizable personality, a combat role and an environmental role. The first Moss Slime proves following and vine dissolution before content expands.
 3. **A home worth returning to.** Gathering, crafting and modular building eventually turn exploration rewards into a settlement. These are later milestones, not prerequisites for the first taming loop.
-4. **Readable action and charm.** A top-down 2D view, expressive silhouettes, clear attack tells and colorful natural biomes keep the browser experience legible.
+4. **Readable action and charm.** A fixed elevated 3D view, expressive silhouettes, clear attack tells and colorful natural biomes keep the browser experience legible.
 5. **Trustworthy shared state.** The server decides positions, combat, ownership, inventory and world changes. Reconnecting must not create items or creatures.
 
 ## Locked constraints
 
-- Browser-first desktop play with keyboard and mouse; top-down 2D for V1.
-- Next.js, TypeScript and Vercel for the web stack; PixiJS is the preferred renderer, pending the M0 spike.
+- Browser-first desktop play with keyboard and mouse; a fixed elevated 3D presentation over a flat simulation plane for V1.
+- Next.js, TypeScript and Vercel for the web stack; Three.js is the renderer (explicit visual migration, 2026-09-07).
 - Server-authoritative realtime multiplayer. No peer host authority and no client-written inventory.
 - Redis for hot/distributed state; Postgres for durable state. Deployment lifecycle must not define world lifetime.
 - Deterministic finite procedural baseline plus recorded world modifications.
-- Simulation independent of React, PixiJS, browser APIs, storage and network transports.
+- Simulation independent of React, Three.js, browser APIs, storage and network transports.
 - Code controls realtime behavior. No LLM in movement, combat, pathfinding or creature decision ticks.
 - Astra owns novel systems/reference implementations; Luna expands established, documented patterns.
 
@@ -31,10 +31,10 @@ A group of up to eight players joins a procedural Meadow, move together, gather 
 
 ## Explicit non-goals
 
-No MMO, 100-player rooms, 3D or voxel terrain, rotating 3D camera, terrain sculpting, infinite world, PvP, trading economy, marketplace, breeding/evolution, dozens of creatures, advanced combos, AI NPCs, quest generation, mobile optimization, elaborate customization or admin product in the slice. Do not add crafting or settlement building to that slice.
+No MMO, 100-player rooms, editable voxel terrain, rotating 3D camera, terrain sculpting, infinite world, PvP, trading economy, marketplace, breeding/evolution, dozens of creatures, advanced combos, AI NPCs, quest generation, mobile optimization, elaborate customization or admin product in the slice. Do not add crafting or settlement building to that slice.
 
 Minimal session identity and access control are required for multiplayer integrity; this does not authorize building an account-management product. The later durable release needs a stable identity binding.
 
 ## How decisions change
 
-The user's latest explicit direction outranks this package. Otherwise preserve locked choices, validate provisional defaults within milestone scope, and record changes in [the decision log](docs/decisions/DECISIONS.md). Do not silently restore superseded Three.js, three-biome MVP or crafting-first plans from earlier discussion.
+The user's latest explicit direction outranks this package. Otherwise preserve locked choices, validate provisional defaults within milestone scope, and record changes in [the decision log](docs/decisions/DECISIONS.md). The 2026-09-07 user-authorized visual migration supersedes the 2D/PixiJS restriction only. Three-biome MVP and crafting-first proposals remain superseded.

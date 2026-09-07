@@ -1,3 +1,4 @@
+import { visualPerformance } from "./visual-performance";
 import { test, expect, type BrowserContext, type Page } from "@playwright/test";
 import { readFileSync, writeFileSync } from "node:fs";
 import { soakEight } from "./soak-eight";
@@ -87,7 +88,7 @@ test("eight real players share movement, facing and waves; ninth is refused and 
     await expect
       .poll(async () =>
         (await snapshot(host)).network!.remotes.every(
-          (a) => a.characterFrame >= 0,
+          (a) => a.visual !== undefined,
         ),
       )
       .toBe(true);
@@ -97,7 +98,7 @@ test("eight real players share movement, facing and waves; ninth is refused and 
       for (const remote of initial[i].network!.remotes) {
         const owner = initial.find((s) => s.network!.selfId === remote.id)!;
         expect(remote.character).toBe(owner.character);
-        expect(remote.characterFrame).toBeGreaterThanOrEqual(0);
+        expect(remote.visual).toBeDefined();
       }
     }
     expect(new Set(initial.map((s) => s.network!.selfId)).size).toBe(8);
@@ -114,6 +115,12 @@ test("eight real players share movement, facing and waves; ninth is refused and 
       await expect(p.locator(".multiplayer-note")).toContainText(
         "8/8 adventurers",
       );
+    if (process.env.VISUAL_3D_PERF) {
+      test.setTimeout(150000);
+      await visualPerformance(pages);
+      expect(errors).toEqual([]);
+      return;
+    }
     if (process.env.M1_EIGHT_SOAK) {
       await soakEight(pages);
       expect(errors).toEqual([]);
@@ -154,11 +161,11 @@ test("eight real players share movement, facing and waves; ninth is refused and 
           const s = await snapshot(p);
           return (
             s.network!.facing === 4 &&
-            s.characterFrame === 6 &&
+            s.visual.rotation === -Math.PI / 2 &&
             s.network!.remotes.every(
               (a) =>
                 a.facing === 4 &&
-                a.characterFrame === 6 &&
+                a.visual?.rotation === -Math.PI / 2 &&
                 a.action?.kind === "wave",
             )
           );
@@ -185,7 +192,7 @@ test("eight real players share movement, facing and waves; ninth is refused and 
         resumeAtConnected.network!.authoritative.y - before.state.y,
       ),
     ).toBeLessThan(0.2);
-    // Network readiness can arrive between Pixi frames. Verify the accepted position first,
+    // Network readiness can arrive between rendering frames. Verify the accepted position first,
     // then wait for the renderer to display it instead of sampling its initial spawn frame.
     const renderWaitStarted = Date.now();
     await expect

@@ -2,6 +2,8 @@
 
 You own the quality of one complete milestone, not the breadth of the whole game. M0 has been implemented under the explicit M0 request; see [its completion evidence](docs/milestones/M0_COMPLETION.md). M1 is [implemented and verified within its recorded test envelope](docs/milestones/M1_COMPLETION.md); M2–M9 remain unstarted. Do not advance automatically.
 
+The 2026-09-07 user-authorized [3D visual migration](docs/milestones/VISUAL_3D_MIGRATION.md) changes presentation before M2; it does not authorize M2 mechanics.
+
 ## Before coding
 
 Read [AGENTS.md](AGENTS.md), the [constitution](ASTRAWORLD.md), [MVP](MVP.md), [roadmap](docs/ROADMAP.md), [architecture](docs/ARCHITECTURE.md) and relevant system contracts. Identify which decisions are locked, provisional or deferred. Inspect the actual checkout; planned paths are not evidence that code exists.

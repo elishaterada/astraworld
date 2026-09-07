@@ -1,0 +1,194 @@
+{
+  "elapsedMs": 60975,
+  "cpu": "Apple M4 Pro",
+  "os": "25.6.0",
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "summary": [
+    {
+      "frames": 3658,
+      "p95": 16.799999999995634,
+      "max": 16.80000000000291,
+      "renderer": {
+        "drawCalls": 531,
+        "triangles": 81780,
+        "geometries": 2,
+        "textures": 3
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 9,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 0
+      },
+      "collision": false,
+      "peers": 7
+    },
+    {
+      "frames": 3658,
+      "p95": 16.79999999998836,
+      "max": 16.80000000000291,
+      "renderer": {
+        "drawCalls": 585,
+        "triangles": 125052,
+        "geometries": 2,
+        "textures": 3
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 9,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 0
+      },
+      "collision": false,
+      "peers": 7
+    },
+    {
+      "frames": 3657,
+      "p95": 16.70000000001164,
+      "max": 33.30000000000291,
+      "renderer": {
+        "drawCalls": 585,
+        "triangles": 125052,
+        "geometries": 2,
+        "textures": 3
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 9,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 0
+      },
+      "collision": false,
+      "peers": 7
+    },
+    {
+      "frames": 3658,
+      "p95": 16.70000000001164,
+      "max": 16.80000000000291,
+      "renderer": {
+        "drawCalls": 585,
+        "triangles": 125052,
+        "geometries": 2,
+        "textures": 3
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 9,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 0
+      },
+      "collision": false,
+      "peers": 7
+    },
+    {
+      "frames": 3659,
+      "p95": 16.70000000001164,
+      "max": 16.80000000000291,
+      "renderer": {
+        "drawCalls": 585,
+        "triangles": 125052,
+        "geometries": 2,
+        "textures": 3
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 9,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 0
+      },
+      "collision": false,
+      "peers": 7
+    },
+    {
+      "frames": 3658,
+      "p95": 16.799999999995634,
+      "max": 16.80000000000291,
+      "renderer": {
+        "drawCalls": 585,
+        "triangles": 125052,
+        "geometries": 2,
+        "textures": 3
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 9,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 0
+      },
+      "collision": false,
+      "peers": 7
+    },
+    {
+      "frames": 3658,
+      "p95": 16.700000000004366,
+      "max": 33.30000000000291,
+      "renderer": {
+        "drawCalls": 585,
+        "triangles": 125052,
+        "geometries": 2,
+        "textures": 3
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 9,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 0
+      },
+      "collision": false,
+      "peers": 7
+    },
+    {
+      "frames": 3657,
+      "p95": 16.700000000004366,
+      "max": 33.40000000000009,
+      "renderer": {
+        "drawCalls": 554,
+        "triangles": 124680,
+        "geometries": 2,
+        "textures": 3
+      },
+      "live": {
+        "applications": 1,
+        "inputListeners": 9,
+        "tickers": 1,
+        "observers": 1,
+        "textures": 0
+      },
+      "collision": false,
+      "peers": 7
+    }
+  ],
+  "heaps": [
+    [
+      17314140,
+      17069108,
+      17067020,
+      17016216,
+      16987448,
+      16915492,
+      16854524,
+      16688056
+    ],
+    [
+      17456480,
+      17365020,
+      17358168,
+      17384596,
+      17347784,
+      17352020,
+      17163372,
+      17293312
+    ]
+  ]
+}

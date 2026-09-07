@@ -83,3 +83,9 @@ The historical two-player soak is `tests/e2e/multiplayer-soak.spec.ts`. The curr
 ## Real TCP fault gate
 
 Manually dispatch `.github/workflows/m1-network.yml` on the public repository's isolated Ubuntu runner. It builds and checks the app, then runs `tests/e2e/tcp-network.spec.ts` with receiver-ingress netem affecting only local gateway TCP ports. It verifies 150/300 ms RTT with jitter and 1% actual packet loss, a five-second outage, accepted actions, peer convergence and bounded recovery. Kernel queue counters, TCP retransmission fields and browser measurements are retained as artifacts; no raw packet payloads or production credentials are uploaded. See [final validation](milestones/M1_FINAL_VALIDATION.md). Do not run the privileged fault script on a general-purpose host.
+
+## 3D visual migration before M2 — 2026-09-07
+
+`tests/visual-3d.test.ts` compares targeting math against a real orthographic camera and inspects model orientation/limb transforms, including reduced motion. `character-art.spec.ts` now checks actual 3D rotation/gait/waves; `eight-players.spec.ts` checks rendered model direction rather than sprite frame indices. Character RGBA asset tests retain historical source validation only.
+
+The focused renderer load check uses `VISUAL_3D_PERF=1` with `eight-players.spec.ts`: eight real contexts traverse for 60 seconds, measure p95 frame intervals, renderer resources and retained heap. This does not replace the ten-minute M1 soak or claim its duration. Use `EIGHT_EVIDENCE_PREFIX` and `CHARACTER_EVIDENCE_PREFIX` to isolate migration outputs. [Results and limitations](milestones/VISUAL_3D_MIGRATION.md).

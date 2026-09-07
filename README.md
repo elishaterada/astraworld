@@ -1,8 +1,8 @@
 # Astraworld
 
-A top-down 2D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
+A cozy 3D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
 
-**Status: M1 complete within the recorded test envelope.** Hosted lifecycle, real TCP-loss/recovery, and ten-minute eight-player verification passed; see [M1 completion](docs/milestones/M1_COMPLETION.md). Up to eight private browser sessions can explore the same Meadow with immediate local prediction, synchronized facing/walking/waves, server-owned movement and Redis-backed recovery. The concept-inspired art, username entry and fullscreen experience remain. The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md); M2 has not started.
+**Status: M1 complete within the recorded test envelope.** Hosted lifecycle, real TCP-loss/recovery, and ten-minute eight-player verification passed; see [M1 completion](docs/milestones/M1_COMPLETION.md). Up to eight private browser sessions can explore the same Meadow with immediate local prediction, synchronized facing/walking/waves, server-owned movement and Redis-backed recovery. The user-authorized visual migration replaces sprites with original modular Three.js models, while retaining username entry and fullscreen. See [3D migration](docs/milestones/VISUAL_3D_MIGRATION.md). The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md); M2 has not started.
 
 ## Start here
 
@@ -70,7 +70,7 @@ The next eligible milestone is **M2 gathering and inventory**, when explicitly r
 | [Product vision](docs/PRODUCT.md) | Audience, pillars, success measures, non-goals |
 | [Game design](docs/GAME_DESIGN.md) | Player loop, controls, progression and cooperative rules |
 | [Art direction](docs/ART_DIRECTION.md) | Supplied visual reference, implemented assets and provisional targets |
-| [Rendering](docs/RENDERING.md) | PixiJS/React boundary, camera, layers and performance |
+| [Rendering](docs/RENDERING.md) | Three.js/React boundary, camera, layers and performance |
 | [Architecture](docs/ARCHITECTURE.md) | Proposed modules, deployment boundaries and authority |
 | [Entity system](docs/ENTITY_SYSTEM.md) | IDs, simulation lifecycle and component contracts |
 | [Networking](docs/NETWORKING.md) | Input protocol, reconciliation, room ownership and recovery |
@@ -90,10 +90,10 @@ The next eligible milestone is **M2 gathering and inventory**, when explicitly r
 
 ## Repository layout
 
-The implementation uses one npm package with `app/` for Next.js/React/Pixi, `packages/world/` for generation, `packages/simulation/` for pure movement, and `tests/` for rule/browser checks. `apps/game-server/` now contains the standalone M1 gateway, Redis adapter and runner; `packages/protocol/` contains strict wire schemas. The following longer-term layout remains a guide for later milestones:
+The implementation uses one npm package with `app/` for Next.js/React/Three.js, `packages/world/` for generation, `packages/simulation/` for pure movement, and `tests/` for rule/browser checks. `apps/game-server/` now contains the standalone M1 gateway, Redis adapter and runner; `packages/protocol/` contains strict wire schemas. The following longer-term layout remains a guide for later milestones:
 
 ```text
-apps/web/             Next.js UI and client-only PixiJS renderer
+apps/web/             Next.js UI and client-only Three.js renderer
 apps/game-server/     Realtime gateway, room runner and persistence adapters
 packages/simulation/ Pure TypeScript authoritative rules
 packages/protocol/    Validated messages and version negotiation

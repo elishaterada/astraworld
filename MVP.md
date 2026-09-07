@@ -2,7 +2,7 @@
 
 ## Scope boundary
 
-The latest 2D decision supersedes the earlier crafting-first and three-biome proposals. **M0–M5 deliver a session-based adventure slice. M6 adds durable persistence. M7 adds crafting, M8 adds settlement building, M9 adds a fuller Forest and boss.** The first persistent playable release is M0–M6; it is not the complete long-term product.
+The 2026-09-07 visual migration uses Three.js over the same flat simulation; it does not expand gameplay. The earlier crafting-first and three-biome proposals remain superseded. **M0–M5 deliver a session-based adventure slice. M6 adds durable persistence. M7 adds crafting, M8 adds settlement building, M9 adds a fuller Forest and boss.** The first persistent playable release is M0–M6; it is not the complete long-term product.
 
 ## The 10–15 minute scenario
 

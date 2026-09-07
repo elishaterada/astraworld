@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { writeFileSync } from "node:fs";
 
-test("each distinct character walks and turns through its own front, back and side frames", async ({
+test("each 3D character rotates, walks, stands and waves with the shared rig", async ({
   browser,
 }) => {
   const results = [];
@@ -27,10 +27,10 @@ test("each distinct character walks and turns through its own front, back and si
       await page.getByRole("application").focus();
       const poses = [];
       for (const [key, row] of [
-        ["d", 6],
-        ["w", 3],
+        ["d", Math.PI / 2],
+        ["w", -Math.PI],
         ["s", 0],
-        ["a", 6],
+        ["a", -Math.PI / 2],
       ] as const) {
         await page.keyboard.down(key);
         let movingFrame = -1;
@@ -40,9 +40,11 @@ test("each distinct character walks and turns through its own front, back and si
               const current = await page.evaluate(() =>
                 window.__MEADOW__!.snapshot(),
               );
-              movingFrame = current.characterFrame;
+              movingFrame = current.visual.gait;
               return (
-                movingFrame > row && movingFrame < row + 3 && !current.collision
+                Math.abs(movingFrame) > 0.1 &&
+                current.visual.rotation === row &&
+                !current.collision
               );
             },
             { intervals: [25, 50, 75, 100] },
@@ -51,17 +53,23 @@ test("each distinct character walks and turns through its own front, back and si
         await page.keyboard.up(key);
         await expect
           .poll(() =>
-            page.evaluate(() => window.__MEADOW__!.snapshot().characterFrame),
+            page.evaluate(() => window.__MEADOW__!.snapshot().visual.gait),
           )
-          .toBe(row);
+          .toBe(0);
         poses.push({
           key,
           movingFrame,
-          standingFrame: row,
+          rotation: row,
         });
       }
+      await page.keyboard.press("Space");
+      await expect
+        .poll(() =>
+          page.evaluate(() => window.__MEADOW__!.snapshot().visual.waving),
+        )
+        .toBe(true);
       await page.screenshot({
-        path: `docs/milestones/evidence/m1-art-${look.toLowerCase()}.png`,
+        path: `docs/milestones/evidence/visual-3d-${look.toLowerCase()}.png`,
       });
       expect(errors).toEqual([]);
       results.push({ character: look, poses, errors });
@@ -70,7 +78,7 @@ test("each distinct character walks and turns through its own front, back and si
     }
   }
   writeFileSync(
-    "docs/milestones/evidence/m1-art-directions.json",
+    "docs/milestones/evidence/visual-3d-directions.json",
     JSON.stringify({ browser: browser.version(), results }, null, 2),
   );
 });
