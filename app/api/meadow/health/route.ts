@@ -16,8 +16,6 @@ export async function GET() {
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch {
-    const started = performance.now();
-    await runner.store.redis.ping();
     return Response.json({ ready: false }, { status: 503 });
   }
 }
