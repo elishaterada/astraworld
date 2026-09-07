@@ -43,8 +43,9 @@ try {
     p.on("websocket", (s) => s.on("close", () => socketCloses[i]++));
   }
   const ready = async (p, name) => {
-    await p.getByLabel("What should we call you?").fill(name);
-    await p.getByRole("button", { name: "Enter Meadow", exact: true }).click();
+    const field = p.getByLabel("What should we call you?");
+    if (await field.isEditable()) await field.fill(name);
+    await p.getByRole("button", { name: /^(Enter|Resume) Meadow$/ }).click();
     await p.waitForFunction(
       () => window.__MEADOW__?.snapshot().network?.status === "Connected",
       null,

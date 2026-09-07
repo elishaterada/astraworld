@@ -1,0 +1,26 @@
+{
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "characters": [
+    "ember",
+    "iris"
+  ],
+  "observedByFriend": [
+    {
+      "id": "3e8a5ced-8ba0-4d5e-b2cc-e972b04118a9",
+      "name": "Rowan",
+      "character": "ember",
+      "position": {
+        "x": 67.10000000000004,
+        "y": 64.5
+      }
+    }
+  ],
+  "movementTiles": 2.600000000000037,
+  "resumedSameIdentity": true,
+  "copiedInvite": true,
+  "errors": []
+}

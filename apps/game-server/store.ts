@@ -2,6 +2,7 @@ import { createClient } from "redis";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { Actor, Session } from "../../packages/protocol";
 import { CONTENT_VERSION, GENERATION_VERSION } from "../../packages/world";
+import { characterId, type CharacterId } from "../../packages/characters";
 export type Metadata = {
   seed: string;
   invite: string;
@@ -50,7 +51,10 @@ export class Store {
   async close() {
     if (this.redis.isOpen) this.redis.destroy();
   }
-  async create(name: string): Promise<Session> {
+  async create(
+    name: string,
+    character: CharacterId = "fern",
+  ): Promise<Session> {
     const worldId = randomUUID(),
       playerId = randomUUID(),
       token = randomBytes(32).toString("base64url"),
@@ -68,14 +72,26 @@ export class Store {
       .hSet(
         this.key(worldId, "members"),
         playerId,
-        JSON.stringify({ name, hash: hash(token) }),
+        JSON.stringify({ name, character, hash: hash(token) }),
       )
       .expire(this.key(worldId, "members"), TTL)
       .set(`${this.prefix}:invite:${hash(invite)}`, worldId, { EX: TTL })
       .exec();
-    return { worldId, playerId, token, invite, seed: meta.seed, name };
+    return {
+      worldId,
+      playerId,
+      token,
+      invite,
+      seed: meta.seed,
+      name,
+      character,
+    };
   }
-  async join(name: string, invite: string): Promise<Session> {
+  async join(
+    name: string,
+    invite: string,
+    character: CharacterId = "fern",
+  ): Promise<Session> {
     const worldId = await this.redis.get(
       `${this.prefix}:invite:${hash(invite)}`,
     );
@@ -91,14 +107,31 @@ export class Store {
         keys: [this.key(worldId, "meta"), this.key(worldId, "members")],
         arguments: [
           playerId,
-          JSON.stringify({ name, hash: hash(token) }),
+          JSON.stringify({ name, character, hash: hash(token) }),
           CONTENT_VERSION,
           GENERATION_VERSION,
         ],
       },
     );
     if (ok !== 1) throw Error("This Meadow already has its two adventurers.");
-    return { worldId, playerId, token, invite, seed: "meadow-001", name };
+    return {
+      worldId,
+      playerId,
+      token,
+      invite,
+      seed: "meadow-001",
+      name,
+      character,
+    };
+  }
+  async characters(world: string) {
+    const members = await this.redis.hGetAll(this.key(world, "members"));
+    return new Map(
+      Object.entries(members).map(([id, raw]) => [
+        id,
+        characterId(JSON.parse(raw).character),
+      ]),
+    );
   }
   async authenticate(world: string, token: string) {
     const raw = await this.redis.get(this.key(world, "meta"));
@@ -207,6 +240,7 @@ export class Store {
       members: Object.entries(members).map(([id, raw]) => ({
         id,
         name: JSON.parse(raw).name as string,
+        character: characterId(JSON.parse(raw).character),
       })),
       inputs: Object.fromEntries(
         Object.entries(inputs).map(([id, raw]) => [

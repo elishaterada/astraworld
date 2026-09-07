@@ -55,6 +55,13 @@ Read [update evidence](milestones/M0_STYLE_UPDATE.md) for the new browser and pe
 
 ## M1 client rendering adapter
 
-Ordinary play now uses `MeadowConnection` for predicted local position and a bounded remote snapshot buffer. The existing camera and collision-aware interpolation render the local actor. Nearby remote actors use the same provisional atlas with a blue tint and a text label, at approximately 100 ms interpolation delay. Remote gait animation and correction-specific visual easing are not implemented; large authoritative corrections may visibly snap. Terrain and simulation geometry remain unchanged. Offline M0 (`?solo=1`) keeps its original local-step path.
+Ordinary play now uses `MeadowConnection` for predicted local position and a bounded remote snapshot buffer. The existing camera and collision-aware interpolation render the local actor. Nearby remote actors use the selected Fern, Ember or Iris tint on the same provisional atlas, with a matching symbol and name label, at approximately 100 ms interpolation delay. Remote gait animation and correction-specific visual easing are not implemented; large authoritative corrections may visibly snap. Terrain and simulation geometry remain unchanged. Offline M0 (`?solo=1`) keeps its original local-step path.
 
 Network disposal accompanies renderer disposal. Hidden pages clear input and stop the Pixi ticker; the server independently expires movement after 250 ms and visible presence after three seconds. The shared world continues when a player's menu is open. A responsive connection status remains visible at narrow desktop widths.
+
+
+## M1 character selector
+
+`packages/characters` defines three cosmetic colorways and symbols; these have no simulation statistics. The entry form uses native radio controls with visible selection and keyboard focus. Canvas portraits multiply the same atlas frame's RGB channels by the same tint as Pixi; no second character-art source is introduced. These are clearly labeled placeholder colorways. The renderer applies the choice to local gait frames and remote sprites. Names remain visible; circle/diamond/star markers distinguish looks beyond color alone. Choices are not exclusive within a room.
+
+An existing tab session offers Resume Meadow and locks the name/look to the stored identity. Leave Meadow clears the tab's resume capability so a new world can start with another choice. An invitation takes priority over the old tab session. The shared menu has Copy invite link with clipboard-failure text and a selectable input fallback. Fullscreen remains requested from the entry submit gesture. No movement or collision rules changed.

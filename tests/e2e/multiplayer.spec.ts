@@ -13,6 +13,8 @@ async function enter(p: Page, name: string, url = "/?debug=1") {
   await p.getByRole("button", { name: "Enter Meadow", exact: true }).click();
   await p.waitForFunction(
     () => window.__MEADOW__?.snapshot().network?.status === "Connected",
+    null,
+    { timeout: 15000 },
   );
   await p.getByRole("application").focus();
 }
@@ -29,6 +31,19 @@ test("N0/N2 two independent browsers see movement and recover on the other gatew
     bc = await browser.newContext(),
     cc = await browser.newContext();
   await Promise.all([prepare(ac), prepare(bc), prepare(cc)]);
+  await ac.addInitScript(() => {
+    const Native = window.WebSocket;
+    window.WebSocket = class extends Native {
+      constructor(url: string | URL, protocols?: string | string[]) {
+        super(url, protocols);
+        window.addEventListener(
+          "meadow-test-disconnect",
+          () => this.close(1000, "Test transport interruption"),
+          { once: true },
+        );
+      }
+    };
+  });
   await bc.addInitScript(() => {
     const Native = window.WebSocket;
     window.WebSocket = class extends Native {
@@ -52,6 +67,8 @@ test("N0/N2 two independent browsers see movement and recover on the other gatew
     await enter(b, "Mika", link);
     await a.waitForFunction(
       () => window.__MEADOW__?.snapshot().network?.remotes.length === 1,
+      null,
+      { timeout: 15000 },
     );
     expect(connectionsA[0]).toContain(":3101/");
     expect(connectionsB[0]).toContain(":3102/");
@@ -80,9 +97,15 @@ test("N0/N2 two independent browsers see movement and recover on the other gatew
     await a.waitForTimeout(1500);
     expect((await snapshot(a)).network!.status).toContain("Reconnecting");
     await ac.setOffline(false);
+    // A short offline pause can recover on the same TCP connection. Explicitly
+    // close this test-owned transport to exercise a new generation and gateway.
+    await a.evaluate(() =>
+      window.dispatchEvent(new Event("meadow-test-disconnect")),
+    );
     await a.waitForFunction(
       (g) => (window.__MEADOW__?.snapshot().network?.generation ?? 0) > g,
       oldGeneration,
+      { timeout: 15000 },
     );
     await a.waitForFunction(
       () => window.__MEADOW__?.snapshot().network?.status === "Connected",

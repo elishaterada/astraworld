@@ -30,9 +30,9 @@ GAME_PORT=3102 GATEWAY_ID=local-b npm run game:server
 npm run dev -- --port 3002
 ```
 
-Open [Astraworld locally](http://127.0.0.1:3002), choose an adventurer name, and press **Enter Meadow**. The game requests fullscreen; unavailable fullscreen falls back to the full browser viewport. **WASD / arrows** move, **Escape** releases focus, and **Menu** pauses your input. Other players keep exploring while your menu is open. Trees, rocks and map edges are solid.
+Open [Astraworld locally](http://127.0.0.1:3002), choose an adventurer name and a character colorway (Fern, Ember or Iris), and press **Enter Meadow**. The game requests fullscreen; unavailable fullscreen falls back to the full browser viewport. **WASD / arrows** move, **Escape** releases focus, and **Menu** pauses your input. Other players keep exploring while your menu is open. Trees, rocks and map edges are solid.
 
-In **Menu**, copy **Invite a friend** into another browser profile or incognito window. The private link admits one additional player. A third member is rejected. Local loopback links work on this computer only. Nearby friends are labeled and tinted blue. The connection indicator reports connecting, connected or reconnecting.
+In **Menu → Invite a friend**, press **Copy invite link** and send it to your friend. They open it, choose their own name and look, then enter the same world. For a local two-player test, open the link in another browser profile or incognito window. The private link admits one additional player. A third member is rejected. Local loopback links work on this computer only. Nearby friends show their selected colorway and a name marker (circle, diamond or star). Reloading offers **Resume Meadow** with the same identity and look. Choices are cosmetic and are not reserved; choose different looks to distinguish the pair. The connection indicator reports connecting, connected or reconnecting.
 
 Reloading the same tab keeps its temporary session credential. **Leave meadow** returns to entry and forgets it. Session recovery lasts about 30 minutes after everyone leaves, and Redis loss can lose the session. Invitations expire 30 minutes after creation. This is not permanent saving. Shared seeds cannot be changed from the client.
 

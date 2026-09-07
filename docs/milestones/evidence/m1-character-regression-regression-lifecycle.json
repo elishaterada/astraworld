@@ -1,0 +1,26 @@
+{
+  "cycles": 12,
+  "rapidCycles": 4,
+  "resources": {
+    "applications": 1,
+    "inputListeners": 9,
+    "tickers": 1,
+    "observers": 1,
+    "textures": 64
+  },
+  "heaps": [
+    14592028,
+    15431120,
+    15050704,
+    15251540,
+    15222696,
+    15550452,
+    15958104,
+    15577216,
+    15724892,
+    15873500,
+    15919320,
+    16356796
+  ],
+  "errors": []
+}

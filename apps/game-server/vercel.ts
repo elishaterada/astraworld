@@ -61,8 +61,12 @@ export async function issueSession(request: Request) {
       );
     const { store } = await gateway();
     const s = input.data.invite
-      ? await store.join(input.data.name, input.data.invite)
-      : await store.create(input.data.name);
+      ? await store.join(
+          input.data.name,
+          input.data.invite,
+          input.data.character,
+        )
+      : await store.create(input.data.name, input.data.character);
     return Response.json(s, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return Response.json(

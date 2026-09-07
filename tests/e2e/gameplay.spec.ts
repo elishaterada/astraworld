@@ -33,7 +33,7 @@ async function ready(page: Page) {
       .getByRole("button", { name: "Enter Meadow", exact: true })
       .click();
   }
-  await expect(page.locator("canvas")).toHaveCount(1);
+  await expect(page.locator(".playfield canvas")).toHaveCount(1);
   await page.waitForFunction(() => !!window.__MEADOW__);
 }
 async function hold(page: Page, keys: string[], ms: number) {
@@ -168,7 +168,7 @@ test("R1 repeated real unmount/remount and rapid initialization cancellation", a
   for (let i = 0; i < 12; i++) {
     await openMenu(page);
     await page.getByRole("button", { name: "Leave meadow" }).click();
-    await expect(page.locator("canvas")).toHaveCount(0);
+    await expect(page.locator(".playfield canvas")).toHaveCount(0);
     expect(await page.evaluate(() => !!window.__MEADOW__)).toBe(false);
     await ready(page);
     expect((await snapshot(page)).live).toEqual(baseline);
@@ -213,18 +213,20 @@ test("G0 seed controls regenerate the same rendered landscape and reset movement
   await restart(page);
   await page.waitForTimeout(150);
   expect((await snapshot(page)).seed).toBe("brook-42");
-  const first = await page.locator("canvas").screenshot();
+  const first = await page.locator(".playfield canvas").screenshot();
   await hold(page, ["ArrowRight"], 400);
   await restart(page);
   await page.waitForTimeout(150);
   expect((await snapshot(page)).state).toEqual({ x: 64.5, y: 64.5 });
-  const second = await page.locator("canvas").screenshot();
+  const second = await page.locator(".playfield canvas").screenshot();
   expect(second.equals(first)).toBe(true);
   await openMenu(page);
   await seed.fill("another-meadow");
   await restart(page);
   await page.waitForTimeout(150);
-  expect((await page.locator("canvas").screenshot()).equals(first)).toBe(false);
+  expect(
+    (await page.locator(".playfield canvas").screenshot()).equals(first),
+  ).toBe(false);
 });
 
 test("visibility event handler clears input and freezes ticks until explicit resume", async ({
@@ -268,13 +270,13 @@ test("username gate, viewport fallback and local display name", async ({
   page,
 }) => {
   await page.goto("/?solo=1&debug=1");
-  await expect(page.locator("canvas")).toHaveCount(0);
+  await expect(page.locator(".playfield canvas")).toHaveCount(0);
   await page.screenshot({
     path: "docs/milestones/evidence/m1-regression-entry.png",
   });
   await page.getByRole("button", { name: "Enter Meadow", exact: true }).click();
   await expect(page.locator("#name-error")).toContainText("2–20");
-  await expect(page.locator("canvas")).toHaveCount(0);
+  await expect(page.locator(".playfield canvas")).toHaveCount(0);
   await page.getByLabel("What should we call you?").fill("  Mika  ");
   await page.getByRole("button", { name: "Enter Meadow", exact: true }).click();
   await ready(page);
@@ -299,7 +301,7 @@ test("username gate, viewport fallback and local display name", async ({
   expect((await snapshot(page)).state.x).toBeGreaterThan(64.5);
   await openMenu(page);
   await page.getByRole("button", { name: "Leave meadow" }).click();
-  await expect(page.locator("canvas")).toHaveCount(0);
+  await expect(page.locator(".playfield canvas")).toHaveCount(0);
   await expect(page.getByLabel("What should we call you?")).toHaveValue("Mika");
   await page.reload();
   await expect(page.getByLabel("What should we call you?")).toHaveValue("");

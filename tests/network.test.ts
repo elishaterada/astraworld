@@ -7,6 +7,8 @@ import { Store } from "../apps/game-server/store";
 import { createGateway } from "../apps/game-server/server";
 import {
   parseClient,
+  joinSchema,
+  actorSchema,
   VERSION,
   type Snapshot,
   type Session,
@@ -28,7 +30,7 @@ async function until(check: () => boolean, ms = 5000) {
     await sleep(25);
   }
 }
-async function client(port: number, s: Session) {
+async function client(port: number, s: Session, characters = false) {
   const ws = new WebSocket(`ws://127.0.0.1:${port}/play`, { origin });
   let generation = 0;
   const snapshots: Snapshot[] = [];
@@ -44,6 +46,7 @@ async function client(port: number, s: Session) {
   ws.send(
     JSON.stringify({
       type: "hello",
+      ...(characters ? { characters: true } : {}),
       protocolVersion: VERSION,
       worldId: s.worldId,
       token: s.token,
@@ -134,6 +137,68 @@ afterAll(async () => {
   redis?.kill();
 });
 describe("M1 real Redis and WebSocket authority", () => {
+  it("validates character choices and preserves cosmetics across gateways and reconnect", async () => {
+    expect(
+      joinSchema.safeParse({ name: "Rowan", character: "invented" }).success,
+    ).toBe(false);
+    expect(joinSchema.parse({ name: "Legacy" }).character).toBe("fern");
+    const response = await fetch("http://127.0.0.1:3191/session", {
+      method: "POST",
+      headers: { origin, "Content-Type": "application/json" },
+      body: JSON.stringify({ name: "Invalid", character: "invented" }),
+    });
+    expect(response.status).toBe(400);
+    const s = await store.create("Rowan", "ember");
+    const friend = await store.join("Mika", s.invite, "iris");
+    const c = await client(3191, s, true),
+      d = await client(3192, friend);
+    try {
+      await until(
+        () =>
+          c.snapshots.at(-1)?.actors.length === 2 &&
+          d.snapshots.at(-1)?.actors.length === 2,
+      );
+      expect(
+        c.snapshots.at(-1)!.actors.find((a) => a.id === friend.playerId)
+          ?.character,
+      ).toBe("iris");
+      // Old clients receive their original strict schema, even from a new owner.
+      for (const actor of d.snapshots.at(-1)!.actors) {
+        expect(actor).not.toHaveProperty("character");
+        expect(
+          actorSchema.omit({ character: true }).strict().safeParse(actor)
+            .success,
+        ).toBe(true);
+      }
+      c.ws.close();
+      const resumed = await client(3192, s, true);
+      try {
+        await until(() => resumed.snapshots.length > 0);
+        expect(
+          resumed.snapshots.at(-1)!.actors.find((a) => a.id === s.playerId)
+            ?.character,
+        ).toBe("ember");
+      } finally {
+        resumed.ws.close();
+      }
+      // Hot records made before the selector get the default without losing identity.
+      const key = store.key(s.worldId, "members");
+      const member = JSON.parse(
+        (await store.redis.hGet(key, friend.playerId))!,
+      );
+      delete member.character;
+      await store.redis.hSet(key, friend.playerId, JSON.stringify(member));
+      expect(
+        (await store.read(s.worldId)).members.find(
+          (m) => m.id === friend.playerId,
+        )?.character,
+      ).toBe("fern");
+    } finally {
+      c.ws.close();
+      d.ws.close();
+    }
+  });
+
   it("rejects authoritative fields, wrong versions, nonfinite vectors and oversized frames", () => {
     const base = {
       protocolVersion: 1,
@@ -372,7 +437,29 @@ describe("M1 real Redis and WebSocket authority", () => {
         env: { ...args.env, GAME_PORT: "3194", GATEWAY_ID: "crash-B" },
       },
     );
-    await sleep(1500);
+    // Wait for actual readiness rather than racing a fixed process-start delay.
+    try {
+      await Promise.all(
+        [3193, 3194].map(async (port) => {
+          const deadline = Date.now() + 10000;
+          while (true) {
+            try {
+              if ((await fetch(`http://127.0.0.1:${port}/health`)).ok) return;
+            } catch {
+              /* Starting. */
+            }
+            if (Date.now() > deadline)
+              throw Error(`Gateway ${port} did not start`);
+            await sleep(100);
+          }
+        }),
+      );
+    } catch (error) {
+      left.kill();
+      right.kill();
+      await sessions.close();
+      throw error;
+    }
     const s = await sessions.create("Rowan"),
       f = await sessions.join("Mika", s.invite);
     const c = await client(3193, s),
@@ -416,5 +503,5 @@ describe("M1 real Redis and WebSocket authority", () => {
       right.kill();
       await sessions.close();
     }
-  }, 22000);
+  }, 32000);
 });

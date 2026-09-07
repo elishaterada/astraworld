@@ -2,13 +2,20 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { normalizeSeed } from "../packages/world";
 import { validateUsername } from "./profile";
-import { joinMeadow } from "./network";
+import { CharacterSelector } from "./character-selector";
+import {
+  CHARACTERS,
+  characterId,
+  type CharacterId,
+} from "../packages/characters";
+import { joinMeadow, savedSession } from "./network";
 import type { Session } from "../packages/protocol";
 import type { SandboxReport } from "./renderer";
 
 function Meadow({
   seed,
   username,
+  character,
   onLeave,
   onFullscreen,
   fullscreen,
@@ -16,6 +23,7 @@ function Meadow({
 }: {
   seed: string;
   username: string;
+  character: CharacterId;
   onLeave: () => void;
   onFullscreen: () => void;
   fullscreen: boolean;
@@ -25,6 +33,7 @@ function Meadow({
     menu = useRef<HTMLDialogElement>(null);
   const [status, setStatus] = useState<SandboxReport | null>(null),
     [error, setError] = useState("");
+  const [copyNote, setCopyNote] = useState("");
   const [draft, setDraft] = useState(seed),
     [activeSeed, setActiveSeed] = useState(seed),
     [revision, setRevision] = useState(0);
@@ -43,6 +52,7 @@ function Meadow({
             setError,
             username,
             session,
+            character,
           );
       })
       .catch(() => {
@@ -55,7 +65,7 @@ function Meadow({
       cancelled = true;
       dispose?.();
     };
-  }, [activeSeed, revision, username, session]);
+  }, [activeSeed, revision, username, session, character]);
   const resume = () => {
     menu.current?.close();
     host.current?.focus();
@@ -104,6 +114,9 @@ function Meadow({
         </button>
       </div>
       <div className="player-name" aria-label={`Player ${username}`}>
+        <span style={{ color: CHARACTERS[character].color }}>
+          {CHARACTERS[character].mark}
+        </span>{" "}
         {username}
         <span className="name-diamond" />
       </div>
@@ -179,7 +192,8 @@ function Meadow({
         <span className="overline">YOUR LITTLE CORNER OF THE WORLD</span>
         <h2>A moment in the Meadow.</h2>
         <p className="menu-player">
-          Wandering as <strong>{username}</strong>
+          Wandering as <strong>{username}</strong> ·{" "}
+          {CHARACTERS[character].label}
         </p>
         {session ? (
           <div className="invite-panel">
@@ -194,6 +208,29 @@ function Meadow({
               }
               onFocus={(e) => e.target.select()}
             />
+            <button
+              className="copy-invite"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(
+                    `${location.origin}/?invite=${session.invite}`,
+                  );
+                  setCopyNote("Link copied. Send it to your friend.");
+                } catch {
+                  const field = document.getElementById(
+                    "invite-link",
+                  ) as HTMLInputElement | null;
+                  field?.focus();
+                  field?.select();
+                  setCopyNote("Select and copy the link above to share it.");
+                }
+              }}
+            >
+              Copy invite link
+            </button>
+            <p className="fine-print" role="status">
+              {copyNote}
+            </p>
             <p className="fine-print">
               Share this private link with one friend. This session can recover
               for 30 minutes after everyone leaves.
@@ -247,6 +284,22 @@ export default function Sandbox() {
   const shell = useRef<HTMLElement>(null);
   const [session, setSession] = useState<Session>();
   const [joining, setJoining] = useState(false);
+  const [character, setCharacter] = useState<CharacterId>("fern");
+  const [resuming, setResuming] = useState(false);
+  const [invited, setInvited] = useState(false);
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setInvited(params.has("invite"));
+    const saved =
+      !params.has("invite") && params.get("solo") !== "1"
+        ? savedSession()
+        : undefined;
+    if (saved) {
+      setDraftName(saved.name);
+      setCharacter(characterId(saved.character));
+      setResuming(true);
+    }
+  }, []);
   const [draftName, setDraftName] = useState(""),
     [username, setUsername] = useState(""),
     [playing, setPlaying] = useState(false),
@@ -297,9 +350,11 @@ export default function Sandbox() {
       const joined = await joinMeadow(
         result.name,
         new URLSearchParams(location.search).get("invite") ?? undefined,
+        character,
       );
       setSession(joined);
       setUsername(joined.name);
+      setCharacter(characterId(joined.character));
       setPlaying(true);
       // Strip the invitation from the address after joining to avoid accidental re-joins on reload.
       const url = new URL(location.href);
@@ -315,6 +370,8 @@ export default function Sandbox() {
   }
   function leave() {
     setPlaying(false);
+    setResuming(false);
+    setInvited(false);
     setSession(undefined);
     sessionStorage.removeItem("meadow-session");
     setFullscreenNote("");
@@ -336,6 +393,7 @@ export default function Sandbox() {
           seed={session?.seed ?? "meadow-001"}
           session={session}
           username={username}
+          character={character}
           onLeave={leave}
           onFullscreen={toggleFullscreen}
           fullscreen={fullscreen}
@@ -372,13 +430,19 @@ export default function Sandbox() {
             <form className="entry-form" onSubmit={enter} noValidate>
               <label htmlFor="username">What should we call you?</label>
               <p className="field-help" id="name-help">
-                Choose a name for your first steps.
+                {resuming
+                  ? "Welcome back. Your name and look are saved for this session."
+                  : invited
+                    ? "You’re joining a friend’s Meadow. Choose a name and look."
+                    : "Start a Meadow, then invite one friend from the menu."}
               </p>
               <div className="name-field">
                 <span aria-hidden="true">✧</span>
                 <input
                   id="username"
                   name="username"
+                  readOnly={resuming}
+                  disabled={joining}
                   autoComplete="nickname"
                   placeholder="Your adventurer name"
                   maxLength={20}
@@ -393,6 +457,11 @@ export default function Sandbox() {
                   aria-invalid={!!nameError}
                 />
               </div>
+              <CharacterSelector
+                value={character}
+                onChange={setCharacter}
+                disabled={joining || resuming}
+              />
               {nameError && (
                 <p id="name-error" role="alert" className="form-error">
                   {nameError}
@@ -403,7 +472,11 @@ export default function Sandbox() {
                 type="submit"
                 disabled={joining}
               >
-                {joining ? "Opening the Meadow…" : "Enter Meadow"}{" "}
+                {joining
+                  ? "Opening the Meadow…"
+                  : resuming
+                    ? "Resume Meadow"
+                    : "Enter Meadow"}{" "}
                 <span aria-hidden="true">→</span>
               </button>
               <p className="entry-note">

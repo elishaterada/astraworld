@@ -24,6 +24,11 @@ import { loadMeadowArt, terrainTexture } from "./art";
 import { screenToWorld, TILE_PIXELS, worldToScreen } from "./camera";
 
 import { MeadowConnection } from "./network";
+import {
+  CHARACTERS,
+  characterId,
+  type CharacterId,
+} from "../packages/characters";
 import type { Session } from "../packages/protocol";
 
 const live = {
@@ -57,6 +62,7 @@ export type DebugSnapshot = {
   visibleProps: number;
   seed: string;
   username: string;
+  character: CharacterId;
   sharedAtlasFrames: number;
   network?: {
     status: string;
@@ -67,7 +73,12 @@ export type DebugSnapshot = {
     tick: number;
     selfId: string;
     authoritative: Position;
-    remotes: { id: string; name: string; position: Position }[];
+    remotes: {
+      id: string;
+      name: string;
+      character: CharacterId;
+      position: Position;
+    }[];
   };
 };
 declare global {
@@ -84,6 +95,7 @@ export function mountMeadow(
   fail: (message: string) => void,
   username: string,
   session?: Session,
+  character: CharacterId = "fern",
 ): () => void {
   let disposed = false,
     cleanup: (() => void) | undefined;
@@ -185,6 +197,7 @@ export function mountMeadow(
       .ellipse(0, 0, 10, 4)
       .fill({ color: 0x193d30, alpha: 0.3 });
     const body = new Sprite(art[8]);
+    body.tint = CHARACTERS[character].tint;
     body.anchor.set(0.5, 1);
     body.scale.set(48 / body.texture.height);
     avatar.addChild(shadow, body);
@@ -230,6 +243,7 @@ export function mountMeadow(
         visibleProps,
         seed: world.seed,
         username,
+        character,
         sharedAtlasFrames: art.length,
         ...(network
           ? {
@@ -245,6 +259,7 @@ export function mountMeadow(
                 remotes: network.remotes().map((a) => ({
                   id: a.id,
                   name: a.name,
+                  character: characterId(a.character),
                   position: { ...a.position },
                 })),
               },
@@ -363,13 +378,14 @@ export function mountMeadow(
           const sprite = new Sprite(art[8]);
           sprite.anchor.set(0.5, 1);
           sprite.scale.set(48 / sprite.texture.height);
-          sprite.tint = 0xc6e1ff;
+          const look = CHARACTERS[characterId(actor.character)];
+          sprite.tint = look.tint;
           const label = new Text({
-            text: actor.name,
+            text: `${look.mark} ${actor.name}`,
             style: {
               fontFamily: "Georgia",
               fontSize: 14,
-              fill: 0xfff4d7,
+              fill: look.color,
               stroke: { color: 0x15392d, width: 3 },
             },
           });
@@ -379,6 +395,13 @@ export function mountMeadow(
           objects.addChild(peer);
           peers.set(actor.id, peer);
         }
+        // Keep an existing remote sprite consistent with the latest membership projection.
+        const look = CHARACTERS[characterId(actor.character)];
+        const sprite = peer.children[0] as Sprite;
+        const label = peer.children[1] as Text;
+        sprite.tint = look.tint;
+        label.text = `${look.mark} ${actor.name}`;
+        label.style.fill = look.color;
         peer.position.set(actor.position.x * 32, actor.position.y * 32);
         peer.zIndex = actor.position.y;
       }

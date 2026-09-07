@@ -16,6 +16,23 @@ import {
   type Position,
   type Input,
 } from "../packages/simulation";
+import { characterId, type CharacterId } from "../packages/characters";
+export function savedSession(): Session | undefined {
+  try {
+    const value = JSON.parse(
+      sessionStorage.getItem("meadow-session") ?? "null",
+    );
+    if (
+      value?.worldId &&
+      value?.playerId &&
+      value?.token &&
+      typeof value.name === "string"
+    )
+      return { ...value, character: characterId(value.character) };
+  } catch {
+    /* Missing or invalid local session. */
+  }
+}
 export const gateways = () => {
   const configured = process.env.NEXT_PUBLIC_GAME_GATEWAYS;
   if (configured) return configured.split(",");
@@ -29,22 +46,21 @@ export const gateways = () => {
 export async function joinMeadow(
   name: string,
   invite?: string,
+  character: CharacterId = "fern",
 ): Promise<Session> {
-  const saved = sessionStorage.getItem("meadow-session");
-  if (saved && !invite) {
-    try {
-      return JSON.parse(saved) as Session;
-    } catch {
-      sessionStorage.removeItem("meadow-session");
-    }
-  }
+  const saved = savedSession();
+  if (saved && !invite) return saved;
   let last = "The Meadow service is unavailable. Please try again shortly.";
   for (const gateway of gateways()) {
     try {
       const response = await fetch(`${gateway}/session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, ...(invite ? { invite } : {}) }),
+        body: JSON.stringify({
+          name,
+          character,
+          ...(invite ? { invite } : {}),
+        }),
         signal: AbortSignal.timeout(5000),
       });
       const data = await response.json();
@@ -97,6 +113,7 @@ export class MeadowConnection {
       socket.send(
         JSON.stringify({
           type: "hello",
+          characters: true,
           protocolVersion: VERSION,
           worldId: this.session.worldId,
           token: this.session.token,

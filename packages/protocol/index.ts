@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { CONTENT_VERSION, GENERATION_VERSION } from "../world";
+import { CHARACTER_IDS, type CharacterId } from "../characters";
+export const characterSchema = z.enum(CHARACTER_IDS);
 export const VERSION = 1;
 export const integer = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
 export const id = z.string().uuid();
@@ -22,6 +24,7 @@ export const clientMessage = z.discriminatedUnion("type", [
       ...envelope,
       type: z.literal("hello"),
       token: credential,
+      characters: z.literal(true).optional(),
       contentVersion: z.literal(CONTENT_VERSION),
       generationVersion: z.literal(GENERATION_VERSION),
     })
@@ -41,6 +44,7 @@ export const actorSchema = z
   .object({
     id,
     name,
+    character: characterSchema.optional(),
     position: z
       .object({
         x: z.number().finite().min(0).max(128),
@@ -75,9 +79,14 @@ export type Session = {
   invite: string;
   seed: string;
   name: string;
+  character?: CharacterId;
 };
 export const joinSchema = z
-  .object({ name, invite: credential.optional() })
+  .object({
+    name,
+    invite: credential.optional(),
+    character: characterSchema.default("fern"),
+  })
   .strict();
 /** Strictly bounded and shared, including rejection of invented authoritative fields. */
 export function parseClient(raw: string) {

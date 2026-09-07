@@ -20,6 +20,13 @@ it("bounds hosted session bodies and rejects extra authority fields", async () =
   expect(
     (
       await issueSession(
+        request(JSON.stringify({ name: "Rowan", character: "invented" })),
+      )
+    ).status,
+  ).toBe(400);
+  expect(
+    (
+      await issueSession(
         request(JSON.stringify({ name: "Rowan", playerId: "forged" })),
       )
     ).status,

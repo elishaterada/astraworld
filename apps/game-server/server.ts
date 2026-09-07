@@ -40,6 +40,7 @@ export async function createGateway(options: {
   };
   type Client = {
     socket: WebSocket;
+    characters: boolean;
     world: string;
     player: string;
     generation: number;
@@ -55,6 +56,8 @@ export async function createGateway(options: {
     cooldown: number;
     busy: boolean;
     lastActive: number;
+    characters: Awaited<ReturnType<Store["characters"]>>;
+    characterLoad?: Promise<void>;
   };
   const rooms = new Map<string, Room>();
   let stopping = false;
@@ -130,8 +133,12 @@ export async function createGateway(options: {
         return;
       }
       const session = parsed.data.invite
-        ? await store.join(parsed.data.name, parsed.data.invite)
-        : await store.create(parsed.data.name);
+        ? await store.join(
+            parsed.data.name,
+            parsed.data.invite,
+            parsed.data.character,
+          )
+        : await store.create(parsed.data.name, parsed.data.character);
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify(session));
     } catch (error) {
@@ -187,9 +194,29 @@ export async function createGateway(options: {
       cooldown: 0,
       busy: false,
       lastActive: Date.now(),
+      characters: new Map(),
     });
-    await subscriber.subscribe(store.key(world, "snapshots"), (raw) => {
+    await subscriber.subscribe(store.key(world, "snapshots"), async (raw) => {
       const projection = JSON.parse(raw) as Omit<Snapshot, "selfId">;
+      const room = rooms.get(world);
+      if (!room) return;
+      // Cosmetics are immutable membership metadata, cached for at most two actors.
+      // Redis fanout stays v1-shaped so gateways from the preceding deployment remain safe.
+      if (projection.actors.some((a) => !room.characters.has(a.id))) {
+        room.characterLoad ??= store
+          .characters(world)
+          .then((looks) => {
+            room.characters = looks;
+          })
+          .finally(() => {
+            room.characterLoad = undefined;
+          });
+        try {
+          await room.characterLoad;
+        } catch {
+          return;
+        }
+      }
       for (const c of clients) {
         if (c.world !== world) continue;
         const self = projection.actors.find((a) => a.id === c.player);
@@ -201,14 +228,25 @@ export async function createGateway(options: {
         send(c.socket, {
           ...projection,
           selfId: c.player,
-          actors: projection.actors.filter(
-            (a) =>
-              a.id === c.player ||
-              Math.hypot(
-                a.position.x - self.position.x,
-                a.position.y - self.position.y,
-              ) <= 48,
-          ),
+          actors: projection.actors
+            .filter(
+              (a) =>
+                a.id === c.player ||
+                Math.hypot(
+                  a.position.x - self.position.x,
+                  a.position.y - self.position.y,
+                ) <= 48,
+            )
+            .map((actor) => {
+              // Legacy clients use a strict actor schema; only opted-in clients receive cosmetics.
+              if (c.characters)
+                return {
+                  ...actor,
+                  character: room.characters.get(actor.id) ?? "fern",
+                };
+              const { character: _character, ...legacy } = actor;
+              return legacy;
+            }),
         });
       }
     });
@@ -285,6 +323,7 @@ export async function createGateway(options: {
           if (socket.readyState !== WebSocket.OPEN) return;
           client = {
             socket,
+            characters: message.characters === true,
             world: message.worldId,
             player,
             generation,
