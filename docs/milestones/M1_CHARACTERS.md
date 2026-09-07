@@ -21,3 +21,7 @@ The existing true TCP packet-loss gate is still pending; this change does not es
 
 
 Regression follow-up: all six solo gameplay cases and all three multiplayer cases passed across the initial run and targeted reruns. Portrait canvases required scoping old disposal/entry assertions to `.playfield canvas`. The existing gateway-switch test also assumed a 1.5-second offline pause always closed TCP; it now explicitly closes its test-owned WebSocket after the pause to verify a new connection generation on the alternate gateway. The 150/300 ms degraded-traffic cases passed unchanged. These are application/connection fault checks, not the pending IP packet-loss gate.
+
+## Hosted result
+
+`e2abd06` was pushed to origin/main and Vercel's Git status reported deployment complete. The same character browser test then passed against `https://astraworld-teradas.vercel.app` in 7.0 seconds, using two independent contexts with the existing protected-deployment automation access. Both selected appearances matched, clipboard invitation worked, real server movement measured 2.8 tiles during the input hold, collision remained false, and reload retained the same server identity and Ember choice. No page exceptions. The hosted screenshot was visually inspected. Evidence: `evidence/m1-hosted-character-selector.png`, `m1-hosted-character-gameplay.png`, and `m1-hosted-characters.json`. The temporary automation access file was removed; no credential is present in evidence or Git. Vercel authentication protection remains enabled.
