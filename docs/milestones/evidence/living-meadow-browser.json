@@ -1,0 +1,37 @@
+{
+  "browser": "153.0.8010.12",
+  "pond": {
+    "position": {
+      "x": 60.24,
+      "y": 57.4999999999997
+    },
+    "authoritative": {
+      "x": 60.24,
+      "y": 57.4999999999997
+    }
+  },
+  "fire": {
+    "position": {
+      "x": 69.50666666666655,
+      "y": 69.76
+    },
+    "authoritative": {
+      "x": 69.50666666666655,
+      "y": 69.76
+    }
+  },
+  "environment": {
+    "phase": 14.255999999982063,
+    "ponds": 6,
+    "bonfires": 4,
+    "particles": 160,
+    "activeLights": 2
+  },
+  "renderer": {
+    "drawCalls": 190,
+    "triangles": 392224,
+    "geometries": 5,
+    "textures": 3
+  },
+  "errors": []
+}

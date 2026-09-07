@@ -1,15 +1,16 @@
+import { meadowLandmarks, pondDistance } from "./landmarks";
 /** Pure baseline generation. Coordinates are tiles; no renderer or platform imports. */
 export const SIZE = 128;
 export const CHUNK_SIZE = 16;
-export const GENERATION_VERSION = "meadow-1";
-export const CONTENT_VERSION = "placeholder-1";
+export const GENERATION_VERSION = "meadow-2";
+export const CONTENT_VERSION = "environment-1";
 export const SPAWN = Object.freeze({ x: 64.5, y: 64.5 });
 export type Tile = Readonly<{
   x: number;
   y: number;
-  terrain: "grass" | "path";
+  terrain: "grass" | "path" | "shore" | "water";
   variant: number;
-  blocker: "tree" | "rock" | null;
+  blocker: "tree" | "rock" | "water" | "campfire" | "log" | null;
   id: string;
 }>;
 export type World = Readonly<{ seed: string; tiles: readonly Tile[] }>;
@@ -45,30 +46,59 @@ export function generateChunk(rawSeed: string, cx: number, cy: number): Tile[] {
     throw new RangeError("Chunk outside Meadow");
   const seed = normalizeSeed(rawSeed),
     hash = seedHash(seed),
+    landmarks = meadowLandmarks(hash),
     tiles: Tile[] = [];
   for (let y = cy * CHUNK_SIZE; y < (cy + 1) * CHUNK_SIZE; y++) {
     for (let x = cx * CHUNK_SIZE; x < (cx + 1) * CHUNK_SIZE; x++) {
       const edge = x === 0 || y === 0 || x === SIZE - 1 || y === SIZE - 1;
+      const pond = landmarks.ponds.reduce(
+        (d, p) => Math.min(d, pondDistance(x + 0.5, y + 0.5, p)),
+        Infinity,
+      );
+      const fire = landmarks.fires.some((p) => p.x === x && p.y === y);
+      const camp = landmarks.fires.some(
+        (p) => Math.hypot(x - p.x, y - p.y) < 3.5,
+      );
+      const bench = landmarks.fires.some(
+        (p) => y === p.y && Math.abs(x - p.x) === 2,
+      );
       const clearing = Math.hypot(x - 64, y - 64) < 5;
       const path = Math.abs(x - 64) <= 1 || Math.abs(y - 64) <= 1;
       // Even-coordinate single-tile props leave connected walking lanes for every seed.
       const prop =
         !clearing &&
+        !camp &&
+        pond > 1.5 &&
         !path &&
         x % 2 === 0 &&
         y % 2 === 0 &&
         sample(hash, x, y, 719) < 0.64;
-      const blocker = edge
-        ? "rock"
-        : prop
-          ? sample(hash, x, y, 131) < 0.7
-            ? "tree"
-            : "rock"
-          : null;
+      const blocker: Tile["blocker"] = fire
+        ? "campfire"
+        : bench
+          ? "log"
+          : pond < 1
+            ? "water"
+            : edge
+              ? "rock"
+              : prop
+                ? sample(hash, x, y, 131) < 0.7
+                  ? sample(hash, x, y, 853) < 0.09
+                    ? "log"
+                    : "tree"
+                  : "rock"
+                : null;
       tiles.push({
         x,
         y,
-        terrain: path || clearing ? "path" : "grass",
+        terrain:
+          pond < 1
+            ? "water"
+            : pond < 1.3
+              ? "shore"
+              : path || clearing || camp
+                ? "path"
+                : "grass",
         variant: Math.floor(sample(hash, x, y, 37) * 8),
         blocker,
         id: `${GENERATION_VERSION}:${CONTENT_VERSION}:${encodeURIComponent(seed)}:${x}:${y}`,

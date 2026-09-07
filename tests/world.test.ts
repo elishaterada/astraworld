@@ -75,8 +75,8 @@ it("handles Unicode seeds even when the input limit splits a surrogate pair", ()
   );
 });
 
-it("locks the meadow-1 / placeholder-1 baseline to its recorded reference hash", () => {
+it("locks the meadow-2 / environment-1 baseline to its recorded reference hash", () => {
   expect(hash(generateWorld("meadow-001").tiles)).toBe(
-    "6ed731e37260204a11205bd9e3d871e891200281ec923c9923a1cffcbd7f5fe8",
+    "17089f2bdb59533a29f7e3665f5f3acc135645e0eab309c0878ceb9f60bc3ddb",
   );
 });

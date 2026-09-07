@@ -51,3 +51,7 @@ G0 checks all 100 seeds (`seed-0`…`seed-99`) in forward, reverse and permuted 
 ## 3D presentation compatibility — 2026-09-07
 
 Generation and collision are unchanged. Three.js renders tile `(x,y)` at `(x,0,y)`; block heights and per-variant tree geometry are cosmetic. There is no voxel editing, elevation pathfinding or new terrain kind. Existing seeds, stable IDs and room namespaces remain compatible across the visual migration.
+
+## Living Meadow baseline — 2026-09-07 (current)
+
+The explicit environment request supersedes the migration-only compatibility paragraph above. Current identity is `meadow-2 / environment-1`; `p8-c4-env1` isolates older rooms/clients. Six seeded pond landmarks and four camp clearings add `water`/`shore` terrain and `water`/`campfire`/`log` blockers. Pond banks, camp seats and fire pits use full-tile collision shared by server and client. Clears around landmarks preserve paths and reachable dry ground. Fire and water have no interactive mechanics. [Contract and acceptance](milestones/LIVING_MEADOW.md).

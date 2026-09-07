@@ -30,7 +30,7 @@ GAME_PORT=3104 GATEWAY_ID=local-b npm run game:realtime
 npm run dev -- --port 3002
 ```
 
-Open [Astraworld locally](http://127.0.0.1:3002), choose an adventurer name and one of four distinct adventurers (Fern, Ember, Iris or Hazel), and press **Enter Meadow**. The game requests fullscreen; unavailable fullscreen falls back to the full browser viewport. **WASD / arrows** move, **pointing** sets facing, **Space** waves, **Escape** releases focus, and **Menu** pauses your input. Other players keep exploring while your menu is open. Trees, rocks and map edges are solid.
+Open [Astraworld locally](http://127.0.0.1:3002), choose an adventurer name and one of four distinct adventurers (Fern, Ember, Iris or Hazel), and press **Enter Meadow**. The game requests fullscreen; unavailable fullscreen falls back to the full browser viewport. **WASD / arrows** move, **pointing** sets facing, **Space** waves, **Escape** releases focus, and **Menu** pauses your input. Other players keep exploring while your menu is open. Trees, rocks, logs, water and fire pits are solid. Wander northwest from spawn to Willow Pond or southeast to Wayfarer’s Rest.
 
 In **Menu → Invite a friend**, press **Copy invite link** and send it to your friend. They open it, choose their own name and look, then enter the same world. For a local two-player test, open the link in another browser profile or incognito window. The private link admits up to seven additional players. A ninth member is rejected. Local loopback links work on this computer only. Nearby friends show their selected character and a name marker (circle, diamond, star or square). Reloading offers **Resume Meadow** with the same identity and look. Choices are cosmetic and are not reserved; choose different looks to distinguish the group. The connection indicator reports connecting, connected or reconnecting.
 
@@ -39,6 +39,8 @@ Reloading the same tab keeps its temporary session credential. **Leave meadow** 
 The offline M0 sandbox remains available at [solo mode](http://127.0.0.1:3002/?solo=1), including its seed controls, without Redis or gateways. Artwork is a provisional [concept study](docs/art-reference/early-game-concept.png).
 
 For the optimized frontend use `npm run build`, then `npm start -- --port 3002` instead of the dev server. [Environment examples](.env.example) document the public endpoint list and server-only settings. The standalone runner reads process environment; it does not automatically load Next.js `.env` files.
+
+The [Living Meadow environment](docs/milestones/LIVING_MEADOW.md) adds ponds, bonfire clearings, mist, firelight and richer vegetation. It uses a new landscape version: **refresh, create a fresh Meadow and send new invite links** after this update. Earlier temporary-room invitations are not migrated.
 
 ## Hosted play
 

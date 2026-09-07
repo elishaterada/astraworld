@@ -8,6 +8,8 @@ Read README.md, ASTRAWORLD.md, ASTRA.md, MVP.md, MODEL_USAGE.md, docs/ROADMAP.md
 
 The user authorized a Three.js visual migration before M2 on 2026-09-07. See docs/milestones/VISUAL_3D_MIGRATION.md. It supersedes the old 2D/PixiJS presentation constraint while preserving flat server-owned simulation.
 
+The subsequent user-authorized Living Meadow environment adds solid pond/camp landmarks and bounded atmosphere in `meadow-2 / environment-1`, isolated in `p8-c4-env1` rooms. Read docs/milestones/LIVING_MEADOW.md before changing it. M2 remains unstarted.
+
 ## Execution contract
 
 1. Inspect the repository, local instructions, working changes and available tools before editing. Preserve unrelated work.

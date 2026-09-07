@@ -71,3 +71,9 @@ Source: built-in image generation and transparency edits; [exact prompt set](art
 `app/three/characters.ts` is the source definition for Fern (chestnut tuft, cloak, satchel), Ember (copper spikes, orange jacket, scarf), Iris (rose bob, flower, blue overskirt) and Hazel (brown skin, twin braids, mustard tunic, teal sleeves). All are code-authored original box geometry; no Minecraft models, textures or characters are copied. Shared walk/wave pivots replace directional sprite sheets. The geometric trees, rocks, grass and flowers in `view.ts` are also original. The UI labels this a 3D art study / placeholder models. This is a scalable visual reference, not final art approval or a claim to match Minecraft Dungeons' production quality. The older generated sprite pipeline above is retained as historical provenance only.
 
 `public/art/meadow-title-3d-v1.png` is a 1600×1000 native browser capture of this original 3D Meadow, used as the entry backdrop. It replaces the generated 2D menu backdrop at runtime; no external game artwork is shipped.
+
+## Living Meadow atmosphere — 2026-09-07
+
+User supplied `5ddbab74-1db5-4d7d-8484-539fbf9c3ca9.jpg` and `Loading_Screen_Creeperwoods.png.jpeg` from Downloads as new visual references. Interpret their cool wooded depth, warm localized firelight, layered mist and natural ground detail using original Three.js geometry/materials. No screenshot or Minecraft asset is used in gameplay; referenced mobs/loot/cages do not add scope. [Implemented environment and limitations](milestones/LIVING_MEADOW.md).
+
+`public/art/meadow-living-v1.png` is a 1600×1000 native canvas export of the completed environment pass, replacing the earlier menu backdrop. It contains only original scene geometry.

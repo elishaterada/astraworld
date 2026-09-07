@@ -47,6 +47,13 @@ export type DebugSnapshot = {
   username: string;
   character: CharacterId;
   visual: { rotation: number; gait: number; waving: boolean };
+  environment: {
+    phase: number;
+    ponds: number;
+    bonfires: number;
+    particles: number;
+    activeLights: number;
+  };
   renderer: {
     drawCalls: number;
     triangles: number;
@@ -190,6 +197,7 @@ export function mountMeadow(
           waving: view.local.waving,
         },
         renderer: view.stats(),
+        environment: view.environment(),
         ...(network
           ? {
               network: {

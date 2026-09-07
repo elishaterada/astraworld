@@ -55,7 +55,8 @@ export async function visualPerformance(pages: Page[]) {
     ),
   );
   writeFileSync(
-    "docs/milestones/evidence/visual-3d-performance.json",
+    process.env.VISUAL_PERFORMANCE_EVIDENCE ??
+      "docs/milestones/evidence/visual-3d-performance.json",
     JSON.stringify(
       {
         elapsedMs: Date.now() - start,

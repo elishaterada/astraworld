@@ -204,6 +204,7 @@ test("R1 repeated real unmount/remount and rapid initialization cancellation", a
 test("G0 seed controls regenerate the same rendered landscape and reset movement", async ({
   page,
 }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/?solo=1&debug=1");
   await ready(page);
   await openMenu(page);

@@ -6,6 +6,8 @@ M1 responsiveness revision: [protocol 2 contract and evidence](milestones/M1_RES
 
 The user authorized a **3D visual migration between M1 and M2** on 2026-09-07. It changes presentation only; see [migration evidence](milestones/VISUAL_3D_MIGRATION.md). M2 remains unstarted.
 
+The subsequent [Living Meadow environment pass](milestones/LIVING_MEADOW.md) adds natural landmarks and atmosphere within this pre-M2 scope.
+
 ## Sequence and gates
 
 | Milestone | Entry / owner | Deliverable and exit gate | Explicit stop line |

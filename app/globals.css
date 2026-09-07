@@ -63,7 +63,7 @@ button:disabled {
 .entry-screen {
   height: 100%;
   position: relative;
-  background: url("/art/meadow-title-3d-v1.png") center center/cover no-repeat;
+  background: url("/art/meadow-living-v1.png") center center/cover no-repeat;
   isolation: isolate;
   overflow: auto;
 }

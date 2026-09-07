@@ -99,7 +99,17 @@ function Meadow({
         <div>
           <span className="overline">ASTRAWORLD</span>
           <h1>The Meadow</h1>
-          <span className="location-subtitle">Your journey begins</span>
+          <span className="location-subtitle">
+            {status && Math.hypot(status.x - 69.5, status.y - 70.5) < 5
+              ? "Wayfarer’s Rest · A little warmth"
+              : status &&
+                  status.x < 62 &&
+                  status.x > 46 &&
+                  status.y > 50 &&
+                  status.y < 62
+                ? "Willow Pond · Mist on the water"
+                : "Wildflowers, quiet water, open sky"}
+          </span>
         </div>
       </div>
       <div className="game-actions">
