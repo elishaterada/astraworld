@@ -2,7 +2,7 @@
 
 A top-down 2D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
 
-**Status: M0 implemented locally, 2026-09-06.** The playable engine sandbox has reference-inspired pixel-painted artwork, a username entry screen, fullscreen play, seeded Meadow terrain, keyboard movement, collision and a following camera. M1–M9 remain unstarted. No services or deployment have been created. See [M0 evidence](docs/milestones/M0_COMPLETION.md) for acceptance results and limitations.
+**Status: M1 multiplayer works locally; deployed-host gate pending.** Two private browser sessions can explore the same Meadow with server-owned movement, prediction and Redis-backed recovery. The concept-inspired art, username entry and fullscreen experience remain. No cloud service or deployment has been created. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md); M2 has not started.
 
 ## Start here
 
@@ -14,23 +14,31 @@ A top-down 2D cooperative browser adventure where befriending creatures gives pl
 
 ## Launch and play
 
-Requires Node.js 22.12+ (verified with 24.13.0) and npm.
+Requires Node.js 22.12+, npm and Redis (`brew install redis` on macOS). Run `npm ci`, then keep these four terminals open from `~/repos/astraworld`:
 
 ```sh
-cd ~/repos/astraworld
-npm ci
-npm run dev
+# Terminal 1: temporary local Redis, no disk persistence
+npm run game:redis
+
+# Terminal 2: first gateway / runner candidate
+GATEWAY_ID=local-a npm run game:server
+
+# Terminal 3: second gateway / runner candidate
+GAME_PORT=3102 GATEWAY_ID=local-b npm run game:server
+
+# Terminal 4: frontend
+npm run dev -- --port 3002
 ```
 
-Open [the local sandbox](http://127.0.0.1:3000), choose a 2–20 character adventurer name, and click **Enter Meadow**. The game fills the viewport and requests native browser fullscreen from that click; unsupported or denied fullscreen falls back to viewport play. Use **WASD / arrow keys** to walk. **Escape** pauses and releases keyboard focus. Leaving the canvas or switching tabs clears movement. Trees, rocks and the boundary are solid. The camera stays on your character.
+Open [Astraworld locally](http://127.0.0.1:3002), choose an adventurer name, and press **Enter Meadow**. The game requests fullscreen; unavailable fullscreen falls back to the full browser viewport. **WASD / arrows** move, **Escape** releases focus, and **Menu** pauses your input. Other players keep exploring while your menu is open. Trees, rocks and map edges are solid.
 
-Open **Menu** to edit the seed and press **↻** to regenerate/restart; the same seed reproduces the same map. **Leave meadow** returns to the username screen and destroys the canvas. **⛶** toggles browser fullscreen. Art is a provisional study matched to the [supplied concept](docs/art-reference/early-game-concept.png). The name is a local display label, not an account. Reloading resets everything; there is no saving or multiplayer.
+In **Menu**, copy **Invite a friend** into another browser profile or incognito window. The private link admits one additional player. A third member is rejected. Local loopback links work on this computer only. Nearby friends are labeled and tinted blue. The connection indicator reports connecting, connected or reconnecting.
 
-The current preview uses port **3002** because another local project occupied port 3000: [open the current preview](http://127.0.0.1:3002). Run `npm run dev -- --port 3002` to use that port yourself.
+Reloading the same tab keeps its temporary session credential. **Leave meadow** returns to entry and forgets it. Session recovery lasts about 30 minutes after everyone leaves, and Redis loss can lose the session. Invitations expire 30 minutes after creation. This is not permanent saving. Shared seeds cannot be changed from the client.
 
-See the [style and fullscreen update evidence](docs/milestones/M0_STYLE_UPDATE.md).
+The offline M0 sandbox remains available at [solo mode](http://127.0.0.1:3002/?solo=1), including its seed controls, without Redis or gateways. Artwork is a provisional [concept study](docs/art-reference/early-game-concept.png).
 
-For an optimized local build: `npm run build`, then `npm start` (stop the dev server first, or use `npm start -- --port 3001`). No environment variables or credentials are required.
+For the optimized frontend use `npm run build`, then `npm start -- --port 3002` instead of the dev server. [Environment examples](.env.example) document the public endpoint list and server-only settings. The standalone runner reads process environment; it does not automatically load Next.js `.env` files.
 
 ## Verification
 
@@ -39,14 +47,15 @@ npm run typecheck
 npm test
 npm run build
 npx playwright install chromium
-# Keep the local server running in another terminal:
-npm run test:browser
-npm run test:soak
+# With all four services running:
+BASE_URL=http://127.0.0.1:3002 npm run test:browser
+# Start both gateways with ROTATION_MS=60000 for this exercise:
+BASE_URL=http://127.0.0.1:3002 npm run test:multiplayer-soak
 ```
 
-The ordinary browser suite skips the separately invoked ten-minute soak. Set `BASE_URL=http://127.0.0.1:3001` to test a production server on another port. Browser checks write evidence under `docs/milestones/evidence/`. An optional `?debug=1` exposes read-only sandbox measurements to tests; it has no state mutation API.
+The rule/integration suite launches a disposable Redis process itself; Redis must be on PATH. The ordinary browser suite skips the separate ten-minute M0 and M1 soaks. Read-only `?debug=1` reports measurements without a state-mutation API. [M1 results](docs/milestones/M1_LOCAL_RESULTS.md) distinguish local evidence from outstanding deployed-host and network gates.
 
-The next eligible milestone is **M1**, only upon a separate request. Its hosting and authority questions remain open; M0 does not prove multiplayer integrity.
+The next eligible work is the **M1 hosting gate**, not M2.
 
 ## Document map
 
@@ -75,7 +84,7 @@ The next eligible milestone is **M1**, only upon a separate request. Its hosting
 
 ## Repository layout
 
-M0 uses one npm package with `app/` for Next.js/React/Pixi, `packages/world/` for generation, `packages/simulation/` for pure movement, and `tests/` for rule/browser checks. No empty service packages are scaffolded. The following longer-term layout remains a guide for later milestones:
+The implementation uses one npm package with `app/` for Next.js/React/Pixi, `packages/world/` for generation, `packages/simulation/` for pure movement, and `tests/` for rule/browser checks. `apps/game-server/` now contains the standalone M1 gateway, Redis adapter and runner; `packages/protocol/` contains strict wire schemas. The following longer-term layout remains a guide for later milestones:
 
 ```text
 apps/web/             Next.js UI and client-only PixiJS renderer

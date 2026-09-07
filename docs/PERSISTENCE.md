@@ -56,3 +56,11 @@ World modifications store deltas over generation, not millions of unchanged tile
 ## Operations gate
 
 Before M6 acceptance: run migrations on a disposable database, test restore into an isolated environment, simulate process/Redis loss, verify owner fencing and report backup retention/recovery expectations for the selected provider. Do not create paid services during documentation. M6 chooses provider, pooling, migration tool and identity binding based on actual deployment constraints.
+
+## M1 local hot-state reference
+
+The implemented Redis adapter stores room metadata, a two-entry membership hash, a generation hash, latest-input/presence hash, fenced checkpoint, lease and monotonic epoch. Gateway routing uses per-room pub/sub channels; gateways deliver only authorized nearby projections. Checkpoints contain positions and acknowledgements, never credentials. Credential hashes live separately in membership.
+
+Active checkpoints/membership are refreshed to 1,800 seconds on successful fenced commits. Empty runners stop after a short grace; recovery expires about 30 minutes later. Invite lookup expires 30 minutes after creation. Epoch counters intentionally survive room TTL so an ID's epoch is never reused; production cleanup for permanently expired room IDs is not implemented. The finite local test workload is not a public capacity claim.
+
+Local Redis is launched without disk persistence. A Redis restart can lose all sessions, and explicit Leave discards that tab's credential. There is no Postgres schema or permanent-save claim. See [the local evidence](milestones/M1_LOCAL_RESULTS.md) for process death, stale-owner rejection and Redis-unavailability results.

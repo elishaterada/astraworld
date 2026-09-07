@@ -58,3 +58,9 @@ Measure bytes/client/second, snapshot sizes, Redis operations, durable-command l
 Use correlation IDs for session, world, epoch and command; exclude tokens and unnecessary personal data. Log validation rejection categories, dedupe hits, tick overruns and commit failures. An in-development diagnostics overlay may show RTT/tick/corrections; player UI should say connecting/reconnecting/saved rather than expose implementation details.
 
 Visual review checks text legibility, target overlap, friendly/hostile distinction, attack tells, reduced-motion options and input focus. Inspect original approved promo before final art acceptance; it is unavailable in this package. Keep failures visible in the milestone note, with reproducible steps and actual observed outcomes.
+
+## M1 executable coverage
+
+`tests/network.test.ts` launches real disposable Redis and real WebSocket gateways: schema/size validation, invitation contention, forged identity, lease fencing, stale generation, movement timeout, input flood, Redis pause/resume and SIGKILL owner recovery. `tests/e2e/multiplayer.spec.ts` uses independent browser contexts and distinct gateway processes for join/motion/reconnect. A real-traffic WebSocket proxy exercises delayed and lost application messages, stale epochs, invalid delta and a five-second outage. This proxy does not simulate actual TCP packet loss.
+
+`tests/e2e/multiplayer-soak.spec.ts` is explicitly invoked with `npm run test:multiplayer-soak`; both gateways must run with `ROTATION_MS=60000`. It measures two-client frames, memory and repeated planned owner changes. M0 regression checks run with `?solo=1` and write separate `m1-regression-*` evidence to preserve historical artifacts. The [M1 result](milestones/M1_LOCAL_RESULTS.md) is authoritative about passed and still-pending gates.

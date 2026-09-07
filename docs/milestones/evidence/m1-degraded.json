@@ -1,0 +1,36 @@
+{
+  "browser": "153.0.8010.12",
+  "nominalRttMs": 150,
+  "jitterRttMs": 30,
+  "loss": "1% application messages, not IP packets",
+  "outbound": 254,
+  "inbound": 127,
+  "dropped": 3,
+  "resyncs": 2,
+  "initial": {
+    "status": "Connected",
+    "epoch": 1,
+    "generation": 1,
+    "owner": "local-a",
+    "tick": 2,
+    "selfId": "670d237d-d544-41e3-becc-08bd44f2f104",
+    "authoritative": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "remotes": []
+  },
+  "recovered": {
+    "status": "Connected",
+    "epoch": 1,
+    "generation": 2,
+    "owner": "local-a",
+    "tick": 398,
+    "selfId": "670d237d-d544-41e3-becc-08bd44f2f104",
+    "authoritative": {
+      "x": 64.7,
+      "y": 64.5
+    },
+    "remotes": []
+  }
+}

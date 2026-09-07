@@ -12,7 +12,7 @@ test("ten-minute Meadow traversal frame and memory envelope", async ({
     Element.prototype.requestFullscreen = () =>
       Promise.reject(new DOMException("Windowed benchmark", "NotAllowedError"));
   });
-  await page.goto("/?debug=1");
+  await page.goto("/?solo=1&debug=1");
   await page.getByLabel("What should we call you?").fill("Rowan");
   await page.getByRole("button", { name: "Enter Meadow", exact: true }).click();
   await page.waitForFunction(() => !!window.__MEADOW__);

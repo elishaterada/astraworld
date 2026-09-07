@@ -1,6 +1,6 @@
 # M1 mission: authoritative two-player multiplayer
 
-**Status: not started. Entry condition: M0 passed and M1 implementation authorized.**
+**Status: local implementation verified; deployed-host gate pending. M1 was authorized by “Great, next step” after M0. See [local results](M1_LOCAL_RESULTS.md). Do not start M2.**
 
 ## Mission
 

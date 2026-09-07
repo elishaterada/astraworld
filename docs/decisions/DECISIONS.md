@@ -52,3 +52,11 @@ Affected contracts: [architecture](../ARCHITECTURE.md), [world generation](../WO
 - **D024 atlas lifetime:** cache one generated RGBA atlas with sixteen frame views for a page lifetime. Own and destroy each canvas's 64 procedural ground textures separately. Generated assets and source-frame metadata are stored as project files; the original checkerboard draft is rejected, not consumed.
 
 [Reference and asset provenance](../ART_DIRECTION.md), [updated renderer contract](../RENDERING.md), [acceptance evidence](../milestones/M0_STYLE_UPDATE.md).
+
+## 2026-09-06 — M1 local authority reference
+
+User authorized the next milestone after the completed M0 refinement. Implement M1 only. Keep root Next app and pure rules, add a standalone Node HTTP/ws gateway/runner and Redis adapter. No cloud provisioning or M2 mechanics.
+
+Provisional reference choices: two private members, opaque server-issued Redis-backed bearer credentials in tab session storage, random one-friend invitations, full snapshots instead of deltas, 48-tile nearby projection, checkpoint every 50 ms step, exactly fenced publication, 10-second lease with 3-second renewal, and generation replacement for reconnects. Player-player collision remains off; terrain collision stays authoritative. Retain `?solo=1` for M0 regression verification.
+
+These choices prioritize a bounded authority/recovery reference. Opaque credentials are not account authentication or durable identity; host-specific short-lived credentials and refresh remain open. The actual Vercel lifecycle spike has not run, so neither the deployed M1 gate nor a hosting fallback decision is claimed. See [contract](../milestones/M1_IMPLEMENTATION.md) and [results](../milestones/M1_LOCAL_RESULTS.md).

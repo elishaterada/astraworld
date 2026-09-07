@@ -3,6 +3,7 @@ import {
   Container,
   Graphics,
   Sprite,
+  Text,
   type Texture,
 } from "pixi.js";
 import {
@@ -22,6 +23,9 @@ import {
 import { loadMeadowArt, terrainTexture } from "./art";
 import { screenToWorld, TILE_PIXELS, worldToScreen } from "./camera";
 
+import { MeadowConnection } from "./network";
+import type { Session } from "../packages/protocol";
+
 const live = {
   applications: 0,
   inputListeners: 0,
@@ -34,6 +38,8 @@ export type SandboxReport = {
   y: number;
   paused: boolean;
   fps: number;
+  connection?: string;
+  players?: number;
 };
 export type DebugSnapshot = {
   state: Position;
@@ -52,6 +58,16 @@ export type DebugSnapshot = {
   seed: string;
   username: string;
   sharedAtlasFrames: number;
+  network?: {
+    status: string;
+    epoch: number;
+    generation: number;
+    owner: string;
+    tick: number;
+    selfId: string;
+    authoritative: Position;
+    remotes: { id: string; name: string; position: Position }[];
+  };
 };
 declare global {
   interface Window {
@@ -66,6 +82,7 @@ export function mountMeadow(
   report: (s: SandboxReport) => void,
   fail: (message: string) => void,
   username: string,
+  session?: Session,
 ): () => void {
   let disposed = false,
     cleanup: (() => void) | undefined;
@@ -89,12 +106,14 @@ export function mountMeadow(
     }
     const textures: Texture[] = [];
     let observer: ResizeObserver | undefined;
+    const network = session ? new MeadowConnection(session) : null;
     const keys = new Set<string>();
     const removers: (() => void)[] = [];
     let tickerAttached = false;
     let debug: { snapshot: () => DebugSnapshot } | undefined;
     live.applications++;
     cleanup = () => {
+      network?.dispose();
       observer?.disconnect();
       if (observer) live.observers--;
       for (const remove of removers) remove();
@@ -169,6 +188,7 @@ export function mountMeadow(
     body.scale.set(48 / body.texture.height);
     avatar.addChild(shadow, body);
     objects.addChild(avatar);
+    const peers = new Map<string, Container>();
     let facing: "down" | "up" | "right" | "left" = "down",
       walkTime = 0;
     const reducedMotion = window.matchMedia(
@@ -210,10 +230,35 @@ export function mountMeadow(
         seed: world.seed,
         username,
         sharedAtlasFrames: art.length,
+        ...(network
+          ? {
+              network: {
+                status: network.status,
+                epoch: network.epoch,
+                generation: network.generation,
+                owner: network.owner,
+                tick: network.tick,
+                selfId: network.session.playerId,
+                authoritative: { ...network.authoritative },
+                remotes: network.remotes().map((a) => ({
+                  id: a.id,
+                  name: a.name,
+                  position: { ...a.position },
+                })),
+              },
+            }
+          : {}),
       }),
     };
     if (debugEnabled) window.__MEADOW__ = debug;
-    const publish = () => report({ ...state, paused, fps: app.ticker.FPS });
+    const publish = () =>
+      report({
+        ...state,
+        paused,
+        fps: app.ticker.FPS,
+        connection: network?.status,
+        players: network ? network.remotes().length + 1 : 1,
+      });
     const pause = () => {
       keys.clear();
       paused = true;
@@ -303,6 +348,38 @@ export function mountMeadow(
       );
       avatar.position.set(rendered.x * 32, rendered.y * 32);
       avatar.zIndex = rendered.y;
+      const remotes = network?.remotes() ?? [];
+      for (const [id, peer] of peers)
+        if (!remotes.some((a) => a.id === id)) {
+          peer.destroy({ children: true });
+          peers.delete(id);
+        }
+      for (const actor of remotes) {
+        let peer = peers.get(actor.id);
+        if (!peer) {
+          peer = new Container();
+          const sprite = new Sprite(art[8]);
+          sprite.anchor.set(0.5, 1);
+          sprite.scale.set(48 / sprite.texture.height);
+          sprite.tint = 0xc6e1ff;
+          const label = new Text({
+            text: actor.name,
+            style: {
+              fontFamily: "Georgia",
+              fontSize: 14,
+              fill: 0xfff4d7,
+              stroke: { color: 0x15392d, width: 3 },
+            },
+          });
+          label.anchor.set(0.5, 1);
+          label.y = -55;
+          peer.addChild(sprite, label);
+          objects.addChild(peer);
+          peers.set(actor.id, peer);
+        }
+        peer.position.set(actor.position.x * 32, actor.position.y * 32);
+        peer.zIndex = actor.position.y;
+      }
       const moving =
         !paused &&
         Math.abs(state.x - previous.x) + Math.abs(state.y - previous.y) >
@@ -363,18 +440,19 @@ export function mountMeadow(
     }
     function tickFrame() {
       const dt = Math.min(app.ticker.deltaMS / 1000, 0.25);
-      if (!paused) {
+      if (!paused || network) {
         accumulator += dt;
         while (accumulator + 1e-10 >= STEP_SECONDS) {
           previous = state;
-          state = step(world, state, {
+          const input = {
             x:
-              Number(keys.has("KeyD") || keys.has("ArrowRight")) -
-              Number(keys.has("KeyA") || keys.has("ArrowLeft")),
+              Number(!paused && (keys.has("KeyD") || keys.has("ArrowRight"))) -
+              Number(!paused && (keys.has("KeyA") || keys.has("ArrowLeft"))),
             y:
-              Number(keys.has("KeyS") || keys.has("ArrowDown")) -
-              Number(keys.has("KeyW") || keys.has("ArrowUp")),
-          });
+              Number(!paused && (keys.has("KeyS") || keys.has("ArrowDown"))) -
+              Number(!paused && (keys.has("KeyW") || keys.has("ArrowUp"))),
+          };
+          state = network ? network.advance(input) : step(world, state, input);
           accumulator = Math.max(0, accumulator - STEP_SECONDS);
           ticks++;
         }

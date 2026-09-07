@@ -52,3 +52,9 @@ A username form precedes creation of the Pixi application. `app/profile.ts` norm
 Menu uses a native modal dialog with focus containment. Opening it clears gameplay input through blur; closing restores canvas focus. Seed regeneration and leaving remain available inside Menu. The initial page is a real username form over a generated scenery backdrop, not a static screenshot UI.
 
 Read [update evidence](milestones/M0_STYLE_UPDATE.md) for the new browser and performance measurements. The earlier 1358×574 playfield benchmark must not be presented as the current 1440×900 rendering load.
+
+## M1 client rendering adapter
+
+Ordinary play now uses `MeadowConnection` for predicted local position and a bounded remote snapshot buffer. The existing camera and collision-aware interpolation render the local actor. Nearby remote actors use the same provisional atlas with a blue tint and a text label, at approximately 100 ms interpolation delay. Remote gait animation and correction-specific visual easing are not implemented; large authoritative corrections may visibly snap. Terrain and simulation geometry remain unchanged. Offline M0 (`?solo=1`) keeps its original local-step path.
+
+Network disposal accompanies renderer disposal. Hidden pages clear input and stop the Pixi ticker; the server independently expires movement after 250 ms and visible presence after three seconds. The shared world continues when a player's menu is open. A responsive connection status remains visible at narrow desktop widths.

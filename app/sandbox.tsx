@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { normalizeSeed } from "../packages/world";
 import { validateUsername } from "./profile";
+import { joinMeadow } from "./network";
+import type { Session } from "../packages/protocol";
 import type { SandboxReport } from "./renderer";
 
 function Meadow({
@@ -10,12 +12,14 @@ function Meadow({
   onLeave,
   onFullscreen,
   fullscreen,
+  session,
 }: {
   seed: string;
   username: string;
   onLeave: () => void;
   onFullscreen: () => void;
   fullscreen: boolean;
+  session?: Session;
 }) {
   const host = useRef<HTMLDivElement>(null),
     menu = useRef<HTMLDialogElement>(null);
@@ -38,6 +42,7 @@ function Meadow({
             setStatus,
             setError,
             username,
+            session,
           );
       })
       .catch(() => {
@@ -50,7 +55,7 @@ function Meadow({
       cancelled = true;
       dispose?.();
     };
-  }, [activeSeed, revision, username]);
+  }, [activeSeed, revision, username, session]);
   const resume = () => {
     menu.current?.close();
     host.current?.focus();
@@ -153,8 +158,15 @@ function Meadow({
         <kbd>esc</kbd>
         <span>pause</span>
       </div>
-      <div className="world-note">
-        <span className="status-dot" /> SOLO MEADOW <span>·</span> ART STUDY
+      <div
+        className={session ? "world-note multiplayer-note" : "world-note"}
+        role="status"
+      >
+        <span className="status-dot" />{" "}
+        {session
+          ? `${status?.connection ?? "Connecting…"} · ${status?.players ?? 1}/2 adventurers`
+          : "SOLO MEADOW"}{" "}
+        <span>·</span> ART STUDY
       </div>
       <dialog
         ref={menu}
@@ -169,25 +181,53 @@ function Meadow({
         <p className="menu-player">
           Wandering as <strong>{username}</strong>
         </p>
-        <form onSubmit={regenerate}>
-          <label htmlFor="seed">World seed</label>
-          <div className="seed-row">
+        {session ? (
+          <div className="invite-panel">
+            <label htmlFor="invite-link">Invite a friend</label>
             <input
-              id="seed"
-              aria-label="World seed"
-              value={draft}
-              maxLength={64}
-              onChange={(e) => setDraft(e.target.value)}
-              spellCheck={false}
+              id="invite-link"
+              readOnly
+              value={
+                typeof location === "undefined"
+                  ? ""
+                  : `${location.origin}/?invite=${session.invite}`
+              }
+              onFocus={(e) => e.target.select()}
             />
-            <button type="submit" aria-label="Regenerate Meadow with this seed">
-              ↻
-            </button>
+            <p className="fine-print">
+              Share this private link with one friend. This session can recover
+              for 30 minutes after everyone leaves.
+            </p>
+            <p role="status">
+              {status?.connection ?? "Connecting…"} · {status?.players ?? 1}/2
+              adventurers nearby
+            </p>
           </div>
-          <p className="fine-print">
-            Same seed, same landscape. Regenerating returns you to the clearing.
-          </p>
-        </form>
+        ) : (
+          <form onSubmit={regenerate}>
+            <label htmlFor="seed">World seed</label>
+            <div className="seed-row">
+              <input
+                id="seed"
+                aria-label="World seed"
+                value={draft}
+                maxLength={64}
+                onChange={(e) => setDraft(e.target.value)}
+                spellCheck={false}
+              />
+              <button
+                type="submit"
+                aria-label="Regenerate Meadow with this seed"
+              >
+                ↻
+              </button>
+            </div>
+            <p className="fine-print">
+              Same seed, same landscape. Regenerating returns you to the
+              clearing.
+            </p>
+          </form>
+        )}
         <button className="gold-button" onClick={resume}>
           Keep exploring <span aria-hidden="true">→</span>
         </button>
@@ -195,7 +235,8 @@ function Meadow({
           Leave meadow
         </button>
         <p className="menu-footnote">
-          An early art study. Your name and progress are not saved.
+          An early art study. Session recovery is temporary; there is no
+          permanent saving.
         </p>
       </dialog>
     </section>
@@ -204,6 +245,8 @@ function Meadow({
 
 export default function Sandbox() {
   const shell = useRef<HTMLElement>(null);
+  const [session, setSession] = useState<Session>();
+  const [joining, setJoining] = useState(false);
   const [draftName, setDraftName] = useState(""),
     [username, setUsername] = useState(""),
     [playing, setPlaying] = useState(false),
@@ -233,7 +276,7 @@ export default function Sandbox() {
         ),
       );
   }
-  function enter(e: FormEvent) {
+  async function enter(e: FormEvent) {
     e.preventDefault();
     const result = validateUsername(draftName);
     if (result.error) {
@@ -245,10 +288,35 @@ export default function Sandbox() {
     setDraftName(result.name);
     // The request stays inside the submit gesture so browser activation is still valid.
     requestFullscreen();
-    setPlaying(true);
+    if (new URLSearchParams(location.search).get("solo") === "1") {
+      setPlaying(true);
+      return;
+    }
+    setJoining(true);
+    try {
+      const joined = await joinMeadow(
+        result.name,
+        new URLSearchParams(location.search).get("invite") ?? undefined,
+      );
+      setSession(joined);
+      setUsername(joined.name);
+      setPlaying(true);
+      // Strip the invitation from the address after joining to avoid accidental re-joins on reload.
+      const url = new URL(location.href);
+      url.searchParams.delete("invite");
+      history.replaceState(null, "", url);
+    } catch (error) {
+      setNameError(
+        error instanceof Error ? error.message : "Could not join the Meadow.",
+      );
+    } finally {
+      setJoining(false);
+    }
   }
   function leave() {
     setPlaying(false);
+    setSession(undefined);
+    sessionStorage.removeItem("meadow-session");
     setFullscreenNote("");
     if (document.fullscreenElement)
       void document.exitFullscreen().catch(() => {});
@@ -265,7 +333,8 @@ export default function Sandbox() {
     >
       {playing ? (
         <Meadow
-          seed="meadow-001"
+          seed={session?.seed ?? "meadow-001"}
+          session={session}
           username={username}
           onLeave={leave}
           onFullscreen={toggleFullscreen}
@@ -329,11 +398,16 @@ export default function Sandbox() {
                   {nameError}
                 </p>
               )}
-              <button className="gold-button enter-button" type="submit">
-                Enter Meadow <span aria-hidden="true">→</span>
+              <button
+                className="gold-button enter-button"
+                type="submit"
+                disabled={joining}
+              >
+                {joining ? "Opening the Meadow…" : "Enter Meadow"}{" "}
+                <span aria-hidden="true">→</span>
               </button>
               <p className="entry-note">
-                A quiet place to explore. Just you, for now.
+                A little wilderness, better with a friend.
               </p>
             </form>
           </div>

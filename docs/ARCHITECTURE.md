@@ -64,3 +64,11 @@ The local browser harness owns the M0 position and calls pure `step(world, state
 
 
 The subsequent M0 style update adds only a local username label and browser fullscreen/menu UI. No identity service, persistence or protocol has been introduced. Procedural cosmetic terrain and atlas sprites belong to `app/art.ts`; `packages/world` and `packages/simulation` remain byte-identical to the original M0 baseline. See [style update evidence](milestones/M0_STYLE_UPDATE.md).
+
+## M1 local implementation boundary (2026-09-06)
+
+M1 has now been authorized and implemented locally. `apps/game-server/store.ts` owns Redis adapters and atomic Lua fencing; `server.ts` owns gateway admission, projections and a bounded candidate runner per occupied room; `main.ts` is the loopback Node launcher. Every gateway can contend for the same world, but only the Redis lease holder can commit or publish. Web and server use the unchanged pure movement/world modules. `packages/protocol/index.ts` supplies strict wire schemas; `app/network.ts` owns prediction and reconnects outside React. React still receives only low-frequency display status.
+
+The browser's ordinary entry now requests a private server session. `?solo=1` retains the explicit M0 offline harness for engine tests. Shared-room clients cannot regenerate the seed. Gateway/runner processes use server-only Redis settings; only configured endpoint URLs enter the browser bundle. See [.env.example](../.env.example).
+
+The current deployment artifact is a local Node service, not a proven Vercel function integration. Existing Vercel support for Node HTTP/ws servers makes that a candidate, but the max-duration/occupied-runner and overlapping-deployment tests have not run. Plan A versus Plan B remains undecided until the [M1 host gate](milestones/M1_LOCAL_RESULTS.md) has evidence. No production service has been provisioned.

@@ -1,6 +1,6 @@
 # Milestone roadmap
 
-**M0 is complete locally (G0/R0/R1 and ten-minute performance PASS)**; see [its completion evidence](milestones/M0_COMPLETION.md). M1–M9 are **not started**. Milestone names below normalize the different numbering used in the conversation; use these IDs in future tasks.
+**M0 is complete locally (G0/R0/R1 and ten-minute performance PASS)**; see [its completion evidence](milestones/M0_COMPLETION.md). M1 has a [local implementation](milestones/M1_LOCAL_RESULTS.md) with deployed-host acceptance pending; M2–M9 are **not started**. Milestone names below normalize the different numbering used in the conversation; use these IDs in future tasks.
 
 ## Sequence and gates
 

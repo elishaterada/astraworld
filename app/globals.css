@@ -723,3 +723,33 @@ kbd {
     scroll-behavior: auto;
   }
 }
+
+.invite-panel {
+  margin: 24px 0;
+  text-align: left;
+}
+.invite-panel label {
+  display: block;
+  margin-bottom: 8px;
+}
+.invite-panel input {
+  width: 100%;
+  padding: 12px;
+  color: #fff2d2;
+  background: #173d36;
+  border: 1px solid #917647;
+  border-radius: 6px;
+  font: inherit;
+}
+.enter-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+@media (max-width: 800px) {
+  .world-note.multiplayer-note {
+    display: block;
+    bottom: 65px;
+    right: 16px;
+    font-size: 9px;
+  }
+}

@@ -9,7 +9,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:browser": "playwright test",
-    "test:soak": "SOAK=1 playwright test tests/e2e/soak.spec.ts"
+    "test:soak": "SOAK=1 playwright test tests/e2e/soak.spec.ts",
+    "game:server": "tsx apps/game-server/main.ts",
+    "game:redis": "redis-server --bind 127.0.0.1 --port 6380 --save \"\" --appendonly no",
+    "test:multiplayer-soak": "M1_SOAK=1 playwright test tests/e2e/multiplayer-soak.spec.ts"
   },
   "dependencies": {
     "next": "16.3.4",

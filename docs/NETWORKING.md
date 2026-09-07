@@ -58,3 +58,17 @@ M1 must prove this lifecycle across instances and runtime expiration on the chos
 ## Mandatory failure cases
 
 Two players gather the last node; two players feed the same Slime; duplicate/reordered action commands; stale input floods; client teleport claims; background tab resumes; epoch changes mid-attack; lost delta base; owner dies after commit before reply; old owner returns after failover; Redis unavailable; disconnect during vine activation. Expected outcomes are in [TESTING.md](TESTING.md) and [PERSISTENCE.md](PERSISTENCE.md).
+
+## Implemented M1 local wire reference (2026-09-06)
+
+The [local result](milestones/M1_LOCAL_RESULTS.md) records what has been verified. The current implementation uses the following smaller concrete subset of the proposed protocol above:
+
+- `POST /session {name, invite?}` on an allowed-origin gateway creates a private room or claims its second membership. It returns server-issued world/player IDs, seed, name, a random bearer resume token and an invite capability. Only token hashes are stored server-side. No browser-supplied character ID is accepted as identity.
+- `/play` upgrades to WebSocket. First frame is `hello {protocolVersion:1, worldId, token, contentVersion, generationVersion}`. Success sends `connected {protocolVersion:1, worldId, generation}`; the client must then await a full snapshot before predicting movement.
+- `input {protocolVersion:1, worldId, generation, seq, movement:{x,y}}` is the only movement message. Extra fields are invalid. Sequence is monotonic within a connection generation; there is no client tick duration, position, aim or gameplay action in M1.
+- `snapshot {protocolVersion:1, type:"snapshot", full:true, worldId, seed, contentVersion, generationVersion, epoch, tick, owner, selfId, actors}`. Each actor has `id`, `name`, `position`, `generation`, `ack`. Full projections are 10 Hz; omission removes a remote actor. The gateway filters actors more than 48 tiles from the authoritative local player. A player's own projection is always included while their presence is active.
+- `resync {protocolVersion:1, worldId}` asks for the next full projection. No deltas are emitted. Invalid delta messages trigger resync; old epochs/ticks are dropped without changing state. A new connection resets its snapshot baseline, even if it returns to the same epoch.
+
+Pure `step` remains shared with prediction. The local runner writes a checkpoint every tick and atomically publishes every other tick only if its exact Redis lease token still matches. This deliberately favors a simple, measurable two-player reference over reducing Redis operations prematurely. The active state advances only after the fenced write succeeds. Runtime adapters use clocks and random credentials; simulation does not.
+
+Connections share a generation stored in Redis. Replacement invalidates the old connection's writes and closes it with terminal code 4001. Expired credentials close with 4003. Transient transport/backend closure retries alternate configured gateways with bounded backoff. There are no short-lived signed access-token refresh endpoints yet; the opaque resume capability is valid only while its Redis membership exists. This provisional policy must be revisited with deployed-host access and later stable identity.
