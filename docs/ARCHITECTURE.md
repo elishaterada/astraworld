@@ -86,3 +86,7 @@ The existing `teradas/astraworld` Vercel project now hosts Next.js session, heal
 ## M2 gathering
 
 `packages/content` owns immutable validated definitions; `packages/simulation/gathering.ts` owns pure inventory and gather transitions. The existing 60 Hz room applies bounded gather commands after movement. Inventory, high-water receipts, starter grants and depletion are one immutable checkpoint state, fenced and published atomically by the existing Redis adapter. Client actions may animate immediately but inventory/depletion are confirmed only. The renderer consumes the resource overlay without modifying the flat collision world. See [M2 mission](milestones/M2_GATHERING_INVENTORY.md).
+
+## M6 storage boundary
+
+`apps/game-server/durable.ts` owns Postgres transactions; simulation modules remain free of database and rendering dependencies. `store.ts` manages durable membership admission and rebuildable Redis identity/cache records. `realtime.ts` journals pure consequences and gates publication on committed revision. Browser recovery capabilities are private credentials, never authoritative gameplay state. See [M6](milestones/M6_DURABLE_RELEASE.md) for the additive schema, backup evidence, environment isolation and release limitations.

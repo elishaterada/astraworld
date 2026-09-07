@@ -1,6 +1,7 @@
 import { ROOM_REVISION } from "../../packages/protocol/capacity";
 import { createRealtimeGateway } from "./realtime";
 const gateway = await createRealtimeGateway({
+  databaseUrl: process.env.DATABASE_URL,
   redisUrl: process.env.REDIS_URL ?? "redis://127.0.0.1:6380",
   prefix: process.env.GAME_NAMESPACE ?? `local:astraworld-v2-${ROOM_REVISION}`,
   origins: (

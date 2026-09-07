@@ -2,6 +2,10 @@
 
 This is a logical schema for M6 and later, not executable migrations. Use server-issued identifiers, UTC timestamps for persistence, integer quantities, explicit revisions and foreign keys. Tick-based cooldowns need a restart policy rather than assuming a tick index is a permanent timestamp.
 
+## M6 physical reference
+
+Migration `migrations/001_durable_worlds.sql` implements `astraworld.worlds`, `members`, `commands`, `outbox` and `schema_migrations`. The tables below are the logical model, not a requirement to create unused account/product tables. This bounded eight-member reference stores inventory/companions/depletion/gate together in a validated, row-locked JSONB aggregate. Membership uses hashed private recovery capabilities; slot uniqueness plus 0–7 checks enforces capacity. A transaction independently fences owner token and expected revision, validates membership and monotonic ownership/depletion/gates, and writes command results plus revisioned outbox state. Command results are final except `channeling` becoming `opened`/`cancelled`. See [M6](milestones/M6_DURABLE_RELEASE.md).
+
 ## Durable tables
 
 | Record | Key / significant fields | Constraints |

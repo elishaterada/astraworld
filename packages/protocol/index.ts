@@ -73,6 +73,7 @@ export const snapshotSchema = z
   .strict();
 export type Snapshot = z.infer<typeof snapshotSchema>;
 export type Session = {
+  durable?: boolean;
   worldId: string;
   token: string;
   playerId: string;

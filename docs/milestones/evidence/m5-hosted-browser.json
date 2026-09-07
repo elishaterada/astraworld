@@ -1,0 +1,96 @@
+{
+  "browser": "153.0.8010.12",
+  "independentContexts": 2,
+  "gate": {
+    "id": "meadow-3:utility-1:meadow-001:vine:0",
+    "tag": "dissolvable-vines",
+    "open": true,
+    "openedTick": 4301,
+    "channel": null
+  },
+  "disconnectedChannelCancelled": true,
+  "bothTraversed": true,
+  "companion": "meadow-3:utility-1:meadow-001:moss:0",
+  "addedRttMs": 150,
+  "delayLayer": "application WebSocket callbacks/send (not TCP loss)",
+  "tell": {
+    "phase": "tell",
+    "health": 90
+  },
+  "dodge": {
+    "health": 90,
+    "spawn": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "attack": null,
+    "attackReady": 0,
+    "dodgeUntil": 735,
+    "dodgeReady": 780,
+    "dodgeSteps": 2,
+    "dodgeFacing": 2,
+    "invulnerableUntil": 729,
+    "respawnAt": 0,
+    "damageTick": 665,
+    "deaths": 0
+  },
+  "death": {
+    "health": 0,
+    "spawn": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "attack": null,
+    "attackReady": 0,
+    "dodgeUntil": 0,
+    "dodgeReady": 780,
+    "dodgeSteps": 0,
+    "dodgeFacing": 2,
+    "invulnerableUntil": 729,
+    "respawnAt": 1536,
+    "damageTick": 1416,
+    "deaths": 1
+  },
+  "respawn": {
+    "health": 100,
+    "spawn": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "attack": null,
+    "attackReady": 0,
+    "dodgeUntil": 0,
+    "dodgeReady": 0,
+    "dodgeSteps": 0,
+    "dodgeFacing": 2,
+    "invulnerableUntil": 1656,
+    "respawnAt": 0,
+    "damageTick": 0,
+    "deaths": 1
+  },
+  "defeated": {
+    "id": "hostile-slime:meadow-001:north-trail",
+    "kind": "hostile-slime",
+    "position": {
+      "x": 64.5,
+      "y": 52.999999999999744
+    },
+    "home": {
+      "x": 64.5,
+      "y": 48.5
+    },
+    "health": 0,
+    "phase": "dead",
+    "phaseTick": 1977,
+    "target": null,
+    "impact": {
+      "x": 64.5,
+      "y": 52.999999999999744
+    },
+    "damageTick": 1977,
+    "deathTick": 1977
+  },
+  "inventoryRetained": true,
+  "reload": true,
+  "errors": []
+}

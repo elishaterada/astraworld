@@ -14,11 +14,15 @@
     "game:redis": "redis-server --bind 127.0.0.1 --port 6380 --save \"\" --appendonly no",
     "test:multiplayer-soak": "M1_SOAK=1 playwright test tests/e2e/multiplayer-soak.spec.ts",
     "game:realtime": "tsx apps/game-server/main-realtime.ts",
-    "dev:next": "next dev --hostname 127.0.0.1"
+    "dev:next": "next dev --hostname 127.0.0.1",
+    "db:migrate": "node scripts/migrate.mjs",
+    "db:local": "node scripts/db-local.mjs",
+    "test:durable": "vitest run tests/durable.test.ts tests/durable-network.test.ts tests/durable-faults.test.ts"
   },
   "dependencies": {
     "@vercel/functions": "3.9.5",
     "next": "16.3.4",
+    "pg": "^8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "redis": "6.2.1",
@@ -29,6 +33,7 @@
   "devDependencies": {
     "@playwright/test": "1.63.0",
     "@types/node": "24.10.1",
+    "@types/pg": "^8.23.1",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/three": "0.185.4",

@@ -2,7 +2,8 @@
 
 A cozy 3D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
 
-**Status: M5 companion utility implemented locally; [human playtest and remaining acceptance gates](docs/milestones/M5_COMPANION_UTILITY.md) are pending. Hosted deployment remains M3.** M1 is complete within its recorded test envelope. Hosted lifecycle, real TCP-loss/recovery, and ten-minute eight-player verification passed; see [M1 completion](docs/milestones/M1_COMPLETION.md). Up to eight private browser sessions can explore the same Meadow with immediate local prediction, synchronized facing/walking/waves, server-owned movement and Redis-backed recovery. The user-authorized visual migration replaces sprites with original modular Three.js models, while retaining username entry and fullscreen. See [3D migration](docs/milestones/VISUAL_3D_MIGRATION.md). The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md).
+**Status: M4/M5 deployed and verified on Vercel. M6 durable worlds are implemented; see [M6 verification and release gates](docs/milestones/M6_DURABLE_RELEASE.md). Stop before M7.** Eight players share a private Meadow with immediate local prediction, synchronized actions, authoritative rules and original Three.js placeholder models. M6 adds the user-connected Neon database alongside Redis. M5's human playtest and eight-window frame-time gate remain open; they are not relabeled by this release.
+
 
 ## Start here
 
@@ -14,7 +15,14 @@ A cozy 3D cooperative browser adventure where befriending creatures gives player
 
 ## Launch and play
 
-Development requires Node.js 24+, npm, Redis and the installed Vercel Portless CLI. Run `npm ci`, then:
+Development requires Node.js 24+, npm, Redis, PostgreSQL 17+ and the installed Vercel Portless CLI. Run `npm ci`. For a local durable database (Homebrew PostgreSQL 17 on this Mac; set `ASTRAWORLD_PG_BIN` for another binary directory):
+
+```sh
+npm run db:local
+node --env-file=.env.development.local scripts/migrate.mjs
+```
+
+Then:
 
 ```sh
 npm run dev
@@ -22,7 +30,7 @@ npm run dev
 
 This starts local Redis when needed, two game gateways and Next.js through Portless. The stable address on this machine is **https://astraworld.localhost:1355**; `portless get astraworld` prints the address for your proxy configuration. Portless selects internal ports automatically, so neither the browser URL nor the gateway URLs need to change. HTTPS and WebSocket connections use the local trusted Portless certificate. On a machine where Portless can bind port 443, the same hostname has no port suffix.
 
-Stop the launcher with Ctrl+C. It stops the children it started; it leaves an existing Redis process and the shared Portless proxy alone. Its own Redis is temporary with no disk persistence, so stopping it discards local sessions. Standalone gateways read process environment, not Next.js `.env` files.
+Stop the launcher with Ctrl+C. It stops the children it started; it leaves an existing Redis process and the shared Portless proxy alone. Redis remains temporary, but M6 worlds recover from Postgres. The launcher reads the untracked `.env.development.local` and restarts this repository’s `.local/postgres` cluster when configured; PostgreSQL stays running when the web launcher stops. Standalone gateways read process environment. Never copy production Redis/database settings into local development.
 
 For fixed-port network fault tests or production-build review, the previous separate-terminal flow remains available:
 
@@ -37,7 +45,7 @@ Open [Astraworld locally](https://astraworld.localhost:1355), choose an adventur
 
 In **Menu → Invite a friend**, press **Copy invite link** and send it to your friend. They open it, choose their own name and look, then enter the same world. For a local two-player test, open the link in another browser profile or incognito window. The private link admits up to seven additional players. A ninth member is rejected. Local loopback links work on this computer only. Nearby friends show their selected character and a name marker (circle, diamond, star or square). Reloading offers **Resume Meadow** with the same identity and look. Choices are cosmetic and are not reserved; choose different looks to distinguish the group. The connection indicator reports connecting, connected or reconnecting.
 
-Reloading the same tab keeps its temporary session credential. **Leave meadow** returns to entry and forgets it. Session recovery lasts about 30 minutes after everyone leaves, and Redis loss can lose the session. Invitations expire 30 minutes after creation. This is not permanent saving. Shared seeds cannot be changed from the client.
+**M6 worlds:** reloading or leaving offers **Resume Meadow**. Inventory, Moss ownership, depleted resources and opened gates are committed to Postgres before confirmation. Use **Menu → Download recovery key**, then **Restore a saved world** on another browser to recover your character. Keep that file private: it grants access to your character. Losing both the browser key and recovery file means losing access; names alone cannot recover it. Eight memberships are permanent for this slice. Old M5 temporary rooms are not automatically imported. Without a local database, the menu explicitly identifies temporary sessions.
 
 The offline M0 sandbox remains available at [solo mode](https://astraworld.localhost:1355/?solo=1), including its seed controls, without Redis or gateways. Artwork is a provisional [concept study](docs/art-reference/early-game-concept.png).
 
@@ -66,7 +74,7 @@ BASE_URL=http://127.0.0.1:3002 M1_EIGHT_SOAK=1 npx playwright test tests/e2e/eig
 
 The rule/integration suite launches a disposable Redis process itself; Redis must be on PATH. The ordinary browser suite skips the separate ten-minute M0 and M1 soaks. Read-only `?debug=1` reports measurements without a state-mutation API. [M1 results](docs/milestones/M1_LOCAL_RESULTS.md) distinguish local evidence from outstanding deployed-host and network gates.
 
-The active milestone is **M5 companion utility and slice polish**. Finish its [playtest and acceptance gates](docs/milestones/M5_COMPANION_UTILITY.md) before M6 durable persistence; no M6 implementation is authorized.
+The active milestone is **M6 durable cooperative release**, explicitly authorized after M4/M5 deployment. See [M6 checks and remaining release gates](docs/milestones/M6_DURABLE_RELEASE.md). Stop before M7.
 
 ## Document map
 
@@ -138,8 +146,8 @@ Run `npm run dev` and open [the stable local Meadow](https://astraworld.localhos
 Your companion follows automatically. **C** toggles Stay/Follow; **R** resumes following and safely recalls a distant or stuck companion. The compact companion panel offers the same controls. Each player can own one companion; this reference Meadow has two tameable Slimes shared by up to eight players. Ownership, food and commands recover with the temporary room session. This adds no permanent saving, companion attacks or vine ability. The offline solo harness does not simulate taming; use ordinary room entry.
 
 
-## Open the Forest path (M5, local)
+## Open the Forest path (M5)
 
 Refresh and create a **new Meadow** at [the stable local address](https://astraworld.localhost:1355). Invite a friend, gather berries/wood and try the wild Slime encounter on the north trail. Befriend a green Moss Slime with three berries, then follow the central trail farther north to the tangled vines. With Moss in **Follow** mode and close to the passage, press **Q**. Remain nearby for the one-second dissolve. The opened passage is shared: everyone can enter the cooler Forest clearing and see the discovery cue. This is the slice's destination; no further Forest progression is implemented. Combat is not required to unlock it.
 
-**Menu → Your first adventure** provides the route; **Menu → Controls** lists keys. Leaving range, entering combat, dying or an observed disconnect cancels a channel; wait out the two-second cooldown and try again. Opened gates recover within the temporary room session, including for late joiners, but this is not permanent saving. [M5 decisions, evidence and limitations](docs/milestones/M5_COMPANION_UTILITY.md).
+**Menu → Your first adventure** provides the route; **Menu → Controls** lists keys. Leaving range, entering combat, dying or an observed disconnect cancels a channel; wait out the two-second cooldown and try again. M6 commits opened gates durably, including for late joiners and Redis-loss recovery. [M5 decisions, evidence and limitations](docs/milestones/M5_COMPANION_UTILITY.md).

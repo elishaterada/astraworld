@@ -1,3 +1,4 @@
+import { DurableStore } from "./durable";
 import { createClient } from "redis";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { Actor, Session } from "../../packages/protocol";
@@ -31,6 +32,7 @@ export class Store {
     readonly prefix: string,
     readonly leaseMs = LEASE_MS,
     readonly maxPlayers = 2,
+    readonly durable?: DurableStore,
   ) {
     if (!/^(local|test|preview|production):[a-zA-Z0-9_-]+$/.test(prefix))
       throw Error("Use an explicit environment namespace");
@@ -49,9 +51,11 @@ export class Store {
   }
   async connect() {
     await this.redis.connect();
+    await this.durable?.ready();
   }
   async close() {
     if (this.redis.isOpen) this.redis.destroy();
+    await this.durable?.close();
   }
   async create(
     name: string,
@@ -67,6 +71,26 @@ export class Store {
       contentVersion: CONTENT_VERSION,
       generationVersion: GENERATION_VERSION,
     };
+    if (this.durable) {
+      await this.durable.create(worldId, meta, {
+        id: playerId,
+        name,
+        character,
+        hash: hash(token),
+        spawnIndex: 0,
+      });
+      await this.hydrate(worldId).catch(() => {});
+      return {
+        worldId,
+        playerId,
+        token,
+        invite,
+        seed: meta.seed,
+        name,
+        character,
+        durable: true,
+      };
+    }
     // Room creation is atomically published; no partially-created room is joinable.
     await this.redis
       .multi()
@@ -94,6 +118,37 @@ export class Store {
     invite: string,
     character: CharacterId = "fern",
   ): Promise<Session> {
+    if (this.durable) {
+      const playerId = randomUUID(),
+        token = randomBytes(32).toString("base64url");
+      const joined = await this.durable.join(hash(invite), {
+        id: playerId,
+        name,
+        character,
+        hash: hash(token),
+        spawnIndex: 0,
+      });
+      try {
+        await this.hydrate(joined.worldId);
+        await this.redis.hSet(
+          this.key(joined.worldId, "members"),
+          playerId,
+          JSON.stringify(joined.member),
+        );
+      } catch {
+        /* Durable admission succeeded; return its credential even while the cache is unavailable. */
+      }
+      return {
+        worldId: joined.worldId,
+        playerId,
+        token,
+        invite,
+        seed: joined.metadata.seed,
+        name,
+        character,
+        durable: true,
+      };
+    }
     const worldId = await this.redis.get(
       `${this.prefix}:invite:${hash(invite)}`,
     );
@@ -129,6 +184,40 @@ export class Store {
       character,
     };
   }
+  async hydrate(world: string) {
+    if (!this.durable || (await this.redis.exists(this.key(world, "meta"))))
+      return;
+    const loaded = await this.durable.load(world);
+    if (!loaded || !compatible(loaded.metadata)) return;
+    // Publish a whole cache generation once. Concurrent recovery cannot overwrite an active cache.
+    await this.redis.eval(
+      `if redis.call('EXISTS',KEYS[1])==1 then return 0 end
+      redis.call('SET',KEYS[1],ARGV[1],'EX',1800)
+      for _,m in ipairs(cjson.decode(ARGV[2])) do redis.call('HSET',KEYS[2],m.id,cjson.encode(m)) end
+      redis.call('EXPIRE',KEYS[2],1800)
+      if ARGV[3]~='' then
+        redis.call('SET',KEYS[3],ARGV[3],'EX',1800)
+        for _,a in ipairs(cjson.decode(ARGV[3]).actors) do redis.call('HSET',KEYS[4],a.id,a.generation) end
+        redis.call('EXPIRE',KEYS[4],1800)
+      end
+      return 1`,
+      {
+        keys: ["meta", "members", "checkpoint", "generations"].map((k) =>
+          this.key(world, k),
+        ),
+        arguments: [
+          JSON.stringify(loaded.metadata),
+          JSON.stringify(loaded.members),
+          loaded.state
+            ? JSON.stringify({
+                ...loaded.state,
+                durableRevision: loaded.revision,
+              })
+            : "",
+        ],
+      },
+    );
+  }
   async characters(world: string) {
     const members = await this.redis.hGetAll(this.key(world, "members"));
     return new Map(
@@ -139,14 +228,27 @@ export class Store {
     );
   }
   async authenticate(world: string, token: string) {
+    await this.hydrate(world);
     const raw = await this.redis.get(this.key(world, "meta"));
     if (!raw || !compatible(JSON.parse(raw))) return null;
     const members = await this.redis.hGetAll(this.key(world, "members"));
-    return (
-      Object.entries(members).find(
-        ([, raw]) => JSON.parse(raw).hash === hash(token),
-      )?.[0] ?? null
-    );
+    const cached = Object.entries(members).find(
+      ([, raw]) => JSON.parse(raw).hash === hash(token),
+    )?.[0];
+    if (cached) return cached;
+    if (this.durable) {
+      const loaded = await this.durable.load(world);
+      const member = loaded?.members.find((m) => m.hash === hash(token));
+      if (member) {
+        await this.redis.hSet(
+          this.key(world, "members"),
+          member.id,
+          JSON.stringify(member),
+        );
+        return member.id;
+      }
+    }
+    return null;
   }
   async attach(world: string, player: string) {
     return Number(
@@ -222,6 +324,7 @@ export class Store {
     );
   }
   async read(world: string) {
+    await this.hydrate(world);
     // One atomic read also avoids separate hosted round trips for each hash.
     const values = (await this.redis.eval(
       `return {redis.call('GET',KEYS[1]) or '', redis.call('HGETALL',KEYS[2]), redis.call('HGETALL',KEYS[3]), redis.call('GET',KEYS[4]) or '', redis.call('TIME')}`,

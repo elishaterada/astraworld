@@ -5,6 +5,7 @@ import { joinSchema } from "../../packages/protocol";
 import { ipAddress } from "@vercel/functions";
 let instance: ReturnType<typeof createRealtimeGateway> | undefined;
 export function gateway() {
+  if (!process.env.DATABASE_URL) throw Error("DATABASE_URL is required for M6");
   if (!process.env.REDIS_URL) throw Error("REDIS_URL is required");
   const environment =
     process.env.VERCEL_ENV === "production" ? "production" : "preview";
@@ -13,6 +14,7 @@ export function gateway() {
       ? `astraworld-m1v2-${ROOM_REVISION}`
       : `astraworld-v2-${ROOM_REVISION}-${(process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 12)}`;
   return (instance ??= createRealtimeGateway({
+    databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
     owner: `${(process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 7)}-${randomUUID()}`,
     prefix: `${environment}:${suffix}`,

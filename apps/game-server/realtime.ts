@@ -1,3 +1,5 @@
+import { receipts, type DurableCommand } from "./durable";
+import { DurableStore, valuableDigest, type DurableState } from "./durable";
 import {
   commandDissolve,
   stepUtility,
@@ -49,6 +51,7 @@ import { InputTimeline } from "../../packages/simulation/realtime";
 
 // All Redis work is outside the fixed simulation step. Only fenced commits are published.
 export async function createRealtimeGateway(options: {
+  databaseUrl?: string;
   redisUrl: string;
   prefix: string;
   origins: string[];
@@ -56,8 +59,21 @@ export async function createRealtimeGateway(options: {
   socketAgeMs?: number;
 }) {
   const owner = options.owner ?? randomUUID(),
-    store = new Store(options.redisUrl, options.prefix, 1800, MAX_PLAYERS);
-  await store.connect();
+    store = new Store(
+      options.redisUrl,
+      options.prefix,
+      1800,
+      MAX_PLAYERS,
+      options.databaseUrl
+        ? new DurableStore(options.databaseUrl, options.prefix)
+        : undefined,
+    );
+  try {
+    await store.connect();
+  } catch (error) {
+    await store.close();
+    throw error;
+  }
   const subscriber = store.redis.duplicate();
   subscriber.on("error", () => {});
   await subscriber.connect();
@@ -75,6 +91,7 @@ export async function createRealtimeGateway(options: {
     generation: number;
   };
   type State = {
+    durableRevision?: number;
     tick: number;
     actors: RealtimeActor[];
     gathering: GatheringState;
@@ -82,6 +99,11 @@ export async function createRealtimeGateway(options: {
     taming?: TamingState;
   };
   type Room = {
+    journal: DurableCommand[];
+    durableRevision: number;
+    durableDigest: string;
+    lastDurableSave: number;
+    lastPublishedRevision: number;
     epoch: number;
     token: string;
     state: State;
@@ -190,9 +212,9 @@ export async function createRealtimeGateway(options: {
       res.writeHead(store.redis.isReady ? 400 : 503).end(
         JSON.stringify({
           error:
-            store.redis.isReady && error instanceof Error
+            !store.durable && store.redis.isReady && error instanceof Error
               ? error.message
-              : "The Meadow service is reconnecting. Try again shortly.",
+              : `This Meadow is unavailable or full (${MAX_PLAYERS} adventurers). Try again shortly.`,
         }),
       );
     }
@@ -290,6 +312,11 @@ export async function createRealtimeGateway(options: {
     }
     if (rooms.size >= 16) throw Error("Gateway busy");
     const r: Room = {
+      journal: [],
+      durableRevision: 0,
+      durableDigest: "",
+      lastDurableSave: 0,
+      lastPublishedRevision: 0,
       epoch: 0,
       token: "",
       state: { tick: 0, actors: [], gathering: emptyGathering() },
@@ -533,7 +560,7 @@ export async function createRealtimeGateway(options: {
     });
   });
   async function maintain(world: string, r: Room) {
-    if (r.busy || stopping) return;
+    if (r.busy || stopping || r.commitBusy) return;
     r.busy = true;
     try {
       const now = performance.now(),
@@ -557,15 +584,33 @@ export async function createRealtimeGateway(options: {
         r.epoch = 0;
         if (now < r.nextAttempt) return;
         r.nextAttempt = now + 200;
-        const epoch = await store.acquire(world, owner);
+        const claimOwner = randomUUID();
+        const epoch = await store.acquire(world, claimOwner);
         if (!epoch) return;
-        r.token = `${owner}:${epoch}`;
+        r.token = `${claimOwner}:${epoch}`;
         const loaded = await store.read(world);
         r.state = (loaded.checkpoint as State) ?? {
           tick: 0,
           actors: [],
           gathering: emptyGathering(),
         };
+        let durableEpoch = epoch;
+        if (store.durable) {
+          durableEpoch = await store.durable.claim(world, r.token);
+          const saved = await store.durable.load(world);
+          if (!saved) throw Error("Durable world missing");
+          // A hot checkpoint may contain newer poses, but never supersedes a committed consequence.
+          if (!saved.state || r.state.durableRevision !== saved.revision)
+            r.state = (saved.state as State | null) ?? {
+              tick: 0,
+              actors: [],
+              gathering: emptyGathering(),
+            };
+          r.durableRevision = saved.revision;
+          r.durableDigest = saved.digest ?? "";
+          r.lastDurableSave = 0;
+        }
+        r.journal = [];
         r.committed = r.state;
         r.timelines.clear();
         r.gathers.clear();
@@ -576,7 +621,7 @@ export async function createRealtimeGateway(options: {
           r.timelines.set(a.id, new InputTimeline());
           r.seen.set(a.id, performance.now());
         }
-        r.epoch = epoch;
+        r.epoch = durableEpoch;
         r.leaseUntil = now + 1800;
         r.renewAt = now + 400;
         r.lastStep = performance.now();
@@ -596,10 +641,31 @@ export async function createRealtimeGateway(options: {
   async function commit(world: string, r: Room) {
     if (r.commitBusy || !r.epoch || r.loading) return;
     r.commitBusy = true;
+    const journal = r.journal.slice();
     const state = r.state,
       token = r.token,
       epoch = r.epoch;
     try {
+      if (store.durable) {
+        const nextDigest = valuableDigest(state as DurableState);
+        if (
+          nextDigest !== r.durableDigest ||
+          performance.now() - r.lastDurableSave >= 5000
+        ) {
+          const revision = await store.durable.commit(
+            world,
+            token,
+            r.durableRevision,
+            state,
+            journal,
+          );
+          r.journal.splice(0, journal.length);
+          r.durableRevision = revision;
+          r.durableDigest = nextDigest;
+          r.lastDurableSave = performance.now();
+        }
+      }
+      const checkpoint = { ...state, durableRevision: r.durableRevision };
       const projection = {
         type: "snapshot",
         protocolVersion: REALTIME_VERSION,
@@ -639,7 +705,11 @@ export async function createRealtimeGateway(options: {
             "members",
             "snapshots",
           ].map((k) => store.key(world, k)),
-          arguments: [token, JSON.stringify(state), JSON.stringify(projection)],
+          arguments: [
+            token,
+            JSON.stringify(checkpoint),
+            JSON.stringify(projection),
+          ],
         },
       );
       if (r.token !== token) return;
@@ -652,7 +722,15 @@ export async function createRealtimeGateway(options: {
         metrics.fenced++;
         r.leaseUntil = 0;
         r.epoch = 0;
-      } else r.committed = state;
+      } else {
+        r.committed = state;
+        if (store.durable && r.lastPublishedRevision < r.durableRevision) {
+          r.lastPublishedRevision = r.durableRevision;
+          void store.durable.published(world, r.durableRevision).catch(() => {
+            r.lastPublishedRevision = 0;
+          });
+        }
+      }
     } catch {
       if (r.token === token) {
         r.leaseUntil = 0;
@@ -672,7 +750,14 @@ export async function createRealtimeGateway(options: {
       }
       // No catch-up burst after an event-loop stall. This clock is independent of Redis latency.
       let count = 0;
-      while (now - r.lastStep >= 1000 / 60 && count++ < 6) {
+      while (
+        now - r.lastStep >= 1000 / 60 &&
+        count++ < 6 &&
+        r.journal.length < 1024
+      ) {
+        const priorReceipts = store.durable
+          ? receipts(r.state as DurableState)
+          : [];
         r.lastStep += 1000 / 60;
         r.world = { ...r.world, gateOpen: r.state.taming?.gate.open ?? false };
         const tick = r.state.tick + 1,
@@ -800,6 +885,18 @@ export async function createRealtimeGateway(options: {
             tick,
           ),
         };
+        if (store.durable)
+          for (const entry of receipts(r.state as DurableState)) {
+            if (
+              !priorReceipts.some(
+                (p) =>
+                  p.actor === entry.actor &&
+                  p.stream === entry.stream &&
+                  p.result === entry.result,
+              )
+            )
+              r.journal.push(entry);
+          }
         metrics.ticks++;
         metrics.steps.push(performance.now() - start);
         if (metrics.steps.length > 12000) metrics.steps.shift();

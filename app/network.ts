@@ -1,3 +1,4 @@
+import { rememberSession, parseRecovery } from "./recovery";
 import type { Gate } from "../packages/protocol/utility";
 import type {
   Moss,
@@ -36,8 +37,11 @@ import { characterId, type CharacterId } from "../packages/characters";
 export function savedSession(): Session | undefined {
   try {
     const value = JSON.parse(
-      sessionStorage.getItem(SESSION_STORAGE_KEY) ?? "null",
+      sessionStorage.getItem(SESSION_STORAGE_KEY) ??
+        localStorage.getItem(SESSION_STORAGE_KEY) ??
+        "null",
     );
+    if (value?.durable) return parseRecovery(JSON.stringify(value));
     if (
       value?.worldId &&
       value?.playerId &&
@@ -84,7 +88,7 @@ export async function joinMeadow(
         last = data.error ?? last;
         break;
       }
-      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data));
+      rememberSession(data as Session);
       return data as Session;
     } catch {
       /* Try another configured gateway. */

@@ -1,5 +1,17 @@
 import { spawn, execFileSync } from "node:child_process";
 import net from "node:net";
+import { existsSync } from "node:fs";
+if (existsSync(".env.development.local"))
+  process.loadEnvFile(".env.development.local");
+
+// Restart only this repository's existing local database, never a remote service.
+if (
+  process.env.DATABASE_URL === "postgresql://127.0.0.1:55432/astraworld" &&
+  existsSync(".local/postgres/PG_VERSION")
+)
+  execFileSync(process.execPath, ["scripts/db-local.mjs"], {
+    stdio: "inherit",
+  });
 
 // Portless owns public URLs and ephemeral ports; the launcher owns only its children.
 execFileSync("portless", ["proxy", "start"], { stdio: "inherit" });

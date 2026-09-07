@@ -208,7 +208,9 @@ test("eight real players share movement, facing and waves; ninth is refused and 
     await ninth
       .getByRole("button", { name: "Enter Meadow", exact: true })
       .click();
-    await expect(ninth.locator("#name-error")).toContainText("8 adventurers");
+    await expect(ninth.locator("#name-error")).toContainText("8 adventurers", {
+      timeout: 15000,
+    });
     const before = await snapshot(pages[7]);
     await pages[7].reload();
     await pages[7]

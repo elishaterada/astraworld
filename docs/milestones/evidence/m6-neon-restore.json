@@ -1,0 +1,23 @@
+{
+  "result": "pass",
+  "source": "Neon",
+  "target": "isolated local Postgres",
+  "tables": {
+    "worlds": {
+      "rows": 2,
+      "sha256": "82991c9e63eca637e9f4e8502e1c1213e2b5ea458fc54623a734fc80e9420cef"
+    },
+    "members": {
+      "rows": 9,
+      "sha256": "3a98655e366fb41ce51f074e1bfe5435930709600294e28d9e30f6bbd5dcffba"
+    },
+    "commands": {
+      "rows": 12,
+      "sha256": "42ecace5d8e97efe301aa76b0833b5f69f195ea96792006a77c167ab74fe2d4a"
+    },
+    "outbox": {
+      "rows": 22,
+      "sha256": "b4d314fbe9c3d8ce1f4e45644599ba50b72a4369f79e685188b31a0e4503d91e"
+    }
+  }
+}

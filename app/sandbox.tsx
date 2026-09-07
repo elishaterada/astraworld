@@ -14,6 +14,7 @@ import {
   MAX_PLAYERS,
   SESSION_STORAGE_KEY,
 } from "../packages/protocol/capacity";
+import { downloadRecovery, parseRecovery, rememberSession } from "./recovery";
 import { joinMeadow, savedSession } from "./network";
 import type { Session } from "../packages/protocol";
 import type { SandboxReport } from "./renderer";
@@ -539,9 +540,19 @@ function Meadow({
         <button className="quiet-button" onClick={onLeave}>
           Leave meadow
         </button>
+        {session?.durable && (
+          <button
+            className="menu-action"
+            onClick={() => downloadRecovery(session)}
+          >
+            Download recovery key
+          </button>
+        )}
         <p className="menu-footnote">
-          Original 3D placeholder models. Session recovery is temporary; there
-          is no permanent saving.
+          Original 3D placeholder models.{" "}
+          {session?.durable
+            ? "Progress is saved to this world. Keep a recovery key to return from another browser. Anyone with your key can use your character."
+            : "This is a temporary session; progress is not permanently saved."}
         </p>
       </dialog>
     </section>
@@ -643,10 +654,12 @@ export default function Sandbox() {
   }
   function leave() {
     setPlaying(false);
-    setResuming(false);
+    setResuming(!!session?.durable);
     setInvited(false);
     setSession(undefined);
-    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    try {
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    } catch {}
     setFullscreenNote("");
     if (document.fullscreenElement)
       void document.exitFullscreen().catch(() => {});
@@ -752,6 +765,57 @@ export default function Sandbox() {
                     : "Enter Meadow"}{" "}
                 <span aria-hidden="true">→</span>
               </button>
+              {resuming && (
+                <button
+                  type="button"
+                  className="entry-note"
+                  onClick={() => {
+                    try {
+                      localStorage.removeItem(SESSION_STORAGE_KEY);
+                      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+                    } catch {}
+                    setResuming(false);
+                    setDraftName("");
+                    setNameError("");
+                  }}
+                >
+                  Forget this browser’s key · start a new world
+                </button>
+              )}
+              <label className="entry-note">
+                Restore a saved world
+                <input
+                  type="file"
+                  aria-label="Restore recovery key"
+                  accept="application/json,.json"
+                  disabled={joining}
+                  onChange={async (e) => {
+                    const file = e.currentTarget.files?.[0];
+                    if (!file) return;
+                    try {
+                      if (file.size > 4096)
+                        throw Error("Choose an Astraworld recovery file.");
+                      const restored = parseRecovery(await file.text());
+                      rememberSession(restored);
+                      setDraftName(restored.name);
+                      setCharacter(characterId(restored.character));
+                      setResuming(true);
+                      setNameError("");
+                      const url = new URL(location.href);
+                      url.searchParams.delete("invite");
+                      url.searchParams.delete("solo");
+                      history.replaceState(null, "", url);
+                      setInvited(false);
+                    } catch (error) {
+                      setNameError(
+                        error instanceof Error
+                          ? error.message
+                          : "Could not restore this key.",
+                      );
+                    }
+                  }}
+                />
+              </label>
               <p className="entry-note">
                 A little wilderness, better with a friend.
               </p>
@@ -767,7 +831,7 @@ export default function Sandbox() {
               PLAY IN YOUR BROWSER <i>·</i> KEYBOARD REQUIRED
             </span>
             <span>
-              3D ART STUDY <i>·</i> NO PROGRESS SAVED
+              3D ART STUDY <i>·</i> PRIVATE WORLDS
             </span>
           </footer>
         </section>
