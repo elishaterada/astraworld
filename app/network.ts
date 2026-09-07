@@ -67,6 +67,7 @@ export class MeadowConnection {
   epoch = 0;
   tick = 0;
   owner = "";
+  gateway = "";
   authoritative: Position = this.position;
   private socket: WebSocket | null = null;
   private disposed = false;
@@ -116,6 +117,7 @@ export class MeadowConnection {
         Number.isSafeInteger(data.generation)
       ) {
         this.generation = data.generation;
+        this.gateway = typeof data.gateway === "string" ? data.gateway : "";
         this.seq = 0;
         this.pending = [];
         this.snapshots = [];

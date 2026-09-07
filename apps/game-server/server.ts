@@ -296,6 +296,7 @@ export async function createGateway(options: {
           clearTimeout(deadline);
           send(socket, {
             type: "connected",
+            gateway: owner,
             protocolVersion: VERSION,
             worldId: client.world,
             generation,

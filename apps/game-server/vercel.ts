@@ -13,6 +13,7 @@ export function gateway() {
       : `astraworld-${(process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 12)}`;
   return (instance ??= createGateway({
     redisUrl: process.env.REDIS_URL,
+    owner: `${(process.env.VERCEL_GIT_COMMIT_SHA ?? "local").slice(0, 7)}-${randomUUID()}`,
     prefix: `${environment}:${suffix}`,
     origins: [],
     rotationMs: 45000,

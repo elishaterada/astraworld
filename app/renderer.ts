@@ -63,6 +63,7 @@ export type DebugSnapshot = {
     epoch: number;
     generation: number;
     owner: string;
+    gateway: string;
     tick: number;
     selfId: string;
     authoritative: Position;
@@ -237,6 +238,7 @@ export function mountMeadow(
                 epoch: network.epoch,
                 generation: network.generation,
                 owner: network.owner,
+                gateway: network.gateway,
                 tick: network.tick,
                 selfId: network.session.playerId,
                 authoritative: { ...network.authoritative },
