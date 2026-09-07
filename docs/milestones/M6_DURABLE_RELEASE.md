@@ -52,3 +52,6 @@ Source `4846db3` deployed successfully as `dpl_fFJ5vAJsNL6aU4vD8Dp1X6yw4PQX` ([p
 
 
 Final UI verification exposed the absolutely positioned entry footer covering the new restore control at 900 px height. The footer now participates in layout, and the browser test explicitly opens the restore disclosure before selecting a file. Recovery screenshots mask invitation fields. The database-backed full journey remained passing; the corrected visible restore flow passed locally. [Direct Neon verification](evidence/m6-hosted-database.json) confirms all three hosted test worlds were saved, including one opened Forest.
+
+
+Final corrected preview: source `3df484a`, deployment `dpl_edZs4pfoSTV9HgbNfx6z2ScdK3aZ`, [verified M6 preview](https://astraworld-rl1ahnf18-teradas.vercel.app). Vercel build passed; the visible recovery disclosure → file selection → same-character saved-inventory resume passed in 5.6 seconds with no page errors. The [masked menu evidence](evidence/m6-hosted-recovery-key.png) and [result](evidence/m6-hosted-recovery-key.json) were refreshed. Branch `codex/m6-durable` is pushed; production remains M4/M5. Stop here before M7 and settle the recorded release gates before promoting M6.

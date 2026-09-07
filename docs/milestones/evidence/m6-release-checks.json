@@ -1,0 +1,23 @@
+{
+  "implementationSource": "3df484a",
+  "previewDeployment": "dpl_edZs4pfoSTV9HgbNfx6z2ScdK3aZ",
+  "previewUrl": "https://astraworld-rl1ahnf18-teradas.vercel.app",
+  "typecheck": "pass",
+  "build": "pass",
+  "ruleAndNetworkTests": {
+    "passed": 71,
+    "failed": 0
+  },
+  "localEightBrowserCorrectness": "pass",
+  "hostedEightBrowserCorrectness": "pass",
+  "hostedFullJourney": "pass",
+  "finalHostedVisibleRecovery": {
+    "result": "pass",
+    "seconds": 5.6
+  },
+  "databaseRestore": "pass: application schema into isolated local Postgres",
+  "providerRestoreWindow": "unconfirmed: dashboard authentication required",
+  "providerPitrDrill": "not run",
+  "production": "M4/M5 retained",
+  "next": "M6 release gates; stop before M7"
+}
