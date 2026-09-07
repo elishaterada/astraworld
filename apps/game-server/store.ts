@@ -181,13 +181,26 @@ export class Store {
     );
   }
   async read(world: string) {
-    const [meta, members, inputs, checkpoint, time] = await Promise.all([
-      this.redis.get(this.key(world, "meta")),
-      this.redis.hGetAll(this.key(world, "members")),
-      this.redis.hGetAll(this.key(world, "inputs")),
-      this.redis.get(this.key(world, "checkpoint")),
-      this.redis.sendCommand(["TIME"]),
-    ]);
+    // One atomic read also avoids separate hosted round trips for each hash.
+    const values = (await this.redis.eval(
+      `return {redis.call('GET',KEYS[1]) or '', redis.call('HGETALL',KEYS[2]), redis.call('HGETALL',KEYS[3]), redis.call('GET',KEYS[4]) or '', redis.call('TIME')}`,
+      {
+        keys: ["meta", "members", "inputs", "checkpoint"].map((key) =>
+          this.key(world, key),
+        ),
+        arguments: [],
+      },
+    )) as unknown as [string, string[], string[], string, string[]];
+    const [meta, memberPairs, inputPairs, checkpoint, time] = values;
+    const fromPairs = (pairs: string[]) =>
+      Object.fromEntries(
+        Array.from({ length: pairs.length / 2 }, (_, i) => [
+          pairs[i * 2],
+          pairs[i * 2 + 1],
+        ]),
+      );
+    const members = fromPairs(memberPairs),
+      inputs = fromPairs(inputPairs);
     const t = time as unknown as string[];
     return {
       meta: meta ? (JSON.parse(meta) as Metadata) : null,

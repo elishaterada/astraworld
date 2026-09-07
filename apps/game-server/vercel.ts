@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { createGateway } from "./server";
 import { joinSchema } from "../../packages/protocol";
 import { ipAddress } from "@vercel/functions";
