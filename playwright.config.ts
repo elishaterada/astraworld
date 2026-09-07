@@ -7,7 +7,16 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || "http://127.0.0.1:3000",
     viewport: { width: 1440, height: 900 },
     headless: true,
-    launchOptions: { args: ["--use-gl=angle", "--use-angle=metal"] },
+    launchOptions: {
+      args:
+        process.platform === "darwin"
+          ? ["--use-gl=angle", "--use-angle=metal"]
+          : [
+              "--use-gl=angle",
+              "--use-angle=swiftshader",
+              "--enable-unsafe-swiftshader",
+            ],
+    },
   },
   reporter: "list",
 });

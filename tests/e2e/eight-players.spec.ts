@@ -1,10 +1,11 @@
 import { test, expect, type BrowserContext, type Page } from "@playwright/test";
 import { readFileSync, writeFileSync } from "node:fs";
+import { soakEight } from "./soak-eight";
 
 test("eight real players share movement, facing and waves; ninth is refused and a member resumes", async ({
   browser,
 }) => {
-  test.setTimeout(180000);
+  test.setTimeout(process.env.M1_EIGHT_SOAK ? 780000 : 180000);
   const access = process.env.HOSTED_ACCESS_FILE
     ? JSON.parse(readFileSync(process.env.HOSTED_ACCESS_FILE, "utf8"))
     : null;
@@ -113,6 +114,11 @@ test("eight real players share movement, facing and waves; ninth is refused and 
       await expect(p.locator(".multiplayer-note")).toContainText(
         "8/8 adventurers",
       );
+    if (process.env.M1_EIGHT_SOAK) {
+      await soakEight(pages);
+      expect(errors).toEqual([]);
+      return;
+    }
     // Move every real client together, then confirm every observer agrees on all eight positions.
     await Promise.all(pages.map((p) => p.getByRole("application").focus()));
     await Promise.all(pages.map((p) => p.keyboard.down("d")));

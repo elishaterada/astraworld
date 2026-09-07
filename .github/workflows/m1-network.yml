@@ -1,0 +1,71 @@
+name: M1 real TCP network verification
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tcp-loss:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      M1_NETEM: "1"
+      BASE_URL: http://127.0.0.1:3002
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install isolated test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y redis-server iproute2 tshark tcpdump
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Check and build
+        run: |
+          npm run typecheck
+          npm test
+          npm run build
+      - name: Start disposable game services
+        run: |
+          mkdir -p test-results/m1-network
+          redis-server --bind 127.0.0.1 --port 6380 --save '' --appendonly no > /tmp/m1-redis.log 2>&1 &
+          GATEWAY_ID=network-a npm run game:realtime > /tmp/m1-gateway-a.log 2>&1 &
+          GAME_PORT=3104 GATEWAY_ID=network-b npm run game:realtime > /tmp/m1-gateway-b.log 2>&1 &
+          npm start -- --port 3002 > /tmp/m1-web.log 2>&1 &
+          for port in 3002 3103 3104; do
+            for attempt in $(seq 1 60); do
+              if curl -fsS "http://127.0.0.1:$port" >/dev/null 2>&1 || curl -fsS "http://127.0.0.1:$port/health" >/dev/null 2>&1; then break; fi
+              sleep 1
+            done
+          done
+      - name: Real TCP packet loss, jitter and outage
+        run: |
+          bash scripts/netem.sh setup
+          sudo tcpdump -i lo -s 96 -U -w /tmp/m1-game.pcap 'tcp port 3103 or tcp port 3104' >/tmp/m1-capture.log 2>&1 &
+          CAPTURE_PID=$!
+          trap 'sudo kill -INT "$CAPTURE_PID" 2>/dev/null || true; bash scripts/netem.sh cleanup' EXIT
+          set +e
+          npx playwright test tests/e2e/tcp-network.spec.ts
+          TEST_STATUS=$?
+          set -e
+          sudo kill -INT "$CAPTURE_PID"
+          wait "$CAPTURE_PID" || true
+          sudo chmod a+r /tmp/m1-game.pcap
+          tshark -r /tmp/m1-game.pcap -Y 'tcp.analysis.retransmission || tcp.analysis.fast_retransmission || tcp.analysis.spurious_retransmission' -T fields -e frame.time_relative -e ip.src -e tcp.srcport -e tcp.dstport -e tcp.seq -e tcp.ack -e tcp.len > test-results/m1-network/retransmissions.tsv
+          test -s test-results/m1-network/retransmissions.tsv
+          bash scripts/netem.sh stats > test-results/m1-network/qdisc-final.json
+          rm /tmp/m1-game.pcap
+          exit "$TEST_STATUS"
+      - name: Upload measurements (no packet payloads or credentials)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m1-tcp-evidence
+          path: test-results/
+          retention-days: 14
+      - name: Restore runner network
+        if: always()
+        run: bash scripts/netem.sh cleanup
