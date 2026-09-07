@@ -16,11 +16,16 @@ import {
   type Position,
   type Input,
 } from "../packages/simulation";
-export const gateways = () =>
-  (
-    process.env.NEXT_PUBLIC_GAME_GATEWAYS ??
-    "http://127.0.0.1:3101,http://127.0.0.1:3102"
-  ).split(",");
+export const gateways = () => {
+  const configured = process.env.NEXT_PUBLIC_GAME_GATEWAYS;
+  if (configured) return configured.split(",");
+  if (
+    typeof location !== "undefined" &&
+    !["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)
+  )
+    return [`${location.origin}/api/meadow`];
+  return ["http://127.0.0.1:3101", "http://127.0.0.1:3102"];
+};
 export async function joinMeadow(
   name: string,
   invite?: string,

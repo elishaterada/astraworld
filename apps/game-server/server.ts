@@ -421,6 +421,15 @@ export async function createGateway(options: {
   }, 50);
   return {
     server,
+    acceptSocket(socket: WebSocket) {
+      if (stopping || wss.clients.size >= 32) {
+        socket.close(1013, "Gateway busy");
+        return;
+      }
+      wss.clients.add(socket);
+      socket.once("close", () => wss.clients.delete(socket));
+      wss.emit("connection", socket);
+    },
     store,
     owner,
     metrics,
