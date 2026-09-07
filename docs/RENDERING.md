@@ -109,3 +109,8 @@ Original modular berry bushes carry pink fruit cubes; a gold ring marks the near
 The satchel is hidden by default. Its bottom-right button or I opens a native dialog with the 12 slots; I, Escape or Close returns focus to the playfield. The dialog pauses local input while the shared world continues. Escape from gameplay opens the existing pause menu, which now contains a Controls reference. An already-focused playfield explicitly resumes when its renderer is regenerated.
 
 The permanent movement strip and verbose session/art footer are removed from gameplay. A first-play hint dismisses manually or after ten active seconds and records only a browser-local controls preference; disabled storage falls back to showing it again on a later mount. Nearby resources get a small E prompt below the player. Confirmed gains/rejections appear for three seconds; fullscreen fallback notices appear near the fullscreen button for five seconds. The location and party count remain compact, while connection problems stay visible. Placeholder-art and temporary-recovery labels remain in entry/menu UI. This adds no M3 mechanics or gameplay persistence.
+
+
+## M3 combat presentation
+
+`app/three/combat.ts` owns the original modular hostile Slime, expanding amber ground tell, impact flash and defeat shrink. Character rigs add a starter blade for replicated attack phases and a dodge lean; hit/death presentation consumes confirmed combat state. Shared geometries/materials are disposed with the view. Compact health updates use the existing four-Hz React report; inventory remains hidden until opened. Simulation geometry remains flat and independent of Three.js.

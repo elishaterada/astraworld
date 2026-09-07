@@ -1,3 +1,4 @@
+import { CONTENT_VERSION } from "../../packages/world";
 import { test, expect, type Page } from "@playwright/test";
 import { readFileSync, writeFileSync } from "node:fs";
 const snap = (p: Page) => p.evaluate(() => window.__MEADOW__!.snapshot());
@@ -125,7 +126,7 @@ test("M2 two players gather, see depletion, chop a tree and resume inventory", a
       JSON.stringify(
         {
           browser: browser.version(),
-          content: "gathering-1",
+          content: CONTENT_VERSION,
           race: [first.progress?.receipt, second.progress?.receipt],
           inventory: before.progress!.inventory,
           depleted: before.depleted,

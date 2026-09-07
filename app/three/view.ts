@@ -1,3 +1,5 @@
+import { createCombatView } from "./combat";
+import type { Slime } from "../../packages/protocol/combat";
 import { resourceNodes } from "../../packages/world/resources";
 import { createAtmosphere } from "./atmosphere";
 import * as T from "three";
@@ -21,6 +23,10 @@ export type VisualActor = {
   waving: boolean;
   gathering?: boolean;
   chopping?: boolean;
+  attackAge?: number;
+  dodging?: boolean;
+  health?: number;
+  hurt?: boolean;
 };
 type Cube = {
   position: [number, number, number];
@@ -48,6 +54,7 @@ export function createMeadowView(
   scene.background = new T.Color(0x799994);
   scene.fog = new T.Fog(0x799994, 27, 80);
   const atmosphere = createAtmosphere(scene, world);
+  const combatView = createCombatView(scene);
   const effectTime = { value: 0 };
   const camera = new T.OrthographicCamera(-1, 1, 1, -1, 0.1, 160);
   const sky = new T.HemisphereLight(0xcde7e8, 0x243d3a, 1.35);
@@ -489,6 +496,11 @@ export function createMeadowView(
   const labels = document.createElement("div");
   labels.className = "world-labels";
   labels.setAttribute("aria-hidden", "true");
+  const enemyLabel = document.createElement("div");
+  enemyLabel.className = "world-name slime-label";
+  labels.append(enemyLabel);
+  let currentSlime: Slime | undefined;
+  let combatTick = 0;
   let width = 1,
     height = 1,
     visibleProps = 0;
@@ -520,10 +532,28 @@ export function createMeadowView(
       time,
       reduced,
     );
+    model.root.scale.setScalar(actor.health === 0 ? 0.45 : 1);
+    model.body.rotation.z = actor.hurt ? 0.15 : 0;
+    model.body.rotation.x = actor.dodging ? -0.6 : 0;
+    model.blade.visible =
+      actor.attackAge !== undefined &&
+      actor.attackAge >= 0 &&
+      actor.attackAge < 36;
     model.hatchet.visible = !!actor.gathering && !!actor.chopping;
-    if (actor.gathering) {
+    if (actor.gathering && !model.blade.visible) {
       model.arms[1].rotation.x = reduced ? -1 : -1 + Math.sin(time * 18) * 0.7;
       model.arms[1].rotation.z = -0.35;
+    }
+    if (model.blade.visible) {
+      const age = actor.attackAge!;
+      model.arms[1].rotation.x = reduced
+        ? -1.5
+        : age < 9
+          ? -2.5
+          : age < 15
+            ? -2.5 + ((age - 9) / 6) * 2.2
+            : -0.3;
+      model.arms[1].rotation.z = -0.45;
     }
   }
   return {
@@ -539,6 +569,10 @@ export function createMeadowView(
     local,
     peers,
     resize,
+    combat(slime: Slime | undefined, tick: number) {
+      currentSlime = slime;
+      combatTick = tick;
+    },
     draw(
       actor: VisualActor,
       remotes: VisualActor[],
@@ -547,6 +581,7 @@ export function createMeadowView(
     ) {
       effectTime.value = reduced ? 0 : time;
       atmosphere.update(time, reduced, actor.position);
+      combatView.update(currentSlime, combatTick, time, reduced);
       update(local, actor, time, reduced);
       const p = actor.position;
       camera.position.set(
@@ -587,7 +622,7 @@ export function createMeadowView(
         }
         update(peer.model, remote, time, reduced);
         const screen = worldToScreen(remote.position, p, width, height);
-        peer.label.textContent = `${remote.waving ? "✋ " : ""}${CHARACTERS[remote.character].mark} ${remote.name}`;
+        peer.label.textContent = `${remote.waving ? "✋ " : ""}${CHARACTERS[remote.character].mark} ${remote.name}${remote.health !== undefined && remote.health < 100 ? ` · ${remote.health} HP` : ""}`;
         peer.label.style.transform = `translate(${screen.x}px, ${screen.y - 62}px) translate(-50%, -100%)`;
         peer.label.style.color = CHARACTERS[remote.character].color;
         peer.label.hidden =
@@ -596,6 +631,21 @@ export function createMeadowView(
           screen.y < -100 ||
           screen.y > height + 100;
       }
+      if (currentSlime) {
+        const screen = worldToScreen(currentSlime.position, p, width, height);
+        enemyLabel.textContent =
+          currentSlime.health === 0
+            ? "Slime defeated"
+            : `Wild Slime · ${currentSlime.health}/30${currentSlime.phase === "tell" ? " · SLAM!" : ""}`;
+        enemyLabel.style.transform = `translate(${screen.x}px, ${screen.y - 58}px) translate(-50%, -100%)`;
+        enemyLabel.hidden =
+          Math.hypot(
+            currentSlime.position.x - p.x,
+            currentSlime.position.y - p.y,
+          ) > 12 ||
+          (currentSlime.health === 0 &&
+            combatTick - currentSlime.phaseTick > 180);
+      } else enemyLabel.hidden = true;
       renderer.render(scene, camera);
     },
     resources(depleted: string[], target?: { x: number; y: number }) {
@@ -631,6 +681,7 @@ export function createMeadowView(
       leavesMaterial.dispose();
       waterMaterial.dispose();
       atmosphere.dispose();
+      combatView.dispose();
       kit.dispose();
       sun.shadow.dispose();
       renderer.dispose();

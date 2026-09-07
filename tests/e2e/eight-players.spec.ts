@@ -43,7 +43,11 @@ test("eight real players share movement, facing and waves; ninth is refused and 
         window.WebSocket = class extends Original {
           constructor(url: string | URL, protocols?: string | string[]) {
             super(
-              alternate ? String(url).replace(":3103/", ":3104/") : url,
+              alternate
+                ? String(url)
+                    .replace(":3103/", ":3104/")
+                    .replace("astraworld-game-a.", "astraworld-game-b.")
+                : url,
               protocols,
             );
           }
@@ -72,6 +76,12 @@ test("eight real players share movement, facing and waves; ninth is refused and 
     for (let i = 1; i < 8; i++) {
       const p = await createPage(i);
       await p.goto(`${invite}&debug=1`);
+      await expect(
+        p.getByText(
+          "You’re joining a friend’s Meadow. Choose a name and look.",
+          { exact: true },
+        ),
+      ).toBeVisible();
       await p.getByLabel("What should we call you?").fill(names[i]);
       await p.getByRole("radio", { name: looks[i % looks.length] }).check();
       await p
@@ -112,8 +122,8 @@ test("eight real players share movement, facing and waves; ninth is refused and 
       ).toEqual(new Set(names));
     }
     for (const p of pages)
-      await expect(p.locator(".multiplayer-note")).toContainText(
-        "8/8 adventurers",
+      await expect(p.getByLabel("8 players", { exact: true })).toHaveText(
+        "8/8",
       );
     if (process.env.VISUAL_3D_PERF) {
       test.setTimeout(150000);
@@ -174,6 +184,12 @@ test("eight real players share movement, facing and waves; ninth is refused and 
     await host.screenshot({ path: `${evidence}.png` });
     const ninth = await createPage(8);
     await ninth.goto(`${invite}&debug=1`);
+    await expect(
+      ninth.getByText(
+        "You’re joining a friend’s Meadow. Choose a name and look.",
+        { exact: true },
+      ),
+    ).toBeVisible();
     await ninth.getByLabel("What should we call you?").fill("Ninth");
     await ninth
       .getByRole("button", { name: "Enter Meadow", exact: true })

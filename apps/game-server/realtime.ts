@@ -1,3 +1,10 @@
+import {
+  freshCombat,
+  freshSlime,
+  stepCombat,
+  combatBusy,
+} from "../../packages/simulation/combat";
+import type { Slime } from "../../packages/protocol/combat";
 import { encodeDepletion } from "../../packages/protocol/resources";
 import {
   emptyGathering,
@@ -56,6 +63,7 @@ export async function createRealtimeGateway(options: {
     tick: number;
     actors: RealtimeActor[];
     gathering: GatheringState;
+    slime?: Slime;
   };
   type Room = {
     epoch: number;
@@ -212,6 +220,7 @@ export async function createRealtimeGateway(options: {
     r.seed = loaded.meta!.seed;
     r.world = generateWorld(r.seed);
     r.nodes = new Map(resourceNodes(r.world).map((n) => [n.id, n]));
+    r.state = { ...r.state, slime: r.state.slime ?? freshSlime(r.seed) };
     r.state = {
       ...r.state,
       gathering: {
@@ -242,7 +251,14 @@ export async function createRealtimeGateway(options: {
         ack: 0,
         facing: committed?.facing ?? 2,
         moving: false,
-        action: null,
+        action:
+          committed?.action?.kind === "attack" ||
+          committed?.action?.kind === "dodge"
+            ? committed.action
+            : null,
+        combat:
+          committed?.combat ??
+          freshCombat({ x: SPAWN.x + 2 * (m.spawnIndex ?? index), y: SPAWN.y }),
       };
     });
   }
@@ -527,6 +543,7 @@ export async function createRealtimeGateway(options: {
         epoch,
         tick: state.tick,
         owner,
+        slime: state.slime,
         gathering: {
           players: state.gathering.players,
           depleted: encodeDepletion(
@@ -595,9 +612,31 @@ export async function createRealtimeGateway(options: {
           ...r.state,
           tick,
           actors: r.state.actors.map((a) =>
-            r.timelines.get(a.id)!.advance(r.world, a, tick),
+            r.timelines
+              .get(a.id)!
+              .advance(
+                r.world,
+                a,
+                tick,
+                tick >= (r.state.gathering.players[a.id]?.readyTick ?? 0) &&
+                  r.state.gathering.players[a.id]?.inventory.some(
+                    (s) => s?.item === "starter-blade",
+                  ),
+              ),
           ),
         };
+        const combat = stepCombat(
+          r.world,
+          r.state.actors,
+          r.state.slime!,
+          tick,
+          new Set(
+            r.state.actors
+              .filter((a) => now - (r.seen.get(a.id) ?? 0) < 3000)
+              .map((a) => a.id),
+          ),
+        );
+        r.state = { ...r.state, ...combat };
         for (const [player, pending] of r.gathers) {
           const { command, generation } = pending;
           const actor = r.state.actors.find((a) => a.id === player);
@@ -611,6 +650,11 @@ export async function createRealtimeGateway(options: {
             actor.position,
             command,
             tick,
+            actor.combat?.health === 0
+              ? "dead"
+              : combatBusy(actor.combat, tick)
+                ? "busy"
+                : undefined,
           );
           r.state = { ...r.state, gathering: next };
           if (

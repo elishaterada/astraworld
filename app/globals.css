@@ -1108,3 +1108,52 @@ kbd {
     margin-left: 4px;
   }
 }
+
+.combat-hud {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  width: 190px;
+  color: #f4ead5;
+  pointer-events: none;
+  padding: 10px 12px;
+  background: #152e2ad9;
+  border: 1px solid #c8bb8640;
+  border-radius: 5px;
+}
+.health-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+.combat-hud meter {
+  display: block;
+  width: 100%;
+  height: 12px;
+  margin-top: 3px;
+}
+.combat-hud meter::-webkit-meter-bar {
+  background: #17221e;
+  border: 0;
+}
+.combat-hud meter::-webkit-meter-optimum-value {
+  background: #cf745d;
+}
+.combat-hud small {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+}
+.slime-label {
+  color: #ffe2ba;
+  background: #392c29d9;
+  border-color: #de967259;
+}
+@media (max-width: 600px) {
+  .combat-hud {
+    left: 12px;
+    bottom: 12px;
+    width: 155px;
+  }
+}

@@ -25,3 +25,8 @@ Player death cancels actions, clears motion and respawns safely with retained it
 ## Acceptance
 
 One swing hits each eligible target at most once; walls and cooldowns cannot be bypassed; forged damage/position messages do nothing; dead actors cannot act; duplicate death processing cannot award twice; both clients agree on health/death; attacks cannot damage friendly players or curious Slimes. Browser check must show tells, impact and recovery clearly with two overlapping players.
+
+
+## M3 implemented reference
+
+The implemented values and decisions are recorded in [M3_COMBAT.md](milestones/M3_COMBAT.md), with validated tuning in `packages/content/combat.ts`. `stepCombat` is pure and the server alone calls it for outcomes. Client input frames carry optional attack/dodge flags, never targets, damage, positions or success claims. Hit IDs live in the attack state until recovery ends; Slime defeat is a stable ID/death-tick tombstone and awards nothing. Combat state is part of the same fenced checkpoint as inventory. Dodge is limited by both 15 server ticks and 15 consumed movement frames; 9 ticks are invulnerable. Missing frames may shorten travel. The hostile encounter is at (64.5,48.5); chase uses swept direct steering and an eight-tile habitat bound. It does not implement general navigation around obstacles. Player respawn is after 120 ticks, at the original member slot, with 120 ticks of protection and retained items. Blade/Slime damage uses present server state; no rewind. See the mission for exact verification results.

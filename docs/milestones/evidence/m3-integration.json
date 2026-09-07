@@ -1,0 +1,20 @@
+{
+  "node": "v24.13.0",
+  "ownerCrash": {
+    "recoveryMs": 10156,
+    "oldOwner": "crash-B",
+    "newOwner": "crash-A",
+    "oldEpoch": 1,
+    "newEpoch": 2
+  },
+  "gatewayA": {
+    "ticks": 552,
+    "rejected": 61,
+    "fenced": 0
+  },
+  "gatewayB": {
+    "ticks": 170,
+    "rejected": 0,
+    "fenced": 0
+  }
+}

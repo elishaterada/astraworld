@@ -1,3 +1,4 @@
+import type { Slime } from "../packages/protocol/combat";
 import { decodeDepletion } from "../packages/protocol/resources";
 import { resourceNodes } from "../packages/world/resources";
 import { type Progress, type GatherCommand } from "../packages/content";
@@ -88,6 +89,9 @@ export async function joinMeadow(
 
 export class MeadowConnection {
   progress?: Progress;
+  slime?: Slime;
+  private attackQueued = false;
+  private dodgeQueued = false;
   depleted: string[] = [];
   private gatherPending?: GatherCommand;
   status = "Connecting…";
@@ -158,6 +162,15 @@ export class MeadowConnection {
       return false;
     this.gatherPending = { seq: (this.progress.receipt?.seq ?? 0) + 1, target };
     return true;
+  }
+  attack() {
+    this.attackQueued = true;
+  }
+  dodge() {
+    this.dodgeQueued = true;
+  }
+  get visualTick() {
+    return this.tick + Math.min(150, this.snapshotAge) / 1000 / DT;
   }
   wave() {
     this.waveQueued = true;
@@ -243,6 +256,7 @@ export class MeadowConnection {
       this.tick = s.tick;
       this.owner = s.owner;
       this.progress = s.progress;
+      this.slime = s.slime;
       if (s.depleted)
         this.depleted =
           decodeDepletion(this.nodes, s.depleted) ?? this.depleted;
@@ -350,6 +364,9 @@ export class MeadowConnection {
       !this.actor.moving &&
       facing === this.actor.facing &&
       !this.waveQueued &&
+      !this.attackQueued &&
+      !this.dodgeQueued &&
+      !(this.actor.combat && this.visualTick < this.actor.combat.dodgeUntil) &&
       !this.pending.length
     )
       return this.position;
@@ -358,8 +375,12 @@ export class MeadowConnection {
       keys,
       facing,
       ...(this.waveQueued ? { wave: true as const } : {}),
+      ...(this.attackQueued ? { attack: true as const } : {}),
+      ...(this.dodgeQueued ? { dodge: true as const } : {}),
     };
     this.waveQueued = false;
+    this.attackQueued = false;
+    this.dodgeQueued = false;
     this.pending.push(frame);
     this.actor = applyFrame(
       this.world,

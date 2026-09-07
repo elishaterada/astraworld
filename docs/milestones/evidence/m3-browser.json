@@ -1,0 +1,85 @@
+{
+  "browser": "153.0.8010.12",
+  "addedRttMs": 150,
+  "delayLayer": "application WebSocket callbacks/send (not TCP loss)",
+  "tell": {
+    "phase": "tell",
+    "health": 90
+  },
+  "dodge": {
+    "health": 90,
+    "spawn": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "attack": null,
+    "attackReady": 0,
+    "dodgeUntil": 681,
+    "dodgeReady": 726,
+    "dodgeSteps": 1,
+    "dodgeFacing": 2,
+    "invulnerableUntil": 675,
+    "respawnAt": 0,
+    "damageTick": 612,
+    "deaths": 0
+  },
+  "death": {
+    "health": 0,
+    "spawn": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "attack": null,
+    "attackReady": 0,
+    "dodgeUntil": 0,
+    "dodgeReady": 726,
+    "dodgeSteps": 0,
+    "dodgeFacing": 2,
+    "invulnerableUntil": 675,
+    "respawnAt": 1482,
+    "damageTick": 1362,
+    "deaths": 1
+  },
+  "respawn": {
+    "health": 100,
+    "spawn": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "attack": null,
+    "attackReady": 0,
+    "dodgeUntil": 0,
+    "dodgeReady": 0,
+    "dodgeSteps": 0,
+    "dodgeFacing": 2,
+    "invulnerableUntil": 1602,
+    "respawnAt": 0,
+    "damageTick": 0,
+    "deaths": 1
+  },
+  "defeated": {
+    "id": "hostile-slime:meadow-001:north-trail",
+    "kind": "hostile-slime",
+    "position": {
+      "x": 64.5,
+      "y": 52.93333333333308
+    },
+    "home": {
+      "x": 64.5,
+      "y": 48.5
+    },
+    "health": 0,
+    "phase": "dead",
+    "phaseTick": 1915,
+    "target": null,
+    "impact": {
+      "x": 64.5,
+      "y": 52.93333333333308
+    },
+    "damageTick": 1915,
+    "deathTick": 1915
+  },
+  "inventoryRetained": true,
+  "reload": true,
+  "errors": []
+}

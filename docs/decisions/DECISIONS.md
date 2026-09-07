@@ -82,3 +82,8 @@ User explicitly requested lighting, mist, ponds, bonfires and a fuller natural M
 ## 2026-09-07 — M2 session gathering
 
 The user authorized the next milestone after accepting Living Meadow. M2 uses typed Zod-validated content, single-flight sequential gather commands, and atomic fenced checkpoint publication for inventory/depletion/receipts. See [M2 mission](../milestones/M2_GATHERING_INVENTORY.md). Solid stumps retain tree collision. No new service or durable saving; M3 remains outside scope.
+
+
+## 2026-09-07 — M3 combat authorized
+
+The user accepted the M3 proposal with “lets implement.” Implement one blade, dodge, hostile Slime, health and retained-item respawn using the existing Vercel-compatible runner and Redis checkpoint. No cloud provisioning, durable saves, drops or M4 mechanics. Scope and evidence: [M3 mission](../milestones/M3_COMBAT.md).

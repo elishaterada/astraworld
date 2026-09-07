@@ -145,7 +145,14 @@ export function createModelKit() {
     box(hatchet, 0x8c6843, [0.06, 0.56, 0.06], [0, -0.42, 0.13]);
     box(hatchet, 0xa6bec1, [0.29, 0.18, 0.1], [0.09, -0.17, 0.13]);
     hatchet.visible = false;
+    const blade = new T.Group();
+    arms[1].add(blade);
+    box(blade, 0x6b4935, [0.075, 0.25, 0.075], [0, -0.4, 0.13]);
+    box(blade, 0xd7b477, [0.32, 0.07, 0.12], [0, -0.52, 0.13]);
+    box(blade, 0xd4e3df, [0.14, 0.75, 0.06], [0, -0.92, 0.13]);
+    blade.visible = false;
     return {
+      blade,
       root,
       body,
       legs,

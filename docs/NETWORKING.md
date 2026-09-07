@@ -93,3 +93,8 @@ The user requested immediate client-side response with bounded synchronization t
 ## Four-character membership compatibility
 
 The cosmetic enum now accepts `fern`, `ember`, `iris`, and `hazel`. Appearance is chosen only at membership admission; snapshots and recovery retain that server-stored choice. New clients and Vercel/local gateways use `ROOM_REVISION=p8-c4` for Redis namespaces and tab session storage. This isolates older three-character strict validators during deployment overlap. Old temporary rooms/invitations are not migrated; refresh and create a new Meadow. Capacity remains eight, with no new movement or action messages.
+
+
+## M3 combat extension
+
+`combat-1` / `p8-c4-m3` isolates the additional strict schemas from old rooms. Optional discrete attack/dodge flags use the existing sequenced frame runs: they appear only on the first frame of a run, cannot coalesce into other actions, and participate in conflicting-replay checks. Only the room owner resolves damage and AI at 60 Hz. Actor combat and the one Slime instance are immutable checkpoint fields and publish with the existing 10 Hz fenced snapshot. New connection generations retain committed health, cooldowns, hits, respawn state and defeat. The client predicts movement and gestures, replays outstanding input against confirmed state, and never predicts damage or rewards. The 150 ms RTT browser check delays WebSocket sends/callbacks; it is not a repeat of the historical TCP-loss gate.

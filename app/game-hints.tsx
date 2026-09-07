@@ -5,23 +5,26 @@ const HINT_KEY = "meadow-controls-seen-v1";
 export function FirstPlayHint({
   active,
   onDismiss,
+  combat = false,
 }: {
   active: boolean;
+  combat?: boolean;
   onDismiss: () => void;
 }) {
+  const hintKey = combat ? "meadow-combat-controls-seen-v1" : HINT_KEY;
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     try {
-      setVisible(localStorage.getItem(HINT_KEY) !== "1");
+      setVisible(localStorage.getItem(hintKey) !== "1");
     } catch {
       setVisible(true);
     }
-  }, []);
+  }, [hintKey]);
   function dismiss() {
     setVisible(false);
     onDismiss();
     try {
-      localStorage.setItem(HINT_KEY, "1");
+      localStorage.setItem(hintKey, "1");
     } catch {
       /* Storage may be disabled. */
     }
@@ -31,17 +34,26 @@ export function FirstPlayHint({
     const timer = setTimeout(() => {
       setVisible(false);
       try {
-        localStorage.setItem(HINT_KEY, "1");
+        localStorage.setItem(hintKey, "1");
       } catch {
         /* Session-only hint. */
       }
     }, 10000);
     return () => clearTimeout(timer);
-  }, [active, visible]);
+  }, [active, visible, hintKey]);
   return visible ? (
     <div className="first-play-hint" role="status">
       <span>
-        <kbd>WASD</kbd> Move <kbd>E</kbd> Gather <kbd>I</kbd> Satchel
+        {combat ? (
+          <>
+            <kbd>Click / J</kbd> Blade <kbd>Shift</kbd> Dodge · Slime on the
+            north trail
+          </>
+        ) : (
+          <>
+            <kbd>WASD</kbd> Move <kbd>E</kbd> Gather <kbd>I</kbd> Satchel
+          </>
+        )}
       </span>
       <button
         onClick={dismiss}
@@ -91,6 +103,8 @@ export function GatherNotice({ progress }: { progress?: Progress }) {
     } else
       setMessage(
         {
+          dead: "Recovering — items are safe",
+          busy: "Finish your action first",
           depleted: "Already gathered",
           range: "Move closer",
           blocked: "Path blocked",

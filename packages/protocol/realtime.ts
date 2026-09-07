@@ -1,3 +1,4 @@
+import { combatSchema, slimeSchema } from "./combat";
 import { gatherCommandSchema, progressSchema } from "../content";
 import { MAX_PLAYERS } from "./capacity";
 import { z } from "zod";
@@ -17,6 +18,8 @@ export const runSchema = z
     count: z.number().int().min(1).max(60),
     ...controls,
     wave: z.literal(true).optional(),
+    attack: z.literal(true).optional(),
+    dodge: z.literal(true).optional(),
   })
   .strict();
 export const packetSchema = z.discriminatedUnion("type", [
@@ -43,7 +46,7 @@ export type Run = z.infer<typeof runSchema>;
 export type Frame = Omit<Run, "count">;
 export const actionSchema = z
   .object({
-    kind: z.enum(["wave", "gather"]),
+    kind: z.enum(["wave", "gather", "attack", "dodge"]),
     resource: z.enum(["tree", "berry-bush"]).optional(),
     seq: integer,
     generation: integer,
@@ -66,6 +69,7 @@ export const realtimeActorSchema = z
     facing: controls.facing,
     moving: z.boolean(),
     action: actionSchema.nullable(),
+    combat: combatSchema.optional(),
   })
   .strict();
 export type RealtimeActor = z.infer<typeof realtimeActorSchema>;
@@ -80,6 +84,7 @@ export const realtimeSnapshotSchema = z
     selfId: id,
     actors: z.array(realtimeActorSchema).max(MAX_PLAYERS),
     progress: progressSchema.optional(),
+    slime: slimeSchema.optional(),
     depleted: z
       .string()
       .max(4096)
@@ -116,7 +121,11 @@ export function packFrames(frames: Frame[]): Run[] {
     if (
       last &&
       !f.wave &&
+      !f.attack &&
+      !f.dodge &&
       !last.wave &&
+      !last.attack &&
+      !last.dodge &&
       last.count < 60 &&
       last.seq + last.count === f.seq &&
       last.keys === f.keys &&

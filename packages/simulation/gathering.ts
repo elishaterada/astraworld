@@ -62,6 +62,7 @@ export function gather(
   position: Position,
   command: GatherCommand,
   tick: number,
+  unavailable?: "dead" | "busy",
 ): GatheringState {
   const p = state.players[player];
   if (!p || command.seq !== (p.receipt?.seq ?? 0) + 1) return state;
@@ -69,7 +70,8 @@ export function gather(
     definition = CONTENT.resources.find((d) => d.id === node?.kind);
   let result: NonNullable<Progress["receipt"]>["result"] = "gathered";
   let inventory = p.inventory;
-  if (!node || !definition) result = "missing";
+  if (unavailable) result = unavailable;
+  else if (!node || !definition) result = "missing";
   else if (state.depleted.includes(node.id)) result = "depleted";
   else if (Math.hypot(node.x - position.x, node.y - position.y) > 1.5)
     result = "range";

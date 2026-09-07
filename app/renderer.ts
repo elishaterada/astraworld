@@ -1,3 +1,4 @@
+import type { CombatState, Slime } from "../packages/protocol/combat";
 import { resourceNodes } from "../packages/world/resources";
 import { freshProgress, type Progress } from "../packages/content";
 import { emptyGathering, gather } from "../packages/simulation/gathering";
@@ -25,6 +26,8 @@ const live = {
   textures: 0,
 };
 export type SandboxReport = {
+  health?: number;
+  slimeHealth?: number;
   x: number;
   y: number;
   paused: boolean;
@@ -36,6 +39,8 @@ export type SandboxReport = {
   gathering?: boolean;
 };
 export type DebugSnapshot = {
+  combat?: CombatState;
+  slime?: Slime;
   progress?: Progress;
   depleted: string[];
   target?: { id: string; kind: string; x: number; y: number };
@@ -55,7 +60,12 @@ export type DebugSnapshot = {
   seed: string;
   username: string;
   character: CharacterId;
-  visual: { rotation: number; gait: number; waving: boolean };
+  visual: {
+    rotation: number;
+    gait: number;
+    waving: boolean;
+    attacking: boolean;
+  };
   environment: {
     phase: number;
     ponds: number;
@@ -95,6 +105,7 @@ export type DebugSnapshot = {
       facing: number;
       moving: boolean;
       action: RealtimeActor["action"];
+      combat?: CombatState;
     }[];
   };
 };
@@ -207,6 +218,10 @@ export function mountMeadow(
       new URLSearchParams(location.search).get("debug") === "1";
     debug = {
       snapshot: (): DebugSnapshot => ({
+        combat: network?.actor.combat
+          ? structuredClone(network.actor.combat)
+          : undefined,
+        slime: network?.slime ? structuredClone(network.slime) : undefined,
         progress: progress() ? structuredClone(progress()) : undefined,
         depleted: [...depleted()],
         target: nearest(),
@@ -230,6 +245,7 @@ export function mountMeadow(
           rotation: view.local.root.rotation.y,
           gait: view.local.legs[0].rotation.x,
           waving: view.local.waving,
+          attacking: view.local.blade.visible,
         },
         renderer: view.stats(),
         environment: view.environment(),
@@ -267,6 +283,7 @@ export function mountMeadow(
                   facing: a.facing,
                   moving: a.moving,
                   action: a.action,
+                  combat: a.combat,
                 })),
               },
             }
@@ -284,6 +301,8 @@ export function mountMeadow(
         progress: progress(),
         target: nearest()?.kind,
         gathering: network?.gathering,
+        health: network?.actor.combat?.health,
+        slimeHealth: network?.slime?.health,
       });
     const pause = () => {
       keys.clear();
@@ -333,6 +352,17 @@ export function mountMeadow(
               (Math.round(Math.atan2(y, x) / (Math.PI / 4)) + 8) % 8;
         }
       }
+      if (
+        e.code === "KeyJ" ||
+        e.code === "ShiftLeft" ||
+        e.code === "ShiftRight"
+      ) {
+        e.preventDefault();
+        if (!paused && !e.repeat) {
+          if (e.code === "KeyJ") network?.attack();
+          else network?.dodge();
+        }
+      }
       if (e.code === "KeyE") {
         e.preventDefault();
         const target = nearest();
@@ -379,10 +409,12 @@ export function mountMeadow(
         keys.delete(e.code);
       }
     }) as EventListener);
-    listen(host, "pointerdown", () => {
+    listen(host, "pointerdown", ((e: PointerEvent) => {
+      const wasPaused = paused;
       host.focus();
       resume();
-    });
+      if (!wasPaused && e.button === 0) network?.attack();
+    }) as EventListener);
     listen(host, "focus", resume);
     listen(host, "blur", pause);
     listen(window, "blur", pause);
@@ -426,9 +458,25 @@ export function mountMeadow(
         Math.abs(state.x - previous.x) + Math.abs(state.y - previous.y) >
           0.0001;
       const actor = network?.actor;
-      view.resources(depleted(), nearest());
+      const combatVisual = (a: RealtimeActor) => ({
+        health: a.combat?.health,
+        hurt:
+          !!a.combat &&
+          a.combat.damageTick > 0 &&
+          network!.visualTick - a.combat.damageTick < 10,
+        dodging: !!a.combat && network!.visualTick < a.combat.dodgeUntil,
+        attackAge: a.combat?.attack
+          ? Math.max(0, network!.visualTick - a.combat.attack.startedTick)
+          : undefined,
+      });
+      view.combat(network?.slime, network?.visualTick ?? 0);
+      view.resources(
+        depleted(),
+        actor?.combat?.health === 0 ? undefined : nearest(),
+      );
       view.draw(
         {
+          ...(actor ? combatVisual(actor) : {}),
           id: session?.playerId ?? "solo",
           name: username,
           character,
@@ -452,6 +500,7 @@ export function mountMeadow(
             : walkTime < soloWaveUntil,
         },
         (network?.remotes() ?? []).map((a) => ({
+          ...combatVisual(a),
           id: a.id,
           name: a.name,
           character: characterId(a.character),

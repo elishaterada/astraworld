@@ -119,7 +119,7 @@ function Meadow({
         className="playfield"
         tabIndex={0}
         role="application"
-        aria-label="Meadow game. Move with WASD or arrow keys. Point to face. Space waves. E gathers the highlighted resource. Escape pauses and releases keyboard focus."
+        aria-label="Meadow game. Move with WASD or arrow keys. Point to face. Space waves. Click or J attacks. Shift dodges. E gathers the highlighted resource. Escape pauses and releases keyboard focus."
       />
       <div className="game-vignette" aria-hidden="true" />
       <div className="location-hud">
@@ -255,7 +255,7 @@ function Meadow({
             ))}
           </div>
           <p className="inventory-footnote">
-            Starter tools · Blade use comes later
+            Starter tools · Click / J to swing your blade
           </p>
           <p className="inventory-shortcut">
             <kbd>I</kbd> or <kbd>esc</kbd> Close
@@ -294,8 +294,21 @@ function Meadow({
               : "Pick berries"}
         </div>
       )}
+      {status?.health !== undefined && (
+        <div className="combat-hud" aria-label="Player health">
+          <div className="health-caption">
+            <span>{status.health === 0 ? "Recovering…" : username}</span>
+            <span>{status.health} / 100</span>
+          </div>
+          <meter min={0} max={100} value={status.health} aria-label="Health" />
+          {status.health === 0 && (
+            <small role="status">Returning to camp · Items retained</small>
+          )}
+        </div>
+      )}
       <GatherNotice progress={status?.progress} />
       <FirstPlayHint
+        combat={!!session}
         active={!!status && !status.paused}
         onDismiss={() => host.current?.focus()}
       />
@@ -323,6 +336,10 @@ function Meadow({
           <dl>
             <dt>Move</dt>
             <dd>WASD / arrow keys</dd>
+            <dt>Blade</dt>
+            <dd>Click / J</dd>
+            <dt>Dodge</dt>
+            <dd>Shift + direction</dd>
             <dt>Gather</dt>
             <dd>E</dd>
             <dt>Satchel</dt>
@@ -335,6 +352,13 @@ function Meadow({
             <dd>Escape</dd>
           </dl>
         </details>
+        {session && (
+          <p className="fine-print">
+            A wild Slime lurks along the north trail. Watch its amber slam
+            circle, dodge out, then counterattack. Defeat it with three blade
+            hits.
+          </p>
+        )}
         {session ? (
           <div className="invite-panel">
             <label htmlFor="invite-link">Invite a friend</label>

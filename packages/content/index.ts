@@ -118,6 +118,8 @@ export const receiptSchema = gatherCommandSchema
   .extend({
     result: z.enum([
       "gathered",
+      "dead",
+      "busy",
       "depleted",
       "range",
       "blocked",
