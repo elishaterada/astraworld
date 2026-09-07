@@ -589,7 +589,7 @@ export function mountMeadow(
           ticks++;
         }
       }
-      if (!paused) walkTime += dt;
+      if (!paused || network) walkTime += dt;
       elapsedFrames += dt;
       if (
         debugEnabled &&

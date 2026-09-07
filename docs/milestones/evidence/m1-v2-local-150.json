@@ -12,9 +12,9 @@
   "remoteFacing": 4,
   "remoteAction": {
     "kind": "wave",
-    "seq": 135,
+    "seq": 134,
     "generation": 1,
-    "startedTick": 346
+    "startedTick": 340
   },
   "reconnectedGeneration": 2,
   "messagesSent": 86,

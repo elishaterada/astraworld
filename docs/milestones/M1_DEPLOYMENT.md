@@ -43,3 +43,5 @@ Remaining check: real TCP/IP packet loss and retransmission/head-of-line bufferi
 ## Protocol 2 responsiveness follow-up
 
 Runtime `dc7ec84` deployed on the existing Vercel project and Redis service. The new two-browser hosted movement/facing/wave checks passed, including added 300 ms application RTT, a dropped action message and five-second application outage. See [the current contract and verification status](M1_RESPONSIVENESS.md). The earlier protocol-1 10-second gap measurements in this document remain historical evidence; they must not be presented as protocol-2 results.
+
+Protocol-2 hosted renewal / real deployment overlap also **passed**: 260 seconds, two independent authenticated contexts, owners spanning `dc7ec84` and `419c3c7`, preserved identities, approximately 59.95 Hz simulation and a maximum observed snapshot gap of 320.4 ms. See [raw lifecycle measurements](evidence/m1-v2-hosted-lifecycle.json). These measurements do not replace true TCP-loss testing or establish a worst-case latency guarantee.
