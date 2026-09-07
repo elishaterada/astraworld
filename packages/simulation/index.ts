@@ -49,14 +49,23 @@ function sweep(
 }
 /** One fixed tick only. Reject malformed intent; position is owned by the harness. */
 export function step(world: World, state: Position, input: Input): Position {
+  return moveFor(world, state, input, STEP_SECONDS);
+}
+/** Trusted simulation duration; never use an inbound client duration here. */
+export function moveFor(
+  world: World,
+  state: Position,
+  input: Input,
+  seconds: number,
+): Position {
   if (!Number.isFinite(input.x) || !Number.isFinite(input.y)) return state;
   const x = Math.max(-1, Math.min(1, input.x)),
     y = Math.max(-1, Math.min(1, input.y));
   const length = Math.max(1, Math.hypot(x, y));
   return sweep(
     world,
-    sweep(world, state, (x / length) * SPEED * STEP_SECONDS, "x"),
-    (y / length) * SPEED * STEP_SECONDS,
+    sweep(world, state, (x / length) * SPEED * seconds, "x"),
+    (y / length) * SPEED * seconds,
     "y",
   );
 }

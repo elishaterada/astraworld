@@ -2,6 +2,8 @@
 
 **M0 is complete locally (G0/R0/R1 and ten-minute performance PASS)**; see [its completion evidence](milestones/M0_COMPLETION.md). M1 has a [deployed implementation](milestones/M1_DEPLOYMENT.md) with lifecycle/overlap verification passed and true TCP packet-loss validation pending; M2–M9 are **not started**. Milestone names below normalize the different numbering used in the conversation; use these IDs in future tasks.
 
+M1 responsiveness revision: [protocol 2 contract and evidence](milestones/M1_RESPONSIVENESS.md), including Vercel-only hosting, predicted input, facing and wave synchronization.
+
 ## Sequence and gates
 
 | Milestone | Entry / owner | Deliverable and exit gate | Explicit stop line |

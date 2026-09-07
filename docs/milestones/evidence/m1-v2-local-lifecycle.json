@@ -1,0 +1,43 @@
+{
+  "browser": "153.0.8010.12",
+  "requestedDurationMs": 26000,
+  "clients": [
+    {
+      "observedMs": 26319.20000001788,
+      "maxGapMs": 199.30000001192093,
+      "p95GapMs": 121.09999999403954,
+      "serverHz": 59.614273990050386,
+      "generations": [
+        1,
+        2
+      ],
+      "owners": [
+        "realtime-a",
+        "realtime-b"
+      ],
+      "epochs": [
+        1,
+        2
+      ]
+    },
+    {
+      "observedMs": 26320.59999999404,
+      "maxGapMs": 200.69999998807907,
+      "p95GapMs": 121,
+      "serverHz": 59.61110309036858,
+      "generations": [
+        1,
+        2
+      ],
+      "owners": [
+        "realtime-a",
+        "realtime-b"
+      ],
+      "epochs": [
+        1,
+        2
+      ]
+    }
+  ],
+  "errors": []
+}

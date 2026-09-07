@@ -1,0 +1,54 @@
+{
+  "browser": "153.0.8010.12",
+  "nominalRttMs": 300,
+  "jitterRttMs": 30,
+  "loss": "1% application messages, not IP packets",
+  "outbound": 254,
+  "inbound": 126,
+  "dropped": 3,
+  "resyncs": 0,
+  "initial": {
+    "status": "Connected",
+    "epoch": 1,
+    "generation": 1,
+    "owner": "realtime-a",
+    "gateway": "realtime-a",
+    "tick": 0,
+    "selfId": "bd28caef-24db-4a73-b6e6-f708412265e1",
+    "authoritative": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "facing": 2,
+    "moving": false,
+    "action": null,
+    "ack": 0,
+    "sent": 0,
+    "sentBytes": 0,
+    "snapshotAge": 16.30000001192093,
+    "correction": 0,
+    "remotes": []
+  },
+  "recovered": {
+    "status": "Connected",
+    "epoch": 2,
+    "generation": 2,
+    "owner": "realtime-b",
+    "gateway": "realtime-b",
+    "tick": 1065,
+    "selfId": "bd28caef-24db-4a73-b6e6-f708412265e1",
+    "authoritative": {
+      "x": 64.76666666666665,
+      "y": 64.5
+    },
+    "facing": 0,
+    "moving": false,
+    "action": null,
+    "ack": 0,
+    "sent": 352,
+    "sentBytes": 53998,
+    "snapshotAge": 7,
+    "correction": 0,
+    "remotes": []
+  }
+}

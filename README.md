@@ -21,16 +21,16 @@ Requires Node.js 22.12+, npm and Redis (`brew install redis` on macOS). Run `npm
 npm run game:redis
 
 # Terminal 2: first gateway / runner candidate
-GATEWAY_ID=local-a npm run game:server
+GATEWAY_ID=local-a npm run game:realtime
 
 # Terminal 3: second gateway / runner candidate
-GAME_PORT=3102 GATEWAY_ID=local-b npm run game:server
+GAME_PORT=3104 GATEWAY_ID=local-b npm run game:realtime
 
 # Terminal 4: frontend
 npm run dev -- --port 3002
 ```
 
-Open [Astraworld locally](http://127.0.0.1:3002), choose an adventurer name and a character colorway (Fern, Ember or Iris), and press **Enter Meadow**. The game requests fullscreen; unavailable fullscreen falls back to the full browser viewport. **WASD / arrows** move, **Escape** releases focus, and **Menu** pauses your input. Other players keep exploring while your menu is open. Trees, rocks and map edges are solid.
+Open [Astraworld locally](http://127.0.0.1:3002), choose an adventurer name and a character colorway (Fern, Ember or Iris), and press **Enter Meadow**. The game requests fullscreen; unavailable fullscreen falls back to the full browser viewport. **WASD / arrows** move, **pointing** sets facing, **Space** waves, **Escape** releases focus, and **Menu** pauses your input. Other players keep exploring while your menu is open. Trees, rocks and map edges are solid.
 
 In **Menu → Invite a friend**, press **Copy invite link** and send it to your friend. They open it, choose their own name and look, then enter the same world. For a local two-player test, open the link in another browser profile or incognito window. The private link admits one additional player. A third member is rejected. Local loopback links work on this computer only. Nearby friends show their selected colorway and a name marker (circle, diamond or star). Reloading offers **Resume Meadow** with the same identity and look. Choices are cosmetic and are not reserved; choose different looks to distinguish the pair. The connection indicator reports connecting, connected or reconnecting.
 
@@ -42,9 +42,9 @@ For the optimized frontend use `npm run build`, then `npm start -- --port 3002` 
 
 ## Hosted play
 
-[Open the deployed Meadow](https://astraworld-teradas.vercel.app). The deployment retains Vercel authentication protection, so access requires your authorized Vercel session. Hosted clients use same-origin `/api/meadow` endpoints automatically; they do not connect to the visitor's localhost. `REDIS_URL` remains server-only. See [hosting evidence](docs/milestones/M1_DEPLOYMENT.md).
+[Open the deployed Meadow](https://astraworld-teradas.vercel.app). The deployment retains Vercel authentication protection, so access requires your authorized Vercel session. Hosted clients use same-origin `/api/meadow-v2` endpoints automatically; they do not connect to the visitor's localhost. `REDIS_URL` remains server-only. See [hosting evidence](docs/milestones/M1_DEPLOYMENT.md).
 
-Production and preview rooms use separate Redis namespaces. The hosted lifecycle exercise sets a 60-second function duration and rotates room ownership at 45 seconds. Brief reconnect feedback can appear during these transitions. The deployed world remains a temporary session prototype.
+Production and preview rooms use separate Redis namespaces. The new M1 protocol uses 60 Hz local prediction, bounded input batches, replicated facing/walking/waves and proactive socket renewal within Vercel. See [the responsiveness contract and evidence](docs/milestones/M1_RESPONSIVENESS.md). Old sessions remain on protocol 1; refresh and create a new invitation for protocol 2. The world remains a temporary session prototype.
 
 ## Verification
 
@@ -55,7 +55,7 @@ npm run build
 npx playwright install chromium
 # With all four services running:
 BASE_URL=http://127.0.0.1:3002 npm run test:browser
-# Start both gateways with ROTATION_MS=60000 for this exercise:
+# Start both v2 gateways with SOCKET_AGE_MS=60000 for this exercise:
 BASE_URL=http://127.0.0.1:3002 npm run test:multiplayer-soak
 ```
 

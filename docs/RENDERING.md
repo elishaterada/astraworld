@@ -1,5 +1,7 @@
 # Rendering contract
 
+**Current M1 implementation:** [protocol 2 responsiveness contract](milestones/M1_RESPONSIVENESS.md). It supersedes the earlier 20 Hz prediction / per-tick Redis / 45-second rotation reference. Broader future-system proposals below remain outside M1.
+
 ## Ownership
 
 Next.js/React owns entry screens, session flow, inventory panels and settings. A client-only PixiJS canvas owns world sprites, terrain, camera and effects. React receives low-frequency UI state; do not run the simulation tick or every sprite position through React state.

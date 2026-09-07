@@ -1,0 +1,22 @@
+{
+  "browser": "153.0.8010.12",
+  "addedRoundTripMs": 300,
+  "applicationMessageDropped": true,
+  "fiveSecondApplicationOutage": false,
+  "immediateMovementTiles": 0.19999999999998863,
+  "movementTiles": 1.9999999999998863,
+  "gateways": [
+    "realtime-a",
+    "realtime-b"
+  ],
+  "remoteFacing": 4,
+  "remoteAction": {
+    "kind": "wave",
+    "seq": 135,
+    "generation": 1,
+    "startedTick": 346
+  },
+  "reconnectedGeneration": 2,
+  "messagesSent": 86,
+  "errors": []
+}

@@ -85,7 +85,7 @@ test("R0 actual keyboard movement, camera, boundary sliding, resize and focus", 
   const props = await snapshot(page);
   expect(props.collision).toBe(false);
   await page.screenshot({
-    path: "docs/milestones/evidence/m1-regression-gameplay.png",
+    path: "docs/milestones/evidence/m1-v2-regression-gameplay.png",
   });
   await page.setViewportSize({ width: 960, height: 720 });
   await page.waitForTimeout(200);
@@ -130,7 +130,7 @@ test("R0 actual keyboard movement, camera, boundary sliding, resize and focus", 
   expect(slide.collision).toBe(false);
   expect(errors).toEqual([]);
   writeFileSync(
-    "docs/milestones/evidence/m1-regression-browser.json",
+    "docs/milestones/evidence/m1-v2-regression-browser.json",
     JSON.stringify(
       {
         browser: browser.version(),
@@ -192,7 +192,7 @@ test("R1 repeated real unmount/remount and rapid initialization cancellation", a
   expect(heaps.at(-1)! - heaps[2]).toBeLessThan(8 * 1024 * 1024);
   expect(errors).toEqual([]);
   writeFileSync(
-    "docs/milestones/evidence/m1-regression-lifecycle.json",
+    "docs/milestones/evidence/m1-v2-regression-lifecycle.json",
     JSON.stringify(
       { cycles: 12, rapidCycles: 4, resources: baseline, heaps, errors },
       null,
@@ -272,7 +272,7 @@ test("username gate, viewport fallback and local display name", async ({
   await page.goto("/?solo=1&debug=1");
   await expect(page.locator(".playfield canvas")).toHaveCount(0);
   await page.screenshot({
-    path: "docs/milestones/evidence/m1-regression-entry.png",
+    path: "docs/milestones/evidence/m1-v2-regression-entry.png",
   });
   await page.getByRole("button", { name: "Enter Meadow", exact: true }).click();
   await expect(page.locator("#name-error")).toContainText("2–20");
@@ -291,7 +291,7 @@ test("username gate, viewport fallback and local display name", async ({
   await page.getByRole("button", { name: "Dismiss fullscreen notice" }).click();
   await page.getByRole("application").focus();
   await page.screenshot({
-    path: "docs/milestones/evidence/m1-regression-first-game.png",
+    path: "docs/milestones/evidence/m1-v2-regression-first-game.png",
   });
 
   expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(
@@ -317,7 +317,7 @@ test("native fullscreen entry and exit preserve a playable viewport", async ({
   expect(fullscreen.width).toBe(await page.evaluate(() => innerWidth));
   expect(fullscreen.height).toBe(await page.evaluate(() => innerHeight));
   writeFileSync(
-    "docs/milestones/evidence/m1-regression-fullscreen.json",
+    "docs/milestones/evidence/m1-v2-regression-fullscreen.json",
     JSON.stringify(
       {
         nativeFullscreen: true,

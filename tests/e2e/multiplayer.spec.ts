@@ -48,7 +48,7 @@ test("N0/N2 two independent browsers see movement and recover on the other gatew
     const Native = window.WebSocket;
     window.WebSocket = class extends Native {
       constructor(url: string | URL, protocols?: string | string[]) {
-        super(String(url).replace(":3101/", ":3102/"), protocols);
+        super(String(url).replace(":3103/", ":3104/"), protocols);
       }
     };
   });
@@ -70,8 +70,8 @@ test("N0/N2 two independent browsers see movement and recover on the other gatew
       null,
       { timeout: 15000 },
     );
-    expect(connectionsA[0]).toContain(":3101/");
-    expect(connectionsB[0]).toContain(":3102/");
+    expect(connectionsA[0]).toContain(":3103/");
+    expect(connectionsB[0]).toContain(":3104/");
     const initial = await snapshot(a);
     expect((await snapshot(b)).network!.selfId).not.toBe(
       initial.network!.selfId,
@@ -110,14 +110,16 @@ test("N0/N2 two independent browsers see movement and recover on the other gatew
     await a.waitForFunction(
       () => window.__MEADOW__?.snapshot().network?.status === "Connected",
     );
-    expect(connectionsA.some((url) => url.includes(":3102/"))).toBe(true);
+    expect(connectionsA.some((url) => url.includes(":3104/"))).toBe(true);
     const resumed = await snapshot(a);
     expect(resumed.network!.selfId).toBe(initial.network!.selfId);
     expect(resumed.network!.remotes).toHaveLength(1);
     await expect(a.locator(".multiplayer-note")).toContainText("Connected");
-    await a.screenshot({ path: "docs/milestones/evidence/m1-two-player.png" });
+    await a.screenshot({
+      path: "docs/milestones/evidence/m1-v2-two-player.png",
+    });
     writeFileSync(
-      "docs/milestones/evidence/m1-browser.json",
+      "docs/milestones/evidence/m1-v2-browser.json",
       JSON.stringify(
         {
           browser: browser.version(),
@@ -169,7 +171,7 @@ for (const nominalRtt of [150, 300])
         if (msg.type === "resync") resyncs++;
         if (outage) return;
         const n = ++outbound;
-        if (msg.type === "input" && n % 100 === 0) {
+        if (msg.type === "frames" && n % 100 === 0) {
           dropped++;
           return;
         }
@@ -200,7 +202,9 @@ for (const nominalRtt of [150, 300])
       clientRoute.send(
         JSON.stringify({ ...last, full: false, baseTick: 999999 }),
       );
-      await expect.poll(() => resyncs).toBeGreaterThan(0);
+      // Protocol 2 ignores invalid deltas and awaits the next periodic full projection.
+      await page.waitForTimeout(300);
+      expect((await snapshot(page)).state.x).toBeGreaterThan(60);
       const epoch = (await snapshot(page)).network!.epoch;
       clientRoute.send(
         JSON.stringify({
@@ -226,7 +230,7 @@ for (const nominalRtt of [150, 300])
       expect(recovered.collision).toBe(false);
       expect(recovered.network!.selfId).toBe(initial.network!.selfId);
       writeFileSync(
-        `docs/milestones/evidence/m1-degraded${nominalRtt === 150 ? "" : "-300"}.json`,
+        `docs/milestones/evidence/m1-v2-degraded${nominalRtt === 150 ? "" : "-300"}.json`,
         JSON.stringify(
           {
             browser: browser.version(),

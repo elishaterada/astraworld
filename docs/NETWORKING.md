@@ -1,5 +1,7 @@
 # Realtime multiplayer and networking
 
+**Current M1 implementation:** [protocol 2 responsiveness contract](milestones/M1_RESPONSIVENESS.md). It supersedes the earlier 20 Hz prediction / per-tick Redis / 45-second rotation reference. Broader future-system proposals below remain outside M1.
+
 ## Authority and provisional budgets
 
 Clients submit intents. The server owns position, velocity bounds, collision, health, cooldowns, loot, inventories, creature ownership and world edits. Clients own input collection, camera, animation, sound and visual prediction.
@@ -83,3 +85,7 @@ Session admission validates `character` against `fern | ember | iris` (omission 
 The optional `characters:true` hello capability opts into the additive actor field. Redis snapshot fanout and checkpoints retain the original actor shape, protecting strict clients connected to gateways from the preceding deployment. New gateways enrich opted-in projections from membership metadata, cached for at most the room's two players and cleared with the room. A new member triggers one coalesced metadata read. Failed reads skip publication until recovery; no unvalidated appearance is invented. Clients without the capability receive the original strict schema. This cosmetic metadata is independent of the fenced movement checkpoint.
 
 A new client pointed explicitly at an old gateway cannot use the new hello capability or admission field; update the configured gateways together. Hosted pages and same-origin endpoints switch with their deployment. This extension requires no new service or durable schema migration.
+
+## Responsiveness review
+
+The user requested immediate client-side response with bounded synchronization traffic. The [2026-09-06 responsiveness research](research/MULTIPLAYER_RESPONSIVENESS.md) distinguishes verified game-developer sources from inference and proposes an M1 revision. It identifies prediction/send-clock coupling, acknowledgement semantics, correction smoothing, Redis waits and routine hosted handoffs as investigation targets. Its proposed targets and architecture changes are not yet implemented or accepted performance results. The previous recovery pass must not be treated as proof of smooth ordinary play.

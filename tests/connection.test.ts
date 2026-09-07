@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { MeadowConnection } from "../app/network";
+import { MeadowConnection } from "../app/network-legacy";
 const session = {
   worldId: "00000000-0000-4000-8000-000000000001",
   playerId: "00000000-0000-4000-8000-000000000002",

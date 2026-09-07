@@ -29,6 +29,7 @@ export class Store {
   constructor(
     url: string,
     readonly prefix: string,
+    readonly leaseMs = LEASE_MS,
   ) {
     if (!/^(local|test|preview|production):[a-zA-Z0-9_-]+$/.test(prefix))
       throw Error("Use an explicit environment namespace");
@@ -189,10 +190,10 @@ export class Store {
     return Number(
       await this.redis.eval(
         `if redis.call('EXISTS',KEYS[1])==1 then return 0 end
-      local epoch=redis.call('INCR',KEYS[2]); redis.call('SET',KEYS[1],ARGV[1]..':'..epoch,'PX',10000); return epoch`,
+      local epoch=redis.call('INCR',KEYS[2]); redis.call('SET',KEYS[1],ARGV[1]..':'..epoch,'PX',ARGV[2]); return epoch`,
         {
           keys: [this.key(world, "lease"), this.key(world, "epoch")],
-          arguments: [owner],
+          arguments: [owner, String(this.leaseMs)],
         },
       ),
     );
@@ -201,8 +202,11 @@ export class Store {
     return (
       Number(
         await this.redis.eval(
-          `if redis.call('GET',KEYS[1])~=ARGV[1] then return 0 end redis.call('PEXPIRE',KEYS[1],10000); return 1`,
-          { keys: [this.key(world, "lease")], arguments: [token] },
+          `if redis.call('GET',KEYS[1])~=ARGV[1] then return 0 end redis.call('PEXPIRE',KEYS[1],ARGV[2]); return 1`,
+          {
+            keys: [this.key(world, "lease")],
+            arguments: [token, String(this.leaseMs)],
+          },
         ),
       ) === 1
     );

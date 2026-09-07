@@ -1,5 +1,7 @@
 # Technical architecture
 
+**Current M1 implementation:** [protocol 2 responsiveness contract](milestones/M1_RESPONSIVENESS.md). It supersedes the earlier 20 Hz prediction / per-tick Redis / 45-second rotation reference. Broader future-system proposals below remain outside M1.
+
 ## Decision summary
 
 Build a TypeScript monorepo around a pure 2D simulation. Next.js hosts web UI on Vercel. PixiJS is the preferred client renderer. WebSockets carry player intents and authoritative snapshots. Redis coordinates hot room state; Postgres stores durable changes from M6 onward.

@@ -67,3 +67,7 @@ Visual review checks text legibility, target overlap, friendly/hostile distincti
 
 
 `tests/e2e/characters.spec.ts` covers the M1 entry selector, clipboard invitation, two independent identities observing matching cosmetics and real movement, plus reload/resume. Its default evidence prefix is `m1-character`; `CHARACTER_EVIDENCE_PREFIX` can preserve a separate hosted run. For protected hosted verification, `HOSTED_ACCESS_FILE` may point to a private JSON file containing the Vercel automation `secret`; never store it in Git. [Character update results](milestones/M1_CHARACTERS.md) record checks and limitations. Existing game-canvas assertions are scoped to `.playfield canvas`, excluding entry portraits.
+
+## M1 protocol 2 checks
+
+`tests/realtime*.test.ts` covers frame validation, normalized movement, exact replay, time budgets, wave idempotency/cooldown, client batching, generation fencing and independent Redis-backed gateways. `tests/e2e/realtime.spec.ts` uses two independent authenticated browser contexts, added application delay, a dropped wave message and a sustained application outage. These do not simulate TCP retransmissions. `REALTIME_LIFECYCLE=1 LIFECYCLE_MS=26000` runs the browser renewal observation against local gateways started with `SOCKET_AGE_MS=20000`. Hosted observation uses the normal 240-second renewal and at least 260000 ms. See [current acceptance evidence](milestones/M1_RESPONSIVENESS.md).

@@ -85,7 +85,7 @@ function Meadow({
         className="playfield"
         tabIndex={0}
         role="application"
-        aria-label="Meadow game. Move with WASD or arrow keys. Escape pauses and releases keyboard focus."
+        aria-label="Meadow game. Move with WASD or arrow keys. Point to face. Space waves. Escape pauses and releases keyboard focus."
       />
       <div className="game-vignette" aria-hidden="true" />
       <div className="location-hud">
@@ -166,7 +166,7 @@ function Meadow({
           <kbd>S</kbd>
           <kbd>D</kbd>
         </span>
-        <span>or arrow keys to wander</span>
+        <span>or arrows to wander{session ? " · Point to face · Space to wave" : ""}</span>
         <i />
         <kbd>esc</kbd>
         <span>pause</span>
@@ -373,7 +373,7 @@ export default function Sandbox() {
     setResuming(false);
     setInvited(false);
     setSession(undefined);
-    sessionStorage.removeItem("meadow-session");
+    sessionStorage.removeItem("meadow-session-v2");
     setFullscreenNote("");
     if (document.fullscreenElement)
       void document.exitFullscreen().catch(() => {});

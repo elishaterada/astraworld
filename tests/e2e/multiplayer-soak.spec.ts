@@ -18,7 +18,7 @@ test("M1 ten-minute two-player traversal and planned owner rotations", async ({
     const Native = window.WebSocket;
     window.WebSocket = class extends Native {
       constructor(url: string | URL, protocols?: string | string[]) {
-        super(String(url).replace(":3101/", ":3102/"), protocols);
+        super(String(url).replace(":3103/", ":3104/"), protocols);
       }
     };
   });
@@ -29,7 +29,7 @@ test("M1 ten-minute two-player traversal and planned owner rotations", async ({
     p.on("pageerror", (e) => errors.push(e.message));
   const stats = async () =>
     Promise.all(
-      [3101, 3102].map(async (port) =>
+      [3103, 3104].map(async (port) =>
         (await fetch(`http://127.0.0.1:${port}/health`)).json(),
       ),
     );
@@ -108,7 +108,7 @@ test("M1 ten-minute two-player traversal and planned owner rotations", async ({
     });
     const afterStats = await stats();
     writeFileSync(
-      "docs/milestones/evidence/m1-soak.json",
+      "docs/milestones/evidence/m1-v2-soak.json",
       JSON.stringify(
         {
           browser: browser.version(),

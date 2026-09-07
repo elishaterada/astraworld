@@ -1,0 +1,120 @@
+{
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "connectionsA": [
+    "ws://127.0.0.1:3103/play",
+    "ws://127.0.0.1:3104/play"
+  ],
+  "connectionsB": [
+    "ws://127.0.0.1:3104/play"
+  ],
+  "initial": {
+    "status": "Connected",
+    "epoch": 1,
+    "generation": 1,
+    "owner": "realtime-a",
+    "gateway": "realtime-a",
+    "tick": 131,
+    "selfId": "4566e34c-7844-4e17-b77e-3020cb155865",
+    "authoritative": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "facing": 2,
+    "moving": false,
+    "action": null,
+    "ack": 0,
+    "sent": 2,
+    "sentBytes": 222,
+    "snapshotAge": 19.700000017881393,
+    "correction": 0,
+    "remotes": [
+      {
+        "id": "2e27f70a-4746-418b-8604-1cacfa024558",
+        "name": "Mika",
+        "character": "fern",
+        "position": {
+          "x": 64.5,
+          "y": 64.5
+        },
+        "facing": 2,
+        "moving": false,
+        "action": null
+      }
+    ]
+  },
+  "moved": {
+    "status": "Connected",
+    "epoch": 1,
+    "generation": 1,
+    "owner": "realtime-a",
+    "gateway": "realtime-a",
+    "tick": 200,
+    "selfId": "4566e34c-7844-4e17-b77e-3020cb155865",
+    "authoritative": {
+      "x": 67.29999999999984,
+      "y": 64.5
+    },
+    "facing": 0,
+    "moving": false,
+    "action": null,
+    "ack": 65,
+    "sent": 26,
+    "sentBytes": 3924,
+    "snapshotAge": 82.59999999403954,
+    "correction": 0,
+    "remotes": [
+      {
+        "id": "2e27f70a-4746-418b-8604-1cacfa024558",
+        "name": "Mika",
+        "character": "fern",
+        "position": {
+          "x": 64.5,
+          "y": 64.5
+        },
+        "facing": 2,
+        "moving": false,
+        "action": null
+      }
+    ]
+  },
+  "resumed": {
+    "status": "Connected",
+    "epoch": 2,
+    "generation": 2,
+    "owner": "realtime-b",
+    "gateway": "realtime-b",
+    "tick": 319,
+    "selfId": "4566e34c-7844-4e17-b77e-3020cb155865",
+    "authoritative": {
+      "x": 67.29999999999984,
+      "y": 64.5
+    },
+    "facing": 0,
+    "moving": false,
+    "action": null,
+    "ack": 0,
+    "sent": 61,
+    "sentBytes": 9236,
+    "snapshotAge": 5.700000017881393,
+    "correction": 0,
+    "remotes": [
+      {
+        "id": "2e27f70a-4746-418b-8604-1cacfa024558",
+        "name": "Mika",
+        "character": "fern",
+        "position": {
+          "x": 64.5,
+          "y": 64.5
+        },
+        "facing": 2,
+        "moving": false,
+        "action": null
+      }
+    ]
+  },
+  "errors": []
+}

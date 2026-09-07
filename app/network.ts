@@ -1,26 +1,31 @@
+import { type Session } from "../packages/protocol";
 import {
-  snapshotSchema,
-  VERSION,
-  type Session,
-  type Snapshot,
-  type Actor,
-} from "../packages/protocol";
+  REALTIME_VERSION,
+  DT,
+  packFrames,
+  realtimeSnapshotSchema,
+  type Frame,
+  type RealtimeActor,
+  type RealtimeSnapshot,
+} from "../packages/protocol/realtime";
 import {
   CONTENT_VERSION,
   GENERATION_VERSION,
   generateWorld,
+  SPAWN,
 } from "../packages/world";
 import {
-  step,
   interpolate,
+  collides,
   type Position,
   type Input,
 } from "../packages/simulation";
+import { applyFrame } from "../packages/simulation/realtime";
 import { characterId, type CharacterId } from "../packages/characters";
 export function savedSession(): Session | undefined {
   try {
     const value = JSON.parse(
-      sessionStorage.getItem("meadow-session") ?? "null",
+      sessionStorage.getItem("meadow-session-v2") ?? "null",
     );
     if (
       value?.worldId &&
@@ -40,8 +45,8 @@ export const gateways = () => {
     typeof location !== "undefined" &&
     !["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)
   )
-    return [`${location.origin}/api/meadow`];
-  return ["http://127.0.0.1:3101", "http://127.0.0.1:3102"];
+    return [`${location.origin}/api/meadow-v2`];
+  return ["http://127.0.0.1:3103", "http://127.0.0.1:3104"];
 };
 export async function joinMeadow(
   name: string,
@@ -68,7 +73,7 @@ export async function joinMeadow(
         last = data.error ?? last;
         break;
       }
-      sessionStorage.setItem("meadow-session", JSON.stringify(data));
+      sessionStorage.setItem("meadow-session-v2", JSON.stringify(data));
       return data as Session;
     } catch {
       /* Try another configured gateway. */
@@ -76,45 +81,79 @@ export async function joinMeadow(
   }
   throw Error(last);
 }
+
 export class MeadowConnection {
   status = "Connecting…";
-  position: Position = { x: 64.5, y: 64.5 };
+  position: Position = { ...SPAWN };
+  authoritative: Position = this.position;
   generation = 0;
   epoch = 0;
   tick = 0;
   owner = "";
   gateway = "";
-  authoritative: Position = this.position;
+  sent = 0;
+  sentBytes = 0;
+  correction = 0;
+  actor: RealtimeActor;
   private socket: WebSocket | null = null;
+  private candidate: WebSocket | null = null;
   private disposed = false;
-  private timer: ReturnType<typeof setTimeout> | undefined;
-  private seq = 0;
+  private terminal = false;
   private attempt = 0;
   private endpoint = 0;
+  private retry: ReturnType<typeof setTimeout> | undefined;
+  private timer: ReturnType<typeof setInterval>;
+  private seq = 0;
+  private lastSend = 0;
+  private pending: Frame[] = [];
+  private snapshots: { at: number; data: RealtimeSnapshot }[] = [];
   private lastSnapshot = 0;
-  private pending: { seq: number; input: Input }[] = [];
-  private snapshots: { at: number; data: Snapshot }[] = [];
+  private openedAt = 0;
+  private renewAt = 0;
+  private baseline = false;
+  private offset = { x: 0, y: 0 };
   private world;
+  private waveQueued = false;
   constructor(readonly session: Session) {
     this.world = generateWorld(session.seed);
+    this.actor = {
+      id: session.playerId,
+      name: session.name,
+      character: characterId(session.character),
+      position: this.position,
+      generation: 0,
+      ack: 0,
+      facing: 2,
+      moving: false,
+      action: null,
+    };
     this.connect();
+    this.timer = setInterval(() => this.flush(), 50);
+  }
+  get ack() {
+    return this.actor.ack - this.pending.length;
+  }
+  get snapshotAge() {
+    return performance.now() - this.lastSnapshot;
+  }
+  wave() {
+    this.waveQueued = true;
   }
   private connect() {
-    if (this.disposed) return;
-    this.generation = 0;
+    if (this.disposed || this.terminal || this.candidate) return;
     const endpoints = gateways(),
       url = endpoints[this.endpoint++ % endpoints.length].replace(
         /^http/,
         "ws",
       );
     const socket = new WebSocket(`${url}/play`);
-    this.socket = socket;
+    this.candidate = socket;
+    this.openedAt = performance.now();
     socket.onopen = () =>
       socket.send(
         JSON.stringify({
           type: "hello",
-          characters: true,
-          protocolVersion: VERSION,
+          protocolVersion: REALTIME_VERSION,
           worldId: this.session.worldId,
           token: this.session.token,
           contentVersion: CONTENT_VERSION,
@@ -122,6 +161,7 @@ export class MeadowConnection {
         }),
       );
     socket.onmessage = (event) => {
+      if (this.disposed) return;
       let data;
       try {
         data = JSON.parse(event.data);
@@ -130,134 +170,200 @@ export class MeadowConnection {
       }
       if (
         data.type === "connected" &&
+        socket === this.candidate &&
+        data.protocolVersion === REALTIME_VERSION &&
         data.worldId === this.session.worldId &&
-        Number.isSafeInteger(data.generation)
+        Number.isSafeInteger(data.generation) &&
+        data.generation > 0
       ) {
+        const old = this.socket;
+        this.socket = socket;
+        this.candidate = null;
+        old?.close();
         this.generation = data.generation;
-        this.gateway = typeof data.gateway === "string" ? data.gateway : "";
+        this.gateway = String(data.gateway);
         this.seq = 0;
         this.pending = [];
-        this.snapshots = [];
-        this.tick = 0;
+        this.baseline = false;
+        this.actor = {
+          ...this.actor,
+          generation: this.generation,
+          ack: 0,
+          action: null,
+        };
+        this.lastSnapshot = performance.now();
+        this.renewAt = performance.now() + 240000;
         this.status = "Rejoining the Meadow…";
         return;
       }
-      const parsed = snapshotSchema.safeParse(data);
-      if (!parsed.success) {
-        this.resync();
+      if (socket !== this.socket) return;
+      if (data.type === "renew") {
+        this.connect();
         return;
       }
+      const parsed = realtimeSnapshotSchema.safeParse(data);
+      if (!parsed.success) return;
       const s = parsed.data;
       if (
         s.worldId !== this.session.worldId ||
         s.seed !== this.session.seed ||
-        s.epoch < this.epoch
+        s.epoch < this.epoch ||
+        (this.baseline && s.epoch === this.epoch && s.tick <= this.tick)
       )
         return;
-      if (s.epoch === this.epoch && s.tick <= this.tick) return;
       const self = s.actors.find((a) => a.id === this.session.playerId);
-      if (!self || self.generation !== this.generation) {
-        this.resync();
+      if (!self || self.generation !== this.generation || self.ack > this.seq)
         return;
-      }
-      if (s.epoch !== this.epoch) {
-        this.pending = [];
-        this.snapshots = [];
-      }
+      if (s.epoch !== this.epoch) this.snapshots = [];
+      const before = this.display(0);
       this.epoch = s.epoch;
       this.tick = s.tick;
       this.owner = s.owner;
       this.authoritative = self.position;
-      this.pending = this.pending.filter((p) => p.seq > self.ack);
-      this.position = this.pending.reduce(
-        (p, item) => step(this.world, p, item.input),
-        self.position,
+      this.pending = this.pending.filter((f) => f.seq > self.ack);
+      this.actor = this.pending.reduce(
+        (a, f, i) => applyFrame(this.world, a, f, s.tick + i + 1),
+        self,
       );
+      this.position = this.actor.position;
+      this.correction = Math.hypot(
+        before.x - this.position.x,
+        before.y - this.position.y,
+      );
+      this.offset =
+        this.baseline && this.correction < 1.5
+          ? { x: before.x - this.position.x, y: before.y - this.position.y }
+          : { x: 0, y: 0 };
       this.snapshots.push({ at: performance.now(), data: s });
-      if (this.snapshots.length > 6) this.snapshots.shift();
+      if (this.snapshots.length > 12) this.snapshots.shift();
       this.lastSnapshot = performance.now();
+      this.baseline = true;
       this.status = "Connected";
       this.attempt = 0;
     };
     socket.onclose = (event) => {
-      this.pending = [];
-      this.status =
-        event.code === 4003
-          ? "This session has expired. Leave and start a new Meadow."
-          : event.code === 4001
-            ? "This adventurer is open in another tab."
-            : "Reconnecting…";
-      if (this.disposed || event.code === 4001 || event.code === 4003) return;
-      this.timer = setTimeout(
+      if (socket !== this.socket && socket !== this.candidate) return;
+      if (socket === this.candidate) {
+        this.candidate = null;
+        this.renewAt = performance.now() + 2000;
+      }
+      if (socket === this.socket) this.socket = null;
+      if (this.disposed) return;
+      if (event.code === 4001 && this.candidate) return; // Our replacement already authenticated.
+      if (event.code === 4003 || event.code === 4001) {
+        this.terminal = true;
+        this.status =
+          event.code === 4003
+            ? "This session has expired. Leave and start a new Meadow."
+            : "This adventurer is open in another tab.";
+        return;
+      }
+      if (this.socket || this.candidate) return;
+      this.status = "Reconnecting…";
+      this.baseline = false;
+      this.retry = setTimeout(
         () => this.connect(),
-        Math.min(10000, 500 * 2 ** Math.min(5, this.attempt++)) *
-          (0.8 + Math.random() * 0.4),
+        Math.min(2000, 200 * 2 ** Math.min(4, this.attempt++)),
       );
     };
     socket.onerror = () => socket.close();
-    // Open connections with a lost owner/fanout must also recover, not hang forever.
-    this.lastSnapshot = performance.now();
   }
-  private resync() {
-    if (this.socket?.readyState === WebSocket.OPEN)
-      this.socket.send(
-        JSON.stringify({
-          type: "resync",
-          protocolVersion: VERSION,
-          worldId: this.session.worldId,
-        }),
-      );
-  }
-  advance(input: Input) {
-    const age = performance.now() - this.lastSnapshot;
-    if (age > 1000 && this.status === "Connected")
-      this.status = "Reconnecting…";
-    // An authenticated socket can wait through the 10s owner lease without retry churn.
-    const deadline = this.generation ? 15000 : 3000;
-    if (age > deadline && this.socket?.readyState === WebSocket.OPEN)
-      this.socket.close();
-    if (this.generation && this.socket?.readyState === WebSocket.OPEN) {
-      const movement = this.status === "Connected" ? input : { x: 0, y: 0 };
-      const seq = ++this.seq;
-      if (this.socket.bufferedAmount > 16384) {
-        this.socket.close();
-        return this.position;
-      }
-      this.socket.send(
-        JSON.stringify({
-          type: "input",
-          protocolVersion: VERSION,
-          worldId: this.session.worldId,
-          generation: this.generation,
-          seq,
-          movement,
-        }),
-      );
-      if (this.status === "Connected") {
-        this.pending.push({ seq, input: movement });
-        if (this.pending.length > 40) {
-          this.pending = [];
-          this.status = "Reconnecting…";
-          return this.position;
-        }
-        this.position = step(this.world, this.position, movement);
-      }
+  private flush() {
+    if (this.disposed || this.terminal) return;
+    const now = performance.now();
+    if (this.candidate && now - this.openedAt > 5000) this.candidate.close();
+    const socket = this.socket;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    if (now >= this.renewAt && !this.candidate) this.connect();
+    if (this.snapshotAge > 750) this.status = "Reconnecting…";
+    if (this.snapshotAge > 5000) {
+      socket.close();
+      return;
     }
+    if (socket.bufferedAmount > 16384) {
+      socket.close();
+      return;
+    }
+    if (!this.pending.length && now - this.lastSend < 1000) return;
+    this.lastSend = now;
+    const raw = JSON.stringify({
+      type: "frames",
+      protocolVersion: REALTIME_VERSION,
+      worldId: this.session.worldId,
+      generation: this.generation,
+      runs: packFrames(this.pending),
+    });
+    socket.send(raw);
+    this.sent++;
+    this.sentBytes += raw.length;
+  }
+  advance(input: Input, facing = this.actor.facing) {
+    if (!this.baseline || this.snapshotAge > 750 || this.pending.length >= 60) {
+      this.actor = { ...this.actor, moving: false };
+      return this.position;
+    }
+    const keys =
+      (input.y < 0 ? 1 : 0) |
+      (input.y > 0 ? 2 : 0) |
+      (input.x < 0 ? 4 : 0) |
+      (input.x > 0 ? 8 : 0);
+    if (
+      !keys &&
+      !this.actor.moving &&
+      facing === this.actor.facing &&
+      !this.waveQueued &&
+      !this.pending.length
+    )
+      return this.position;
+    const frame: Frame = {
+      seq: ++this.seq,
+      keys,
+      facing,
+      ...(this.waveQueued ? { wave: true as const } : {}),
+    };
+    this.waveQueued = false;
+    this.pending.push(frame);
+    this.actor = applyFrame(
+      this.world,
+      this.actor,
+      frame,
+      this.tick + this.pending.length,
+    );
+    this.position = this.actor.position;
     return this.position;
   }
-  remotes(): Actor[] {
+  display(dt: number): Position {
+    const decay = Math.exp(-dt / 0.08);
+    this.offset.x *= decay;
+    this.offset.y *= decay;
+    const p = {
+      x: this.position.x + this.offset.x,
+      y: this.position.y + this.offset.y,
+    };
+    return collides(this.world, p) ? this.position : p;
+  }
+  remotes(): RealtimeActor[] {
     const latest = this.snapshots.at(-1);
     if (!latest) return [];
-    const target = performance.now() - 100;
-    const after = this.snapshots.find((s) => s.at >= target) ?? latest;
+    // A server-tick timeline avoids stretching gait with each individual packet's arrival jitter.
+    const target =
+      latest.data.tick +
+      Math.min(150, performance.now() - latest.at) / 1000 / DT -
+      9;
+    const after = this.snapshots.find((s) => s.data.tick >= target) ?? latest;
     const before =
-      this.snapshots.filter((s) => s.at <= target).at(-1) ?? this.snapshots[0];
+      this.snapshots.filter((s) => s.data.tick <= target).at(-1) ??
+      this.snapshots[0];
     const alpha =
-      after.at === before.at
+      after.data.tick === before.data.tick
         ? 1
-        : Math.min(
-            1,
-            Math.max(0, (target - before.at) / (after.at - before.at)),
+        : Math.max(
+            0,
+            Math.min(
+              1,
+              (target - before.data.tick) /
+                (after.data.tick - before.data.tick),
+            ),
           );
     return latest.data.actors
       .filter((a) => a.id !== this.session.playerId)
@@ -265,7 +371,8 @@ export class MeadowConnection {
         const b = before.data.actors.find((p) => p.id === a.id),
           c = after.data.actors.find((p) => p.id === a.id);
         return {
-          ...a,
+          ...(alpha < 1 ? (b ?? a) : (c ?? a)),
+          moving: this.snapshotAge < 300 && (c ?? a).moving,
           position:
             b && c
               ? interpolate(this.world, b.position, c.position, alpha)
@@ -275,7 +382,9 @@ export class MeadowConnection {
   }
   dispose() {
     this.disposed = true;
-    clearTimeout(this.timer);
+    clearInterval(this.timer);
+    clearTimeout(this.retry);
     this.socket?.close();
+    this.candidate?.close();
   }
 }

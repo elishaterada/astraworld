@@ -23,6 +23,7 @@ import {
 import { loadMeadowArt, terrainTexture } from "./art";
 import { screenToWorld, TILE_PIXELS, worldToScreen } from "./camera";
 
+import { DT, type RealtimeActor } from "../packages/protocol/realtime";
 import { MeadowConnection } from "./network";
 import {
   CHARACTERS,
@@ -73,11 +74,22 @@ export type DebugSnapshot = {
     tick: number;
     selfId: string;
     authoritative: Position;
+    facing: number;
+    moving: boolean;
+    action: RealtimeActor["action"];
+    ack: number;
+    sent: number;
+    sentBytes: number;
+    snapshotAge: number;
+    correction: number;
     remotes: {
       id: string;
       name: string;
       character: CharacterId;
       position: Position;
+      facing: number;
+      moving: boolean;
+      action: RealtimeActor["action"];
     }[];
   };
 };
@@ -200,11 +212,24 @@ export function mountMeadow(
     body.tint = CHARACTERS[character].tint;
     body.anchor.set(0.5, 1);
     body.scale.set(48 / body.texture.height);
-    avatar.addChild(shadow, body);
+    const waveLabel = new Text({
+      text: "✋ wave",
+      style: {
+        fontFamily: "Georgia",
+        fontSize: 14,
+        fill: 0xffedb8,
+        stroke: { color: 0x15392d, width: 3 },
+      },
+    });
+    waveLabel.anchor.set(0.5, 1);
+    waveLabel.y = -62;
+    waveLabel.visible = false;
+    avatar.addChild(shadow, body, waveLabel);
     objects.addChild(avatar);
     const peers = new Map<string, Container>();
     let facing: "down" | "up" | "right" | "left" = "down",
       walkTime = 0;
+    let facingIndex = 2;
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -256,11 +281,22 @@ export function mountMeadow(
                 tick: network.tick,
                 selfId: network.session.playerId,
                 authoritative: { ...network.authoritative },
+                facing: network.actor.facing,
+                moving: network.actor.moving,
+                action: network.actor.action,
+                ack: network.ack,
+                sent: network.sent,
+                sentBytes: network.sentBytes,
+                snapshotAge: network.snapshotAge,
+                correction: network.correction,
                 remotes: network.remotes().map((a) => ({
                   id: a.id,
                   name: a.name,
                   character: characterId(a.character),
                   position: { ...a.position },
+                  facing: a.facing,
+                  moving: a.moving,
+                  action: a.action,
                 })),
               },
             }
@@ -311,7 +347,22 @@ export function mountMeadow(
     listen(host, "keydown", ((e: KeyboardEvent) => {
       if (movementCodes.has(e.code)) {
         e.preventDefault();
-        if (!paused) keys.add(e.code);
+        if (!paused) {
+          keys.add(e.code);
+          const x =
+            Number(keys.has("KeyD") || keys.has("ArrowRight")) -
+            Number(keys.has("KeyA") || keys.has("ArrowLeft"));
+          const y =
+            Number(keys.has("KeyS") || keys.has("ArrowDown")) -
+            Number(keys.has("KeyW") || keys.has("ArrowUp"));
+          if (x || y)
+            facingIndex =
+              (Math.round(Math.atan2(y, x) / (Math.PI / 4)) + 8) % 8;
+        }
+      }
+      if (e.code === "Space" && network) {
+        e.preventDefault();
+        if (!paused && !e.repeat) network.wave();
       }
       if (e.code === "Escape") {
         e.preventDefault();
@@ -342,7 +393,6 @@ export function mountMeadow(
     });
     // This transform is shared with future targeting; M0 has no interaction commands.
     listen(host, "pointermove", ((e: PointerEvent) => {
-      if (!debugEnabled) return;
       const bounds = host.getBoundingClientRect();
       const p = screenToWorld(
         {
@@ -353,11 +403,53 @@ export function mountMeadow(
         app.screen.width,
         app.screen.height,
       );
-      host.dataset.pointerWorld = `${p.x.toFixed(3)},${p.y.toFixed(3)}`;
+      if (!paused && Math.hypot(p.x - rendered.x, p.y - rendered.y) > 0.2)
+        facingIndex =
+          (Math.round(
+            Math.atan2(p.y - rendered.y, p.x - rendered.x) / (Math.PI / 4),
+          ) +
+            8) %
+          8;
+      if (debugEnabled)
+        host.dataset.pointerWorld = `${p.x.toFixed(3)},${p.y.toFixed(3)}`;
     }) as EventListener);
+    function pose(
+      sprite: Sprite,
+      direction: number,
+      moving: boolean,
+      time: number,
+    ) {
+      const face =
+        direction === 6 || direction === 5 || direction === 7
+          ? "up"
+          : direction === 2 || direction === 1 || direction === 3
+            ? "down"
+            : direction === 4
+              ? "left"
+              : "right";
+      const gait = [0, 1, 0, 2][
+        moving && !reducedMotion ? Math.floor(time * 8) % 4 : 0
+      ];
+      sprite.texture =
+        art[
+          face === "up"
+            ? gait
+              ? 15
+              : 11
+            : face === "down"
+              ? 8 + gait
+              : 12 + gait
+        ];
+      sprite.scale.set(
+        ((face === "left" ? -1 : 1) * 48) / art[8].height,
+        48 / art[8].height,
+      );
+    }
     function draw() {
       const alpha = accumulator / STEP_SECONDS;
-      rendered = interpolate(world, previous, state, alpha);
+      rendered = network
+        ? network.display(Math.min(app.ticker.deltaMS / 1000, 0.1))
+        : interpolate(world, previous, state, alpha);
       camera = rendered;
       root.position.set(
         app.screen.width / 2 - camera.x * TILE_PIXELS,
@@ -400,7 +492,10 @@ export function mountMeadow(
         const sprite = peer.children[0] as Sprite;
         const label = peer.children[1] as Text;
         sprite.tint = look.tint;
-        label.text = `${look.mark} ${actor.name}`;
+        const waving =
+          actor.action && network!.tick - actor.action.startedTick < 48;
+        label.text = `${look.mark} ${actor.name}${waving ? " · ✋ wave" : ""}`;
+        pose(sprite, actor.facing, actor.moving, walkTime);
         label.style.fill = look.color;
         peer.position.set(actor.position.x * 32, actor.position.y * 32);
         peer.zIndex = actor.position.y;
@@ -436,6 +531,15 @@ export function mountMeadow(
         ((facing === "left" ? -1 : 1) * 48) / art[8].height,
         48 / art[8].height,
       );
+      if (network) {
+        pose(body, network.actor.facing, network.actor.moving, walkTime);
+        waveLabel.visible =
+          !!network.actor.action &&
+          network.tick +
+            Math.max(0, network.actor.ack - network.ack) -
+            network.actor.action.startedTick <
+            48;
+      }
       const rx = app.screen.width / 64 + 4,
         ry = app.screen.height / 64 + 5;
       for (const f of flowers)
@@ -467,7 +571,8 @@ export function mountMeadow(
       const dt = Math.min(app.ticker.deltaMS / 1000, 0.25);
       if (!paused || network) {
         accumulator += dt;
-        while (accumulator + 1e-10 >= STEP_SECONDS) {
+        const fixed = network ? DT : STEP_SECONDS;
+        while (accumulator + 1e-10 >= fixed) {
           previous = state;
           const input = {
             x:
@@ -477,8 +582,10 @@ export function mountMeadow(
               Number(!paused && (keys.has("KeyS") || keys.has("ArrowDown"))) -
               Number(!paused && (keys.has("KeyW") || keys.has("ArrowUp"))),
           };
-          state = network ? network.advance(input) : step(world, state, input);
-          accumulator = Math.max(0, accumulator - STEP_SECONDS);
+          state = network
+            ? network.advance(input, facingIndex)
+            : step(world, state, input);
+          accumulator = Math.max(0, accumulator - fixed);
           ticks++;
         }
       }
