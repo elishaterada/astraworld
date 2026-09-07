@@ -267,6 +267,31 @@ describe("M1 real Redis and WebSocket authority", () => {
     );
     expect(await closed).toBe(4003);
   });
+  it("coalesces bounded intents while the Redis adapter is slow", async () => {
+    const session = await store.create("Latency");
+    const c = await client(3191, session);
+    await until(() => c.snapshots.length > 0);
+    const original = a.store.input.bind(a.store);
+    a.store.input = async (...args) => {
+      await sleep(120);
+      return original(...args);
+    };
+    try {
+      for (let i = 0; i < 10; i++) {
+        c.input(i === 9 ? 0 : 1, 0);
+        await sleep(50);
+      }
+      await sleep(500);
+      expect(c.ws.readyState).toBe(WebSocket.OPEN);
+      const checkpoint = (await store.read(session.worldId)).checkpoint!;
+      expect(
+        checkpoint.actors.find((x) => x.id === session.playerId)!.ack,
+      ).toBe(10);
+    } finally {
+      a.store.input = original;
+      c.ws.close();
+    }
+  });
   it("pins room generation/content versions and rejects a mismatched room", async () => {
     const s = await store.create("Version");
     const meta = (await store.read(s.worldId)).meta!;

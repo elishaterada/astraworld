@@ -224,11 +224,12 @@ export async function createGateway(options: {
       5000,
     );
     socket.on("error", () => {});
-    socket.on("message", async (raw, binary) => {
+    let queued: NonNullable<ReturnType<typeof parseClient>> | undefined;
+    socket.on("message", (raw, binary) => {
       const now = performance.now();
       tokens = Math.min(40, tokens + (now - rateAt) * 0.03);
       rateAt = now;
-      if (binary || --tokens < 0 || busy) {
+      if (binary || --tokens < 0) {
         metrics.rejected++;
         socket.close(4000, "Invalid traffic");
         return;
@@ -239,6 +240,33 @@ export async function createGateway(options: {
         socket.close(4000, "Invalid message");
         return;
       }
+      if (busy) {
+        if (
+          client &&
+          message.worldId === client.world &&
+          message.type === "resync"
+        )
+          return;
+        if (
+          client &&
+          message.type === "input" &&
+          message.worldId === client.world &&
+          message.generation === client.generation &&
+          message.seq > client.seq &&
+          (queued?.type !== "input" || message.seq > queued.seq)
+        ) {
+          queued = message;
+          return;
+        }
+        metrics.rejected++;
+        socket.close(4000, "Invalid pending input");
+        return;
+      }
+      void processMessage(message);
+    });
+    async function processMessage(
+      message: NonNullable<ReturnType<typeof parseClient>>,
+    ) {
       busy = true;
       try {
         if (!client) {
@@ -300,8 +328,12 @@ export async function createGateway(options: {
         socket.close(store.redis.isReady ? 4000 : 1013, "Session unavailable");
       } finally {
         busy = false;
+        const next = queued;
+        queued = undefined;
+        if (next && socket.readyState === WebSocket.OPEN)
+          void processMessage(next);
       }
-    });
+    }
     socket.on("close", () => {
       clearTimeout(deadline);
       if (client) clients.delete(client);
