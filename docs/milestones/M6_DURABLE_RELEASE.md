@@ -49,3 +49,6 @@ M6 durable worlds start in a new namespace; M5's temporary worlds are not silent
 ### Hosted M6 preview
 
 Source `4846db3` deployed successfully as `dpl_fFJ5vAJsNL6aU4vD8Dp1X6yw4PQX` ([preview](https://astraworld-ebenj4b8p-teradas.vercel.app)). All three actual-browser checks passed in 1.9 minutes: [eight-player identity/actions/admission](evidence/m6-hosted-eight.json), [fresh-browser durable recovery](evidence/m6-hosted-recovery-key.json), and [full two-player adventure](evidence/m6-hosted-browser.json). Production remains the verified M4/M5 deployment. Recovery-menu presentation was polished afterward; its final preview and follow-up check are recorded below.
+
+
+Final UI verification exposed the absolutely positioned entry footer covering the new restore control at 900 px height. The footer now participates in layout, and the browser test explicitly opens the restore disclosure before selecting a file. Recovery screenshots mask invitation fields. The database-backed full journey remained passing; the corrected visible restore flow passed locally. [Direct Neon verification](evidence/m6-hosted-database.json) confirms all three hosted test worlds were saved, including one opened Forest.

@@ -44,3 +44,8 @@ M5 is playable locally, **not fully accepted**. Resolve these gates before M6; n
 ## Subsequent authorization
 
 The user requested “deploy it and proceed to M6.” This explicitly authorizes releasing M4/M5 and beginning M6 despite the recorded outstanding M5 gates. Those measurements and human feedback status remain unchanged; this is an authorization to advance, not a claim that the gates passed.
+
+
+### Subsequent authorized deployment
+
+M4/M5 was committed and pushed as `93412cf` and deployed successfully to production (`dpl_92Z5Civ3rYxaVS7S2fDYZB3qU8Z5`). The [hosted two-player full journey](evidence/m5-hosted-browser.json) passed in 1.3 minutes. This resolves the hosted-journey check only; human playtest and the recorded eight-window frame-time failure remain open. The user separately authorized M6, whose [mission and results](M6_DURABLE_RELEASE.md) record Neon integration and recovery.

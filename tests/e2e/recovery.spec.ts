@@ -15,6 +15,8 @@ test("M6 saved inventory resumes after reload and recovery-key import into a fre
   const a = await browser.newContext({ extraHTTPHeaders }),
     b = await browser.newContext({ extraHTTPHeaders });
   const errors: string[] = [];
+  a.setDefaultTimeout(12000);
+  b.setDefaultTimeout(12000);
   try {
     for (const context of [a, b])
       await context.addInitScript(() => {
@@ -61,7 +63,7 @@ test("M6 saved inventory resumes after reload and recovery-key import into a fre
     const q = await b.newPage();
     q.on("pageerror", (e) => errors.push(e.message));
     await q.goto("/?debug=1");
-    await q.getByText("Restore a saved world", {exact:true}).click();
+    await q.getByText("Restore a saved world", { exact: true }).click();
     await q.getByLabel("Restore recovery key").setInputFiles({
       name: "astraworld-recovery.json",
       mimeType: "application/json",
@@ -101,7 +103,6 @@ test("M6 saved inventory resumes after reload and recovery-key import into a fre
       ) + "\n",
     );
   } finally {
-    await a.close();
-    await b.close();
+    await Promise.allSettled([a.close(), b.close()]);
   }
 });
