@@ -69,7 +69,12 @@ export function applyFrame(
     world,
     actor.position,
     dodging ? direction(combat!.dodgeFacing) : movement(frame.keys),
-    DT * (dodging ? C.dodgeSpeed / 4 : 1),
+    DT *
+      (dodging
+        ? C.dodgeSpeed / 4
+        : frame.keys & 16 && !combatBusy(combat, tick)
+          ? 1.75
+          : 1),
   );
   if (dodging) combat = { ...combat!, dodgeSteps: combat!.dodgeSteps - 1 };
   const acceptedWave =

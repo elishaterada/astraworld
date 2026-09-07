@@ -43,15 +43,12 @@ export function CharacterSelector({
               type="radio"
               name="character"
               value={id}
+              aria-label={CHARACTERS[id].label}
               checked={value === id}
               onChange={() => onChange(id)}
             />
             <span className="character-card">
               <Portrait character={id} />
-              <span style={{ color: CHARACTERS[id].color }}>
-                <span aria-hidden="true">{CHARACTERS[id].mark} </span>
-                {CHARACTERS[id].label}
-              </span>
               <span className="character-check" aria-hidden="true">
                 {value === id ? "✓" : ""}
               </span>

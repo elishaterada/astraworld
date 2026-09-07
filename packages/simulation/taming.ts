@@ -25,6 +25,7 @@ export type MossInstance = Moss & {
   controlReady: number;
 };
 export type TamingState = {
+  travelReady?: Record<string, number>;
   gate: Gate;
   creatures: MossInstance[];
   receipts: Record<string, CompanionReceipt>;

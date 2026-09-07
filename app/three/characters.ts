@@ -60,8 +60,10 @@ export function createModelKit() {
   function character(id: CharacterId) {
     const c = LOOKS[id],
       root = new T.Group(),
+      roll = new T.Group(),
       body = new T.Group();
-    root.add(body);
+    root.add(roll);
+    roll.add(body);
     box(body, c.shirt, [0.48, 0.51, 0.28], [0, 0.88, 0]);
     box(body, 0x674330, [0.5, 0.09, 0.3], [0, 0.65, 0]);
     box(body, 0xd3b568, [0.09, 0.07, 0.025], [0, 0.65, 0.16]);
@@ -166,6 +168,7 @@ export function createModelKit() {
       },
       blade,
       root,
+      roll,
       body,
       legs,
       arms,
@@ -198,6 +201,7 @@ export function animateCharacter(
   waving: boolean,
   time: number,
   reduced: boolean,
+  rollProgress?: number,
 ) {
   // Protocol facing: east=0, south=2, west=4, north=6.
   const angle = Math.PI / 2 - (direction * Math.PI) / 4;
@@ -215,4 +219,21 @@ export function animateCharacter(
     moving && !reduced ? Math.abs(Math.sin(time * 12)) * 0.035 : 0;
   model.gait = gait;
   model.waving = waving;
+  model.roll.position.set(0, 0, 0);
+  model.roll.rotation.set(0, 0, 0);
+  model.body.scale.set(1, 1, 1);
+  if (rollProgress !== undefined && rollProgress >= 0 && rollProgress < 1) {
+    const tuck = Math.sin(Math.PI * rollProgress);
+    // Tumble around the torso, not the feet, with tucked limbs and a low arc.
+    const scale = 1 - tuck * 0.3;
+    model.body.scale.y = scale;
+    model.body.position.y = -0.9 * scale;
+    model.roll.position.y = 0.9 - tuck * 0.12;
+    model.roll.rotation.x = reduced ? 0 : rollProgress * Math.PI * 2;
+    for (const leg of model.legs) leg.rotation.x = -tuck * 1.25;
+    for (const arm of model.arms) {
+      arm.rotation.x = -tuck * 1.8;
+      arm.rotation.z = 0;
+    }
+  }
 }

@@ -127,6 +127,7 @@ export function GatherNotice({ progress }: { progress?: Progress }) {
 }
 
 const COMPANION_MESSAGES: Record<string, string> = {
+  teleported: "Joined your friend.",
   channeling: "Moss is dissolving the vines…",
   opened: "The Forest path is open for everyone",
   "already-open": "The Forest path is already open",
@@ -163,10 +164,22 @@ export function CompanionNotice({
     const key = `${receipt.seq}:${receipt.result}`;
     if (previous.current === key) return;
     previous.current = key;
-    setMessage(COMPANION_MESSAGES[receipt.result]);
+    const travel: Record<string, string> = {
+      teleported: "Joined your friend.",
+      cooldown: "Teleport is cooling down — wait 3 seconds.",
+      missing: "That player is no longer available.",
+      blocked: "No safe route to that player yet.",
+      busy: "Finish combat before teleporting.",
+      dead: "Both players must be alive to teleport.",
+    };
+    setMessage(
+      receipt.action === "teleport"
+        ? travel[receipt.result]
+        : COMPANION_MESSAGES[receipt.result],
+    );
     const timer = setTimeout(() => setMessage(""), 3500);
     return () => clearTimeout(timer);
-  }, [receipt?.seq, receipt?.result]);
+  }, [receipt?.seq, receipt?.result, receipt?.action]);
   return (
     <div className="companion-notice" role="status">
       {message}

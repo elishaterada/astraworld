@@ -1,0 +1,10 @@
+{
+  "result": "pass",
+  "runningTiles": 55.99999999999682,
+  "worldWideRoster": true,
+  "teleportMs": 115,
+  "teleportSurvivesReload": true,
+  "fireShadowLights": 1,
+  "frameP95Ms": 16.700000000000728,
+  "errors": []
+}

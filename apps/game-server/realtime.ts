@@ -1,3 +1,4 @@
+import { teleportTo } from "../../packages/simulation/travel";
 import { receipts, type DurableCommand } from "./durable";
 import { DurableStore, valuableDigest, type DurableState } from "./durable";
 import {
@@ -85,6 +86,7 @@ export async function createRealtimeGateway(options: {
     steps: [] as number[],
   };
   type Client = {
+    qol: boolean;
     socket: WebSocket;
     world: string;
     player: string;
@@ -342,10 +344,14 @@ export async function createRealtimeGateway(options: {
       await subscriber.subscribe(store.key(world, "snapshots"), (raw) => {
         const projection = JSON.parse(raw) as {
           actors: RealtimeActor[];
+          roster: Pick<
+            RealtimeActor,
+            "id" | "name" | "character" | "position"
+          >[];
           companionReceipts: Record<string, CompanionReceipt>;
           gathering: { players: GatheringState["players"]; depleted: string };
         };
-        const { gathering, companionReceipts, ...publicProjection } =
+        const { gathering, companionReceipts, roster, ...publicProjection } =
           projection;
         for (const c of clients) {
           if (c.world !== world) continue;
@@ -357,6 +363,7 @@ export async function createRealtimeGateway(options: {
           if (!self || self.generation !== c.generation) continue;
           send(c.socket, {
             ...publicProjection,
+            ...(c.qol ? { roster } : {}),
             progress: gathering.players[c.player],
             depleted: gathering.depleted,
             selfId: c.player,
@@ -484,7 +491,7 @@ export async function createRealtimeGateway(options: {
     }
     socket.on("message", (raw, binary) => {
       const now = performance.now();
-      tokens = Math.min(40, tokens + (now - rateAt) * 0.03);
+      tokens = Math.min(40, tokens + (now - rateAt) * 0.06);
       rateAt = now;
       const message = !binary && parsePacket(raw.toString());
       if (--tokens < 0 || !message) {
@@ -509,7 +516,13 @@ export async function createRealtimeGateway(options: {
           }
           const generation = await store.attach(message.worldId, player);
           if (socket.readyState !== WebSocket.OPEN) return;
-          client = { socket, world: message.worldId, player, generation };
+          client = {
+            socket,
+            world: message.worldId,
+            player,
+            generation,
+            qol: message.qol === true,
+          };
           clients.add(client);
           await ensureRoom(client.world);
           clearTimeout(deadline);
@@ -685,6 +698,14 @@ export async function createRealtimeGateway(options: {
             state.gathering.depleted,
           ),
         },
+        roster: state.actors
+          .filter((a) => performance.now() - (r.seen.get(a.id) ?? 0) < 3000)
+          .map(({ id, name, character, position }) => ({
+            id,
+            name,
+            character,
+            position,
+          })),
         actors: state.actors.filter(
           (a) => performance.now() - (r.seen.get(a.id) ?? 0) < 3000,
         ),
@@ -836,24 +857,38 @@ export async function createRealtimeGateway(options: {
           if (actor && actor.generation === pending.generation)
             r.state = {
               ...r.state,
-              ...(pending.command.action === "dissolve"
-                ? {
-                    taming: commandDissolve(
+              ...(pending.command.action === "teleport"
+                ? teleportTo(
+                    r.world,
+                    r.state.taming!,
+                    r.state.actors,
+                    actor.id,
+                    pending.command,
+                    new Set(
+                      [...r.seen]
+                        .filter(([, at]) => now - at < 3000)
+                        .map(([id]) => id),
+                    ),
+                    tick,
+                  )
+                : pending.command.action === "dissolve"
+                  ? {
+                      taming: commandDissolve(
+                        r.world,
+                        r.state.taming!,
+                        actor,
+                        pending.command,
+                        tick,
+                      ),
+                    }
+                  : commandCompanion(
                       r.world,
                       r.state.taming!,
+                      r.state.gathering,
                       actor,
                       pending.command,
                       tick,
-                    ),
-                  }
-                : commandCompanion(
-                    r.world,
-                    r.state.taming!,
-                    r.state.gathering,
-                    actor,
-                    pending.command,
-                    tick,
-                  )),
+                    )),
             };
         }
         r.companions.clear();
@@ -902,7 +937,7 @@ export async function createRealtimeGateway(options: {
         if (metrics.steps.length > 12000) metrics.steps.shift();
       }
       if (count > 6) r.lastStep = now;
-      if (now - r.lastCommit >= 100) {
+      if (now - r.lastCommit >= 50) {
         r.lastCommit = now;
         void commit(world, r);
       }

@@ -21,6 +21,9 @@ const stateSchema = z
     slime: slimeSchema.optional(),
     taming: z
       .object({
+        travelReady: z
+          .record(z.string(), z.number().int().nonnegative())
+          .optional(),
         gate: gateSchema,
         creatures: z.array(mossSchema.passthrough()).max(2),
         receipts: z.record(z.string(), companionReceiptSchema),
@@ -66,6 +69,7 @@ export function valuableDigest(s: DurableState) {
     gathering: s.gathering,
     taming: s.taming
       ? {
+          travelReady: s.taming.travelReady,
           gate: s.taming.gate,
           receipts: s.taming.receipts,
           creatures: s.taming.creatures.map((m) => ({
@@ -178,9 +182,7 @@ export class DurableStore {
       c.release();
     }
   }
-  async load(
-    id: string,
-  ): Promise<{
+  async load(id: string): Promise<{
     metadata: Metadata;
     state: DurableState | null;
     revision: number;

@@ -1,4 +1,5 @@
 import type { Gate } from "../packages/protocol/utility";
+import { COMBAT } from "../packages/content/combat";
 import { VINE_TARGET, inForest } from "../packages/world/forest";
 import type {
   Moss,
@@ -12,8 +13,8 @@ import { emptyGathering, gather } from "../packages/simulation/gathering";
 import { generateWorld, SPAWN } from "../packages/world";
 import {
   collides,
+  moveFor,
   interpolate,
-  step,
   STEP_SECONDS,
   type Position,
 } from "../packages/simulation";
@@ -33,6 +34,8 @@ const live = {
   textures: 0,
 };
 export type SandboxReport = {
+  roster?: MeadowConnection["roster"];
+  running?: boolean;
   gate?: Gate;
   nearGate?: boolean;
   forest?: boolean;
@@ -81,6 +84,7 @@ export type DebugSnapshot = {
     gait: number;
     waving: boolean;
     attacking: boolean;
+    roll: number;
   };
   environment: {
     phase: number;
@@ -88,6 +92,7 @@ export type DebugSnapshot = {
     bonfires: number;
     particles: number;
     activeLights: number;
+    fireShadowLights: number;
   };
   renderer: {
     drawCalls: number;
@@ -116,7 +121,12 @@ export type DebugSnapshot = {
       id: string;
       name: string;
       character: CharacterId;
-      visual?: { rotation: number; gait: number; waving: boolean };
+      visual?: {
+        rotation: number;
+        gait: number;
+        waving: boolean;
+        roll: number;
+      };
       position: Position;
       facing: number;
       moving: boolean;
@@ -279,6 +289,7 @@ export function mountMeadow(
           gait: view.local.legs[0].rotation.x,
           waving: view.local.waving,
           attacking: view.local.blade.visible,
+          roll: view.local.roll.rotation.x,
         },
         renderer: view.stats(),
         environment: view.environment(),
@@ -310,6 +321,7 @@ export function mountMeadow(
                         rotation: view.peers.get(a.id)!.model.root.rotation.y,
                         gait: view.peers.get(a.id)!.model.legs[0].rotation.x,
                         waving: view.peers.get(a.id)!.model.waving,
+                        roll: view.peers.get(a.id)!.model.roll.rotation.x,
                       }
                     : undefined,
                   position: { ...a.position },
@@ -330,7 +342,9 @@ export function mountMeadow(
         paused,
         fps: 1000 / Math.max(1, deltaMS),
         connection: network?.status,
-        players: network ? network.remotes().length + 1 : 1,
+        players: network ? network.roster.length || 1 : 1,
+        roster: network?.roster,
+        running: keys.has("KeyV"),
         progress: progress(),
         target: nearest()?.kind,
         gathering: network?.gathering,
@@ -377,6 +391,10 @@ export function mountMeadow(
       });
     }
     listen(host, "keydown", ((e: KeyboardEvent) => {
+      if (e.code === "KeyV") {
+        e.preventDefault();
+        if (!paused) keys.add(e.code);
+      }
       if (movementCodes.has(e.code)) {
         e.preventDefault();
         if (!paused) {
@@ -468,7 +486,7 @@ export function mountMeadow(
       }
     }) as EventListener);
     listen(host, "keyup", ((e: KeyboardEvent) => {
-      if (movementCodes.has(e.code)) {
+      if (movementCodes.has(e.code) || e.code === "KeyV") {
         e.preventDefault();
         keys.delete(e.code);
       }
@@ -478,6 +496,9 @@ export function mountMeadow(
       host.focus();
       resume();
       if (!wasPaused && e.button === 0) network?.attack();
+    }) as EventListener);
+    listen(host, "teleport-player", ((e: CustomEvent<string>) => {
+      network?.companion("teleport", e.detail);
     }) as EventListener);
     listen(host, "companion-command", ((
       e: CustomEvent<CompanionCommand["action"]>,
@@ -536,7 +557,16 @@ export function mountMeadow(
           !!a.combat &&
           a.combat.damageTick > 0 &&
           network!.visualTick - a.combat.damageTick < 10,
-        dodging: !!a.combat && network!.visualTick < a.combat.dodgeUntil,
+        rollProgress:
+          a.combat && network!.visualTick < a.combat.dodgeUntil
+            ? Math.max(
+                0,
+                1 -
+                  (a.combat.dodgeUntil - network!.visualTick) /
+                    COMBAT.dodgeTicks,
+              )
+            : undefined,
+        rollFacing: a.combat?.dodgeFacing,
         attackAge: a.combat?.attack
           ? Math.max(0, network!.visualTick - a.combat.attack.startedTick)
           : undefined,
@@ -609,8 +639,13 @@ export function mountMeadow(
               Number(!paused && (keys.has("KeyW") || keys.has("ArrowUp"))),
           };
           state = network
-            ? network.advance(input, facingIndex)
-            : step(world, state, input);
+            ? network.advance(input, facingIndex, !paused && keys.has("KeyV"))
+            : moveFor(
+                world,
+                state,
+                input,
+                STEP_SECONDS * (!paused && keys.has("KeyV") ? 1.75 : 1),
+              );
           accumulator = Math.max(0, accumulator - fixed);
           ticks++;
         }
@@ -626,7 +661,7 @@ export function mountMeadow(
         frames.push(elapsedMS);
       draw();
       elapsedUI += dt;
-      if (elapsedUI >= 0.25) {
+      if (elapsedUI >= 0.1) {
         elapsedUI = 0;
         publish();
       }

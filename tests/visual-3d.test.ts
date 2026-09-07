@@ -69,3 +69,26 @@ it("all four models face every protocol direction and animate actual limbs witho
     kit.dispose();
   }
 });
+
+it("all looks tumble around the torso and reset after a roll, with reduced-motion support", () => {
+  const kit = createModelKit();
+  try {
+    for (const id of CHARACTER_IDS) {
+      const model = kit.character(id);
+      animateCharacter(model, 0, true, false, 0, false, 0.5);
+      expect(model.roll.rotation.x).toBeCloseTo(Math.PI);
+      expect(model.body.scale.y).toBeCloseTo(0.7);
+      expect(model.legs.every((leg) => leg.rotation.x < -1)).toBe(true);
+      expect(model.root.position.toArray()).toEqual([0, 0, 0]);
+      animateCharacter(model, 0, true, false, 0, true, 0.5);
+      expect(model.roll.rotation.x).toBe(0);
+      animateCharacter(model, 0, false, false, 0, false);
+      expect(model.roll.position.y).toBe(0);
+      expect(model.body.position.y).toBe(0);
+      expect(model.body.scale.y).toBe(1);
+      expect(model.legs[0].rotation.x).toBe(0);
+    }
+  } finally {
+    kit.dispose();
+  }
+});

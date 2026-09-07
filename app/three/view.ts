@@ -29,7 +29,8 @@ export type VisualActor = {
   gathering?: boolean;
   chopping?: boolean;
   attackAge?: number;
-  dodging?: boolean;
+  rollProgress?: number;
+  rollFacing?: number;
   health?: number;
   hurt?: boolean;
 };
@@ -539,15 +540,18 @@ export function createMeadowView(
     model.root.position.set(actor.position.x, 0, actor.position.y);
     animateCharacter(
       model,
-      actor.facing,
+      actor.rollProgress !== undefined
+        ? (actor.rollFacing ?? actor.facing)
+        : actor.facing,
       actor.moving,
       actor.waving,
       time,
       reduced,
+      actor.rollProgress,
     );
     model.root.scale.setScalar(actor.health === 0 ? 0.45 : 1);
     model.body.rotation.z = actor.hurt ? 0.15 : 0;
-    model.body.rotation.x = actor.dodging ? -0.6 : 0;
+    model.body.rotation.x = 0;
     model.blade.visible =
       actor.attackAge !== undefined &&
       actor.attackAge >= 0 &&

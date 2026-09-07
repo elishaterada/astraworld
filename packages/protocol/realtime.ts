@@ -15,7 +15,7 @@ export const HZ = 60;
 export const DT = 1 / HZ;
 const envelope = { protocolVersion: z.literal(REALTIME_VERSION), worldId: id };
 export const controls = {
-  keys: z.number().int().min(0).max(15),
+  keys: z.number().int().min(0).max(31),
   facing: z.number().int().min(0).max(7),
 };
 export const runSchema = z
@@ -34,6 +34,7 @@ export const packetSchema = z.discriminatedUnion("type", [
       ...envelope,
       type: z.literal("hello"),
       token: credential,
+      qol: z.literal(true).optional(),
       contentVersion: z.literal(CONTENT_VERSION),
       generationVersion: z.literal(GENERATION_VERSION),
     })
@@ -90,6 +91,17 @@ export const realtimeSnapshotSchema = z
     owner: z.string().max(100),
     selfId: id,
     actors: z.array(realtimeActorSchema).max(MAX_PLAYERS),
+    roster: z
+      .array(
+        realtimeActorSchema.pick({
+          id: true,
+          name: true,
+          character: true,
+          position: true,
+        }),
+      )
+      .max(MAX_PLAYERS)
+      .optional(),
     progress: progressSchema.optional(),
     slime: slimeSchema.optional(),
     gate: gateSchema.optional(),

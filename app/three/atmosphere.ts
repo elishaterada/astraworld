@@ -63,8 +63,14 @@ export function createAtmosphere(scene: T.Scene, world: World) {
     return { group, flames, p };
   });
   // Fixed light pool avoids shader recompilation as camps enter or leave the view.
-  const lights = Array.from({ length: 2 }, () => {
+  const lights = Array.from({ length: 2 }, (_, i) => {
     const light = new T.PointLight(0xffa344, 0, 8, 2);
+    light.castShadow = i === 0;
+    light.shadow.mapSize.set(256, 256);
+    light.shadow.camera.near = 0.15;
+    light.shadow.camera.far = 8;
+    light.shadow.normalBias = 0.035;
+    light.shadow.autoUpdate = false;
     scene.add(light);
     return light;
   });
@@ -105,7 +111,8 @@ export function createAtmosphere(scene: T.Scene, world: World) {
     root.add(mesh);
     return mesh;
   });
-  let phase = 0;
+  let phase = 0,
+    shadowAt = -1;
   return {
     update(time: number, reduced: boolean, p: Position) {
       phase = reduced ? 0 : time;
@@ -128,6 +135,10 @@ export function createAtmosphere(scene: T.Scene, world: World) {
         (a, b) =>
           Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y),
       );
+      if (time - shadowAt >= 0.05) {
+        lights[0].shadow.needsUpdate = true;
+        shadowAt = time;
+      }
       for (let i = 0; i < lights.length; i++) {
         const fire = nearby[i];
         lights[i].position.set(fire.x + 0.5, 2.0, fire.y + 0.5);
@@ -175,11 +186,16 @@ export function createAtmosphere(scene: T.Scene, world: World) {
         bonfires: fires.length,
         particles: count,
         activeLights: lights.filter((l) => l.intensity > 0).length,
+        fireShadowLights: lights.filter((l) => l.castShadow && l.intensity > 0)
+          .length,
       };
     },
     dispose() {
       root.removeFromParent();
-      for (const light of lights) light.removeFromParent();
+      for (const light of lights) {
+        light.shadow.dispose();
+        light.removeFromParent();
+      }
       geometry.dispose();
       mistGeometry.dispose();
       amber.dispose();

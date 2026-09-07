@@ -98,6 +98,7 @@ export async function joinMeadow(
 }
 
 export class MeadowConnection {
+  roster: NonNullable<RealtimeSnapshot["roster"]> = [];
   gate?: Gate;
   moss: Moss[] = [];
   companionReceipt?: CompanionReceipt;
@@ -155,7 +156,7 @@ export class MeadowConnection {
       action: null,
     };
     this.connect();
-    this.timer = setInterval(() => this.flush(), 50);
+    this.timer = setInterval(() => this.flush(), 25);
   }
   get ack() {
     return this.actor.ack - this.pending.length;
@@ -216,6 +217,7 @@ export class MeadowConnection {
           protocolVersion: REALTIME_VERSION,
           worldId: this.session.worldId,
           token: this.session.token,
+          qol: true,
           contentVersion: CONTENT_VERSION,
           generationVersion: GENERATION_VERSION,
         }),
@@ -279,6 +281,7 @@ export class MeadowConnection {
       this.epoch = s.epoch;
       this.tick = s.tick;
       this.owner = s.owner;
+      this.roster = s.roster ?? s.actors;
       this.progress = s.progress;
       this.slime = s.slime;
       this.gate = s.gate;
@@ -384,7 +387,7 @@ export class MeadowConnection {
     this.sent++;
     this.sentBytes += raw.length;
   }
-  advance(input: Input, facing = this.actor.facing) {
+  advance(input: Input, facing = this.actor.facing, running = false) {
     if (!this.baseline || this.snapshotAge > 750 || this.pending.length >= 60) {
       this.actor = { ...this.actor, moving: false };
       return this.position;
@@ -393,7 +396,8 @@ export class MeadowConnection {
       (input.y < 0 ? 1 : 0) |
       (input.y > 0 ? 2 : 0) |
       (input.x < 0 ? 4 : 0) |
-      (input.x > 0 ? 8 : 0);
+      (input.x > 0 ? 8 : 0) |
+      (running && (input.x || input.y) ? 16 : 0);
     if (
       !keys &&
       !this.actor.moving &&
@@ -443,7 +447,7 @@ export class MeadowConnection {
     const target =
       latest.data.tick +
       Math.min(150, performance.now() - latest.at) / 1000 / DT -
-      9;
+      4;
     const after = this.snapshots.find((s) => s.data.tick >= target) ?? latest;
     const before =
       this.snapshots.filter((s) => s.data.tick <= target).at(-1) ??
@@ -468,7 +472,12 @@ export class MeadowConnection {
           ...(alpha < 1 ? (b ?? a) : (c ?? a)),
           moving: this.snapshotAge < 300 && (c ?? a).moving,
           position:
-            b && c
+            b &&
+            c &&
+            Math.hypot(
+              b.position.x - c.position.x,
+              b.position.y - c.position.y,
+            ) < 2
               ? interpolate(this.world, b.position, c.position, alpha)
               : a.position,
         };

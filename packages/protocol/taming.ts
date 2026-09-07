@@ -5,7 +5,14 @@ export const companionCommandSchema = z
   .object({
     seq: tick.min(1),
     target: z.string().min(1).max(200),
-    action: z.enum(["feed", "follow", "stay", "recall", "dissolve"]),
+    action: z.enum([
+      "feed",
+      "follow",
+      "stay",
+      "recall",
+      "dissolve",
+      "teleport",
+    ]),
   })
   .strict();
 export type CompanionCommand = z.infer<typeof companionCommandSchema>;
@@ -13,6 +20,7 @@ export const companionReceiptSchema = companionCommandSchema
   .extend({
     tick,
     result: z.enum([
+      "teleported",
       "channeling",
       "opened",
       "already-open",

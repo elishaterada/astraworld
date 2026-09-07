@@ -1,0 +1,44 @@
+{
+  "browser": "153.0.8010.12",
+  "members": 8,
+  "characters": [
+    "Fern",
+    "Ember",
+    "Iris",
+    "Hazel"
+  ],
+  "allAppearancesSynchronized": true,
+  "renderedFacingVerified": true,
+  "resumedHazel": true,
+  "independentContexts": 9,
+  "ninthRejected": true,
+  "resumedSameIdentity": true,
+  "resumeRenderWaitMs": 6,
+  "resumeAtConnected": {
+    "state": {
+      "x": 80.96666666666653,
+      "y": 64.5
+    },
+    "authoritative": {
+      "x": 80.96666666666653,
+      "y": 64.5
+    }
+  },
+  "gateways": [
+    "local-a",
+    "local-b"
+  ],
+  "movementTiles": [
+    2.666666666666515,
+    2.666666666666515,
+    2.666666666666515,
+    2.5333333333331893,
+    2.5333333333331893,
+    2.666666666666515,
+    2.666666666666515,
+    2.4666666666665265
+  ],
+  "allObserversSawSevenPeers": true,
+  "allFacingAndWaveSynchronized": true,
+  "errors": []
+}

@@ -1,4 +1,5 @@
 "use client";
+import { WorldMap } from "./world-map";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { FirstPlayHint, GatherNotice, CompanionNotice } from "./game-hints";
 import { normalizeSeed } from "../packages/world";
@@ -120,7 +121,7 @@ function Meadow({
         className="playfield"
         tabIndex={0}
         role="application"
-        aria-label="Meadow game. Move with WASD or arrow keys. Point to face. Space waves. Click or J attacks. Shift dodges. E gathers or feeds nearby Moss Slimes. C toggles companion follow/stay. R recalls. Q dissolves nearby vines. Escape pauses and releases keyboard focus."
+        aria-label="Meadow game. Move with WASD or arrow keys. Point to face. Space waves. Click or J attacks. V runs. Shift dodges. E gathers or feeds nearby Moss Slimes. C toggles companion follow/stay. R recalls. Q dissolves nearby vines. Escape pauses and releases keyboard focus."
       />
       <div className="game-vignette" aria-hidden="true" />
       <div className="location-hud">
@@ -387,6 +388,21 @@ function Meadow({
           </div>
         </div>
       )}
+      <WorldMap
+        onExplore={() => host.current?.focus()}
+        seed={activeSeed}
+        selfId={session?.playerId}
+        position={{ x: status?.x ?? 64.5, y: status?.y ?? 64.5 }}
+        roster={status?.roster ?? []}
+        connected={status?.connection === "Connected"}
+        onTeleport={(id) => {
+          host.current?.dispatchEvent(
+            new CustomEvent("teleport-player", { detail: id }),
+          );
+          host.current?.focus();
+        }}
+      />
+      {status?.running && <span className="running-cue">Running</span>}
       <CompanionNotice receipt={status?.companionReceipt} />
       <GatherNotice progress={status?.progress} />
       <FirstPlayHint
@@ -436,6 +452,8 @@ function Meadow({
           <dl>
             <dt>Move</dt>
             <dd>WASD / arrow keys</dd>
+            <dt>Run</dt>
+            <dd>Hold V while moving</dd>
             <dt>Blade</dt>
             <dd>Click / J</dd>
             <dt>Dodge</dt>
