@@ -77,10 +77,12 @@ test("M2 two players gather, see depletion, chop a tree and resume inventory", a
         .reduce((n, s) => n + s!.quantity, 0),
     ).toBe(3);
     const winnerPage = first.progress!.receipt!.result === "gathered" ? p : q;
+    await winnerPage.getByRole("button", { name: "Open inventory" }).click();
     await expect(
       winnerPage.getByLabel("Sweet Berries: 3", { exact: true }),
     ).toBeVisible();
     await winnerPage.screenshot({ path: `${evidence}-berries.png` });
+    await winnerPage.getByRole("button", { name: "Close inventory" }).click();
     // Central path north, then approach the tree at (62.5,58.5) from the east.
     await move(p, "w", 1500);
     await move(p, "a", 230);
@@ -104,6 +106,7 @@ test("M2 two players gather, see depletion, chop a tree and resume inventory", a
           )?.action?.resource,
       )
       .toBe("tree");
+    await p.getByRole("button", { name: "Open inventory" }).click();
     await expect(p.getByLabel("Wood: 3", { exact: true })).toBeVisible();
     await p.screenshot({ path: `${evidence}-stump.png` });
     const before = await snap(p);

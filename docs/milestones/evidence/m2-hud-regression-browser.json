@@ -1,0 +1,118 @@
+{
+  "browser": "153.0.8010.12",
+  "viewport": "1440×900",
+  "initial": {
+    "progress": {
+      "inventory": [
+        {
+          "item": "hatchet",
+          "quantity": 1
+        },
+        {
+          "item": "starter-blade",
+          "quantity": 1
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receipt": null,
+      "readyTick": 0
+    },
+    "depleted": [],
+    "target": {
+      "id": "resource:meadow-2:gathering-1:meadow-001:65:63",
+      "kind": "berry-bush",
+      "x": 65.5,
+      "y": 63.5
+    },
+    "state": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "rendered": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "camera": {
+      "x": 64.5,
+      "y": 64.5
+    },
+    "tick": 0,
+    "paused": false,
+    "collision": false,
+    "width": 1440,
+    "height": 900,
+    "actorScreen": {
+      "x": 720,
+      "y": 450
+    },
+    "live": {
+      "applications": 1,
+      "inputListeners": 9,
+      "tickers": 1,
+      "observers": 1,
+      "textures": 0
+    },
+    "blockerCount": 3233,
+    "visibleProps": 28639,
+    "seed": "meadow-001",
+    "username": "Rowan",
+    "character": "fern",
+    "visual": {
+      "rotation": 0,
+      "gait": 0,
+      "waving": false
+    },
+    "renderer": {
+      "drawCalls": 162,
+      "triangles": 753848,
+      "geometries": 6,
+      "textures": 3
+    },
+    "environment": {
+      "phase": 0.007400000023841868,
+      "ponds": 6,
+      "bonfires": 4,
+      "particles": 160,
+      "activeLights": 1
+    }
+  },
+  "straight": {
+    "x": 68.50000000000006,
+    "y": 64.5
+  },
+  "diagonal": {
+    "x": 67.32842712474633,
+    "y": 67.32842712474633
+  },
+  "diagonalDistance": 4.000000000000194,
+  "props": {
+    "x": 73.44700576850902,
+    "y": 74.0026406871195
+  },
+  "resized": {
+    "width": 960,
+    "height": 720,
+    "actorScreen": {
+      "x": 480,
+      "y": 360
+    }
+  },
+  "edge": {
+    "x": 1.24,
+    "y": 64.5
+  },
+  "slide": {
+    "x": 1.24,
+    "y": 68.74264068711949
+  },
+  "errors": []
+}

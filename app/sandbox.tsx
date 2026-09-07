@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { FirstPlayHint, GatherNotice } from "./game-hints";
 import { normalizeSeed } from "../packages/world";
 import { itemDefinition } from "../packages/content";
 import { validateUsername } from "./profile";
@@ -35,7 +36,9 @@ function Meadow({
   session?: Session;
 }) {
   const host = useRef<HTMLDivElement>(null),
-    menu = useRef<HTMLDialogElement>(null);
+    menu = useRef<HTMLDialogElement>(null),
+    inventory = useRef<HTMLDialogElement>(null);
+  const [inventoryOpen, setInventoryOpen] = useState(false);
   const [status, setStatus] = useState<SandboxReport | null>(null),
     [error, setError] = useState("");
   const [copyNote, setCopyNote] = useState("");
@@ -71,6 +74,12 @@ function Meadow({
       dispose?.();
     };
   }, [activeSeed, revision, username, session, character]);
+  const openInventory = () => {
+    if (!status?.progress) return;
+    inventory.current?.showModal();
+    setInventoryOpen(true);
+  };
+  const closeInventory = () => inventory.current?.close();
   const resume = () => {
     menu.current?.close();
     host.current?.focus();
@@ -84,7 +93,27 @@ function Meadow({
     menu.current?.close();
   }
   return (
-    <section className="game-view" aria-label="Engine sandbox">
+    <section
+      className="game-view"
+      aria-label="Engine sandbox"
+      onKeyDownCapture={(e) => {
+        if (
+          (e.target as HTMLElement).matches("input, textarea") ||
+          menu.current?.open
+        )
+          return;
+        if (e.code === "KeyI" && !e.repeat) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (inventory.current?.open) closeInventory();
+          else openInventory();
+        } else if (e.code === "Escape" && !inventory.current?.open) {
+          e.preventDefault();
+          e.stopPropagation();
+          menu.current?.showModal();
+        }
+      }}
+    >
       <div
         ref={host}
         className="playfield"
@@ -94,24 +123,13 @@ function Meadow({
       />
       <div className="game-vignette" aria-hidden="true" />
       <div className="location-hud">
-        <span className="location-emblem" aria-hidden="true">
-          ❧
+        <h1>The Meadow</h1>
+        <span
+          className="party-count"
+          aria-label={`${status?.players ?? 1} players`}
+        >
+          {session ? `${status?.players ?? 1}/${MAX_PLAYERS}` : "Solo"}
         </span>
-        <div>
-          <span className="overline">ASTRAWORLD</span>
-          <h1>The Meadow</h1>
-          <span className="location-subtitle">
-            {status && Math.hypot(status.x - 69.5, status.y - 70.5) < 5
-              ? "Wayfarer’s Rest · A little warmth"
-              : status &&
-                  status.x < 62 &&
-                  status.x > 46 &&
-                  status.y > 50 &&
-                  status.y < 62
-                ? "Willow Pond · Mist on the water"
-                : "Wildflowers, quiet water, open sky"}
-          </span>
-        </div>
       </div>
       <div className="game-actions">
         <button
@@ -135,7 +153,7 @@ function Meadow({
         {username}
         <span className="name-diamond" />
       </div>
-      {(!status || status.paused || error) && (
+      {(!status || (status.paused && !inventoryOpen) || error) && (
         <div className="pause-layer">
           <div className="pause-panel" role="status">
             <span className="overline">
@@ -175,9 +193,24 @@ function Meadow({
         </div>
       )}
       {status?.progress && (
-        <aside className="gather-hud" aria-label="Inventory">
+        <dialog
+          ref={inventory}
+          className="gather-hud"
+          aria-label="Inventory"
+          onClose={() => {
+            setInventoryOpen(false);
+            host.current?.focus();
+          }}
+        >
+          <button
+            className="inventory-close"
+            onClick={closeInventory}
+            aria-label="Close inventory"
+          >
+            ×
+          </button>
           <div className="inventory-heading">
-            <span className="overline">YOUR SATCHEL</span>
+            <h2>Satchel</h2>
             <span>{status.progress.inventory.filter(Boolean).length} / 12</span>
           </div>
           <div className="inventory-slots">
@@ -221,56 +254,56 @@ function Meadow({
               </div>
             ))}
           </div>
-          <p className="gather-prompt">
-            <kbd>E</kbd>{" "}
-            {status.gathering
-              ? "Gathering…"
-              : status.target === "tree"
-                ? "Chop tree · +3 wood"
-                : status.target
-                  ? "Pick berries · +3 berries"
-                  : "Find berries or a tree"}
+          <p className="inventory-footnote">
+            Starter tools · Blade use comes later
           </p>
-          <p className="gather-result" role="status">
-            {status.progress.receipt
-              ? {
-                  gathered: "Tucked safely into your satchel.",
-                  depleted: "Already gathered by another adventurer.",
-                  range: "Step a little closer.",
-                  blocked: "Find a clear path to the resource.",
-                  tool: "You need a starter hatchet.",
-                  cooldown: "Catch your breath, then gather again.",
-                  full: "Your satchel is full. Nothing was taken.",
-                  missing: "That resource is unavailable.",
-                }[status.progress.receipt.result]
-              : "Tools provided · Blade use comes later"}
+          <p className="inventory-shortcut">
+            <kbd>I</kbd> or <kbd>esc</kbd> Close
           </p>
-        </aside>
+        </dialog>
       )}
-      <div className="walk-hint">
-        <span className="key-group">
-          <kbd>W</kbd>
-          <kbd>A</kbd>
-          <kbd>S</kbd>
-          <kbd>D</kbd>
-        </span>
-        <span>
-          or arrows to wander{session ? " · Point to face · Space to wave" : ""}
-        </span>
-        <i />
-        <kbd>esc</kbd>
-        <span>pause</span>
-      </div>
-      <div
-        className={session ? "world-note multiplayer-note" : "world-note"}
-        role="status"
+      <button
+        className="satchel-toggle"
+        aria-label="Open inventory"
+        aria-haspopup="dialog"
+        aria-expanded={inventoryOpen}
+        aria-keyshortcuts="I"
+        onClick={openInventory}
+        disabled={!status?.progress}
       >
-        <span className="status-dot" />{" "}
-        {session
-          ? `${status?.connection ?? "Connecting…"} · ${status?.players ?? 1}/${MAX_PLAYERS} adventurers`
-          : "SOLO MEADOW"}{" "}
-        <span>·</span> 3D ART STUDY
-      </div>
+        <svg
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          aria-hidden="true"
+        >
+          <path d="M8 6V4h8v2M5 8h14v12H5zM5 8l2-2h10l2 2M5 11h14M10 10v4h4v-4" />
+        </svg>
+        <kbd>I</kbd>
+      </button>
+      {!status?.paused && (status?.target || status?.gathering) && (
+        <div className="interaction-hint">
+          <kbd>E</kbd>{" "}
+          {status.gathering
+            ? "Gathering…"
+            : status.target === "tree"
+              ? "Chop tree"
+              : "Pick berries"}
+        </div>
+      )}
+      <GatherNotice progress={status?.progress} />
+      <FirstPlayHint
+        active={!!status && !status.paused}
+        onDismiss={() => host.current?.focus()}
+      />
+      {session && status?.connection !== "Connected" && (
+        <div className="connection-notice" role="status">
+          {status?.connection ?? "Connecting…"}
+        </div>
+      )}
       <dialog
         ref={menu}
         className="meadow-menu"
@@ -285,6 +318,23 @@ function Meadow({
           Wandering as <strong>{username}</strong> ·{" "}
           {CHARACTERS[character].label}
         </p>
+        <details className="controls-reference">
+          <summary>Controls</summary>
+          <dl>
+            <dt>Move</dt>
+            <dd>WASD / arrow keys</dd>
+            <dt>Gather</dt>
+            <dd>E</dd>
+            <dt>Satchel</dt>
+            <dd>I</dd>
+            <dt>Face</dt>
+            <dd>Mouse</dd>
+            <dt>Wave</dt>
+            <dd>Space</dd>
+            <dt>Pause / close</dt>
+            <dd>Escape</dd>
+          </dl>
+        </details>
         {session ? (
           <div className="invite-panel">
             <label htmlFor="invite-link">Invite a friend</label>
@@ -401,6 +451,11 @@ export default function Sandbox() {
     document.addEventListener("fullscreenchange", changed);
     return () => document.removeEventListener("fullscreenchange", changed);
   }, []);
+  useEffect(() => {
+    if (!fullscreenNote) return;
+    const timer = setTimeout(() => setFullscreenNote(""), 5000);
+    return () => clearTimeout(timer);
+  }, [fullscreenNote]);
   function requestFullscreen() {
     const node = shell.current;
     if (!node?.requestFullscreen || !document.fullscreenEnabled) {

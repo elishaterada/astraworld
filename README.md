@@ -115,3 +115,5 @@ Walk near a pink berry bush or a tree. The gold ground ring marks your nearest a
 Only confirmed server results change the satchel. Resume the same browser session to recover items and depleted resources within the existing 30-minute recovery window. Leaving starts a new adventurer; Redis loss still loses progress. This is not permanent saving. Old M1 invitations/sessions are isolated from M2; create a new Meadow and share its new invite.
 
 M2 uses the existing local launch commands above and the existing Vercel/Redis stack. No new services or credentials are required. Combat, taming, crafting and building remain later milestones.
+
+The compact game HUD keeps your satchel closed until you press **I** or click its bottom-right button. **I** or **Escape** closes it; Escape during play opens the pause menu. Movement guidance appears once per browser and can always be found under **Menu → Controls**. Nearby gathering prompts and brief pickup notifications remain visible without opening inventory.

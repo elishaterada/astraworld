@@ -103,3 +103,9 @@ An existing tab session offers Resume Meadow and locks the name/look to the stor
 ## M2 resource presentation
 
 Original modular berry bushes carry pink fruit cubes; a gold ring marks the nearest resource within interaction range. E animates the right arm immediately; a hatchet appears for tree chopping and confirmed gather gestures reach observers. Harvested tree crown/trunk instances are zero-scaled once, leaving a solid mossy stump. Bush fruit instances disappear once. Shared geometry/materials and instance buffers are disposed with the world; no sprite generation or per-resource React component is used. The low-frequency HUD displays only committed inventory.
+
+## Compact game HUD (M2 refinement)
+
+The satchel is hidden by default. Its bottom-right button or I opens a native dialog with the 12 slots; I, Escape or Close returns focus to the playfield. The dialog pauses local input while the shared world continues. Escape from gameplay opens the existing pause menu, which now contains a Controls reference. An already-focused playfield explicitly resumes when its renderer is regenerated.
+
+The permanent movement strip and verbose session/art footer are removed from gameplay. A first-play hint dismisses manually or after ten active seconds and records only a browser-local controls preference; disabled storage falls back to showing it again on a later mount. Nearby resources get a small E prompt below the player. Confirmed gains/rejections appear for three seconds; fullscreen fallback notices appear near the fullscreen button for five seconds. The location and party count remain compact, while connection problems stay visible. Placeholder-art and temporary-recovery labels remain in entry/menu UI. This adds no M3 mechanics or gameplay persistence.

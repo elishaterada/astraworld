@@ -521,6 +521,8 @@ export function mountMeadow(
     start();
     publish();
     host.focus();
+    // A regenerated world can reuse an already-focused host; no focus event fires.
+    if (document.activeElement === host) resume();
   })().catch((error) => {
     cleanup?.();
     cleanup = undefined;
