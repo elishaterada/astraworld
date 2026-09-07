@@ -195,7 +195,9 @@ export class MeadowConnection {
     const age = performance.now() - this.lastSnapshot;
     if (age > 1000 && this.status === "Connected")
       this.status = "Reconnecting…";
-    if (age > 3000 && this.socket?.readyState === WebSocket.OPEN)
+    // An authenticated socket can wait through the 10s owner lease without retry churn.
+    const deadline = this.generation ? 15000 : 3000;
+    if (age > deadline && this.socket?.readyState === WebSocket.OPEN)
       this.socket.close();
     if (this.generation && this.socket?.readyState === WebSocket.OPEN) {
       const movement = this.status === "Connected" ? input : { x: 0, y: 0 };
