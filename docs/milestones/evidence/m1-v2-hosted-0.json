@@ -1,0 +1,22 @@
+{
+  "browser": "153.0.8010.12",
+  "addedRoundTripMs": 0,
+  "applicationMessageDropped": false,
+  "fiveSecondApplicationOutage": true,
+  "immediateMovementTiles": 0.2666666666666515,
+  "movementTiles": 2.066666666666549,
+  "gateways": [
+    "dc7ec84-1e539b85-2e87-42e0-85f4-8cc7fa7122d9",
+    "dc7ec84-1e539b85-2e87-42e0-85f4-8cc7fa7122d9"
+  ],
+  "remoteFacing": 4,
+  "remoteAction": {
+    "kind": "wave",
+    "seq": 105,
+    "generation": 1,
+    "startedTick": 266
+  },
+  "reconnectedGeneration": 3,
+  "messagesSent": 210,
+  "errors": []
+}
