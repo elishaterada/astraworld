@@ -1,6 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+declare global {
+  interface Window {
+    __TCP_WAVE__: { at: number | null; last: string; values: number[] };
+  }
+}
 const netem = (mode: string) =>
   execFileSync("bash", ["scripts/netem.sh", mode], { encoding: "utf8" });
 const p95 = (xs: number[]) =>
@@ -17,8 +22,8 @@ test("real TCP loss preserves predicted movement, facing, waves and recovery", a
   const evidence = "test-results/m1-network";
   mkdirSync(evidence, { recursive: true });
   const contexts = await Promise.all([
-    browser.newContext(),
-    browser.newContext(),
+    browser.newContext({ viewport: { width: 800, height: 600 } }),
+    browser.newContext({ viewport: { width: 800, height: 600 } }),
   ]);
   const errors: string[] = [],
     phases: unknown[] = [];
@@ -33,6 +38,18 @@ test("real TCP loss preserves predicted movement, facing, waves and recovery", a
         ({ second }) => {
           Element.prototype.requestFullscreen = () =>
             Promise.reject(new DOMException("Windowed network check"));
+          const probe = (window.__TCP_WAVE__ = {
+            at: null as number | null,
+            last: "",
+            values: [] as number[],
+          });
+          document.addEventListener(
+            "keydown",
+            (e) => {
+              if (e.code === "Space" && !e.repeat) probe.at = performance.now();
+            },
+            true,
+          );
           const Native = WebSocket;
           window.WebSocket = class extends Native {
             constructor(url: string | URL, protocols?: string | string[]) {
@@ -40,6 +57,21 @@ test("real TCP loss preserves predicted movement, facing, waves and recovery", a
                 second ? String(url).replace(":3103/", ":3104/") : url,
                 protocols,
               );
+              // Observe accepted wire state without delaying or modifying WebSocket traffic.
+              this.addEventListener("message", (event) => {
+                const message = JSON.parse(String(event.data));
+                if (message.type !== "snapshot") return;
+                const actor = message.actors.find(
+                  (a: { id: string }) => a.id === message.selfId,
+                );
+                const action = actor?.action;
+                const key = action ? `${action.generation}:${action.seq}` : "";
+                if (probe.at !== null && key && key !== probe.last) {
+                  probe.values.push(performance.now() - probe.at);
+                  probe.at = null;
+                }
+                probe.last = key;
+              });
             }
           };
         },
@@ -117,10 +149,12 @@ test("real TCP loss preserves predicted movement, facing, waves and recovery", a
         visible.push(Date.now() - pressAt);
         await a.waitForTimeout(400);
         await a.keyboard.up(key);
-        await a.mouse.move(i % 2 ? 100 : 1300, 450);
+        await a.mouse.move(i % 2 ? 100 : 700, 300);
         await a.waitForTimeout(300);
         const beforeWave = (await snapshot(a)).network!.action?.seq;
-        const waveAt = Date.now();
+        const waveCount = await a.evaluate(
+          () => window.__TCP_WAVE__.values.length,
+        );
         await a.keyboard.press("Space");
         await expect
           .poll(
@@ -136,7 +170,14 @@ test("real TCP loss preserves predicted movement, facing, waves and recovery", a
             { intervals: [10, 20, 30], timeout: 10000 },
           )
           .toBe(true);
-        confirmed.push(Date.now() - waveAt);
+        await expect
+          .poll(() => a.evaluate(() => window.__TCP_WAVE__.values.length), {
+            timeout: 10000,
+          })
+          .toBe(waveCount + 1);
+        confirmed.push(
+          await a.evaluate(() => window.__TCP_WAVE__.values.at(-1)!),
+        );
         const accepted = (await snapshot(a)).network!.action!;
         await expect
           .poll(
@@ -223,6 +264,7 @@ test("real TCP loss preserves predicted movement, facing, waves and recovery", a
       JSON.stringify(
         {
           browser: browser.version(),
+          viewport: a.viewportSize(),
           platform: process.platform,
           phases,
           recoveryMs,

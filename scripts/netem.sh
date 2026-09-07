@@ -16,8 +16,8 @@ case "${1:-}" in
     done
     ;;
   clean) sudo tc qdisc change dev m1ifb root handle 10: netem limit 10000 ;;
-  normal) sudo tc qdisc change dev m1ifb root handle 10: netem limit 10000 delay 75ms 15ms distribution uniform loss random 1% ;;
-  high) sudo tc qdisc change dev m1ifb root handle 10: netem limit 10000 delay 150ms 15ms distribution uniform loss random 1% ;;
+  normal) sudo tc qdisc change dev m1ifb root handle 10: netem limit 10000 delay 75ms 15ms loss random 1% ;;
+  high) sudo tc qdisc change dev m1ifb root handle 10: netem limit 10000 delay 150ms 15ms loss random 1% ;;
   outage) sudo tc qdisc change dev m1ifb root handle 10: netem limit 10000 loss random 100% ;;
   stats) sudo tc -s -j qdisc show dev m1ifb ;;
   cleanup)
