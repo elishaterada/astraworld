@@ -40,4 +40,13 @@ The initial test run found old expected `environment-1` IDs/hash values, updated
 
 Recovery remains Redis-backed and temporary (30 minutes); Redis loss is not durable recovery. Closing a page before an acknowledgement may abandon its pending action; re-entry resynchronizes committed inventory before permitting a new action. The latest receipt is retained, while older sequences are suppressed by the high-water mark. The solo developer harness uses the same rules locally and resets on regeneration.
 
-This run does not repeat M1's ten-minute soak or true TCP-loss experiment, and does not establish M2 action latency under WAN packet loss, Safari or Firefox support, or durable crash/Redis-loss recovery. The targeted backend pause and owner-turnover tests are explicitly narrower. Hosted M2 smoke results will be recorded separately after publication. M3 combat is the next eligible milestone and requires a new request.
+This run does not repeat M1's ten-minute soak or true TCP-loss experiment, and does not establish M2 action latency under WAN packet loss, Safari or Firefox support, or durable crash/Redis-loss recovery. The targeted backend pause and owner-turnover tests are explicitly narrower. Hosted M2 smoke results are recorded below. M3 combat is the next eligible milestone and requires a new request.
+
+
+## Hosted completion — 2026-09-07
+
+Implementation commit `7d0b85b` pushed to origin/main and deployed successfully through the existing Vercel Git integration. Production health reported `ready: true`, owner prefix `7d0b85b`, region `iad1`, Redis round trip 1.42 ms. No error logs were returned by a five-minute production error scan.
+
+`BASE_URL=https://astraworld-teradas.vercel.app HOSTED_ACCESS_FILE=<private temporary file> GATHER_EVIDENCE_PREFIX=docs/milestones/evidence/m2-hosted npx playwright test tests/e2e/gathering.spec.ts`: PASS. Two separate browser contexts used existing protected-deployment automation access. One received three berries while the competitor received depletion feedback; both saw the tree harvest, the actual satchel displayed three Wood, and reload retained the inventory and depletion. Final focused run: 8.1 seconds / Chromium 153.0.8010.12. [Hosted results](evidence/m2-hosted-browser.json), [winning satchel](evidence/m2-hosted-berries.png), [harvested tree](evidence/m2-hosted-stump.png). These screenshots wait for the four-Hz HUD to display the committed count rather than only checking the renderer snapshot. Local focused rerun also passed in 6.2 seconds.
+
+Existing deployment protection was retained. The temporary credential file was removed, and no credentials were written to evidence or Git. This hosted smoke does not expand the WAN/soak limitations above. M2 is complete within the recorded local and hosted envelope. Stop before M3.

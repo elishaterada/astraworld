@@ -76,7 +76,11 @@ test("M2 two players gather, see depletion, chop a tree and resume inventory", a
         .filter((s) => s?.item === "sweet-berry")
         .reduce((n, s) => n + s!.quantity, 0),
     ).toBe(3);
-    await p.screenshot({ path: `${evidence}-berries.png` });
+    const winnerPage = first.progress!.receipt!.result === "gathered" ? p : q;
+    await expect(
+      winnerPage.getByLabel("Sweet Berries: 3", { exact: true }),
+    ).toBeVisible();
+    await winnerPage.screenshot({ path: `${evidence}-berries.png` });
     // Central path north, then approach the tree at (62.5,58.5) from the east.
     await move(p, "w", 1500);
     await move(p, "a", 230);
@@ -100,6 +104,7 @@ test("M2 two players gather, see depletion, chop a tree and resume inventory", a
           )?.action?.resource,
       )
       .toBe("tree");
+    await expect(p.getByLabel("Wood: 3", { exact: true })).toBeVisible();
     await p.screenshot({ path: `${evidence}-stump.png` });
     const before = await snap(p);
     await p.reload();

@@ -6,13 +6,13 @@
       "seq": 1,
       "target": "resource:meadow-2:gathering-1:meadow-001:65:63",
       "result": "depleted",
-      "tick": 137
+      "tick": 160
     },
     {
       "seq": 1,
       "target": "resource:meadow-2:gathering-1:meadow-001:65:63",
       "result": "gathered",
-      "tick": 136
+      "tick": 160
     }
   ],
   "inventory": [
