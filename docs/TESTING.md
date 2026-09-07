@@ -2,7 +2,7 @@
 
 ## Current status
 
-M0 now has executable pure-rule and Chromium gameplay tests. See [M0 completion evidence](milestones/M0_COMPLETION.md) and the commands in [README](../README.md). G0/R0/R1 cover the local sandbox; all later matrix rows remain future requirements. Server CPU, network faults, contention, permission and recovery checks are inapplicable until their systems exist.
+M0 and M1 have executable pure-rule, integration and Chromium gameplay checks. [M1 completion](milestones/M1_COMPLETION.md) records passed N0–N4, hosted lifecycle/overlap, true TCP packet loss and the ten-minute eight-player soak. Rows for M2 onward remain future requirements; no gathering, combat or durable gameplay implementation is authorized by this test matrix.
 
 ## Test layers
 
@@ -19,7 +19,7 @@ M0 now has executable pure-rule and Chromium gameplay tests. See [M0 completion 
 | G0 / M0 | Same seed in different chunk load orders | Identical terrain, collision and stable object IDs |
 | R0 / M0 | Walk diagonally, along walls and after resize | Bounded speed, no wall penetration, correct camera/target transform |
 | R1 / M0 | Unmount/remount canvas | No duplicated ticker/input listeners or persistent resource growth |
-| N0 / M1 | Two independent browser sessions join | Two authorized actors see consistent motion; third unauthorized identity rejected |
+| N0 / M1 | Up to eight independent browser sessions join | Eight authorized actors see consistent motion; ninth member and invalid credentials rejected |
 | N1 / M1 | Forged position/speed and malformed payload | No authority change; invalid traffic is rejected/rate-limited |
 | N2 / M1 | Disconnect and reconnect to another gateway | Same character, new session generation, full resync and no ghost duplicate |
 | N3 / M1 | Owner expiry, crash and stale-owner return | One active fenced owner; stale writes fail; room resumes |
@@ -57,13 +57,13 @@ Measure bytes/client/second, snapshot sizes, Redis operations, durable-command l
 
 Use correlation IDs for session, world, epoch and command; exclude tokens and unnecessary personal data. Log validation rejection categories, dedupe hits, tick overruns and commit failures. An in-development diagnostics overlay may show RTT/tick/corrections; player UI should say connecting/reconnecting/saved rather than expose implementation details.
 
-Visual review checks text legibility, target overlap, friendly/hostile distinction, attack tells, reduced-motion options and input focus. Inspect original approved promo before final art acceptance; it is unavailable in this package. Keep failures visible in the milestone note, with reproducible steps and actual observed outcomes.
+Visual review checks text legibility, target overlap, friendly/hostile distinction, attack tells, reduced-motion options and input focus. Compare moving gameplay against the supplied reference in `docs/art-reference/early-game-concept.png` before final art approval. Keep failures visible in the milestone note, with reproducible steps and actual observed outcomes.
 
 ## M1 executable coverage
 
 `tests/network.test.ts` launches real disposable Redis and real WebSocket gateways: schema/size validation, invitation contention, forged identity, lease fencing, stale generation, movement timeout, input flood, Redis pause/resume and SIGKILL owner recovery. `tests/e2e/multiplayer.spec.ts` uses independent browser contexts and distinct gateway processes for join/motion/reconnect. A real-traffic WebSocket proxy exercises delayed and lost application messages, stale epochs, invalid delta and a five-second outage. This proxy does not simulate actual TCP packet loss.
 
-`tests/e2e/multiplayer-soak.spec.ts` is explicitly invoked with `npm run test:multiplayer-soak`; both gateways must run with `ROTATION_MS=60000`. It measures two-client frames, memory and repeated planned owner changes. M0 regression checks run with `?solo=1` and write separate `m1-regression-*` evidence to preserve historical artifacts. The [M1 result](milestones/M1_LOCAL_RESULTS.md) is authoritative about passed and still-pending gates.
+The historical two-player soak is `tests/e2e/multiplayer-soak.spec.ts`. The current eight-player soak uses `M1_EIGHT_SOAK=1` with `tests/e2e/eight-players.spec.ts` and normal 240-second socket renewal. It measures frames, retained heap, CPU, collision, identities and peer presence. M0 regression checks run with `?solo=1` and write separate `m1-regression-*` evidence to preserve historical artifacts. The [M1 result](milestones/M1_LOCAL_RESULTS.md) is authoritative about passed and still-pending gates.
 
 
 `tests/e2e/characters.spec.ts` covers the M1 entry selector, clipboard invitation, two independent identities observing matching cosmetics and real movement, plus reload/resume. Its default evidence prefix is `m1-character`; `CHARACTER_EVIDENCE_PREFIX` can preserve a separate hosted run. For protected hosted verification, `HOSTED_ACCESS_FILE` may point to a private JSON file containing the Vercel automation `secret`; never store it in Git. [Character update results](milestones/M1_CHARACTERS.md) record checks and limitations. Existing game-canvas assertions are scoped to `.playfield canvas`, excluding entry portraits.
@@ -79,3 +79,7 @@ Visual review checks text legibility, target overlap, friendly/hostile distincti
 ## Four-character art checks
 
 `tests/character-art.test.ts` validates the four IDs and separate RGBA sheets with disjoint bounded frames. `tests/e2e/character-art.spec.ts` exercises each look's front/back/side walking and idle textures in solo mode. The existing character selector test checks four distinct nonempty portraits; the eight-player test now uses all four designs, verifies actual rendered direction frames across observers and resumes Hazel. [Results and limitations](milestones/M1_CHARACTER_ART.md) preserve the earlier milestone evidence.
+
+## Real TCP fault gate
+
+Manually dispatch `.github/workflows/m1-network.yml` on the public repository's isolated Ubuntu runner. It builds and checks the app, then runs `tests/e2e/tcp-network.spec.ts` with receiver-ingress netem affecting only local gateway TCP ports. It verifies 150/300 ms RTT with jitter and 1% actual packet loss, a five-second outage, accepted actions, peer convergence and bounded recovery. Kernel queue counters, TCP retransmission fields and browser measurements are retained as artifacts; no raw packet payloads or production credentials are uploaded. See [final validation](milestones/M1_FINAL_VALIDATION.md). Do not run the privileged fault script on a general-purpose host.

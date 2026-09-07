@@ -2,7 +2,7 @@
 
 A top-down 2D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
 
-**Status: M1 multiplayer is deployed; hosted lifecycle verification passed. True TCP packet-loss validation remains before M2.** Up to eight private browser sessions can explore the same Meadow with immediate local prediction, synchronized facing/walking/waves, server-owned movement and Redis-backed recovery. The concept-inspired art, username entry and fullscreen experience remain. The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md); M2 has not started.
+**Status: M1 complete within the recorded test envelope.** Hosted lifecycle, real TCP-loss/recovery, and ten-minute eight-player verification passed; see [M1 completion](docs/milestones/M1_COMPLETION.md). Up to eight private browser sessions can explore the same Meadow with immediate local prediction, synchronized facing/walking/waves, server-owned movement and Redis-backed recovery. The concept-inspired art, username entry and fullscreen experience remain. The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md); M2 has not started.
 
 ## Start here
 
@@ -55,13 +55,13 @@ npm run build
 npx playwright install chromium
 # With all four services running:
 BASE_URL=http://127.0.0.1:3002 npm run test:browser
-# Start both v2 gateways with SOCKET_AGE_MS=60000 for this exercise:
-BASE_URL=http://127.0.0.1:3002 npm run test:multiplayer-soak
+# Ten-minute eight-player soak with the normal 240-second socket renewal:
+BASE_URL=http://127.0.0.1:3002 M1_EIGHT_SOAK=1 npx playwright test tests/e2e/eight-players.spec.ts
 ```
 
 The rule/integration suite launches a disposable Redis process itself; Redis must be on PATH. The ordinary browser suite skips the separate ten-minute M0 and M1 soaks. Read-only `?debug=1` reports measurements without a state-mutation API. [M1 results](docs/milestones/M1_LOCAL_RESULTS.md) distinguish local evidence from outstanding deployed-host and network gates.
 
-The next eligible work is **M1 true TCP packet-loss validation**, not M2. Hosted overlap and expiry recovery passed; see [deployment evidence](docs/milestones/M1_DEPLOYMENT.md).
+The next eligible milestone is **M2 gathering and inventory**, when explicitly requested. M2 has not started. See [M1 acceptance evidence and limitations](docs/milestones/M1_COMPLETION.md).
 
 ## Document map
 

@@ -6,7 +6,7 @@ The subsequent user-authorized [eight-player expansion](M1_EIGHT_PLAYERS.md) sup
 
 ## Play
 
-Choose a name and Fern, Ember or Iris. Enter Meadow requests fullscreen. Menu → Copy invite link admits up to seven friends with their own names and looks. WASD/arrows move; pointing sets facing independently of movement; Space performs a cosmetic wave. Escape/menu releases movement. The wave uses an explicitly provisional text/hand marker, not finished character animation. Eight facing values map to four available sprite directions; remote walk/idle animation now follows replicated state.
+Choose a name and Fern, Ember, Iris or Hazel. Enter Meadow requests fullscreen. Menu → Copy invite link admits up to seven friends with their own names and looks. WASD/arrows move; pointing sets facing independently of movement; Space performs a cosmetic wave. Escape/menu releases movement. The wave uses an explicitly provisional text/hand marker, not finished character animation. Eight facing values map to four available sprite directions; remote walk/idle animation now follows replicated state.
 
 ## Contract and implementation
 
@@ -21,7 +21,7 @@ Choose a name and Fern, Ember or Iris. Enter Meadow requests fullscreen. Menu �
 
 ## Rolling compatibility
 
-Protocol 1 endpoints and server remain for already-open old deployments. Protocol 2 uses `meadow-session-v2-p8` in tab storage, `production:astraworld-m1v2-p8` in Redis and a version-specific preview namespace. Old and new rooms do not mix; refresh and create a new invitation to use the new controls. No durable gameplay data is migrated. `app/network-legacy.ts` is retained solely for protocol 1 regression tests and is not imported into the active UI. Retire v1 after its last supported deployed client expires.
+Protocol 1 endpoints and server remain for already-open old deployments. Protocol 2 uses `meadow-session-v2-p8-c4` in tab storage, `production:astraworld-m1v2-p8-c4` in Redis and a version-specific preview namespace. Old and new rooms do not mix; refresh and create a new invitation to use the new controls. No durable gameplay data is migrated. `app/network-legacy.ts` is retained solely for protocol 1 regression tests and is not imported into the active UI. Retire v1 after its last supported deployed client expires.
 
 Local launch uses Redis 6380 and `npm run game:realtime` on 3103/3104. Protocol 1 integration tests retain their own disposable ports. Existing historical evidence is preserved rather than overwritten by new test runs.
 
@@ -37,4 +37,4 @@ Runtime commit `dc7ec84` deployed successfully through Git to the existing Verce
 
 The Vercel production error-log query for the preceding 15 minutes returned no matching error logs. Deployment protection remains enabled. A final renderer adjustment keeps peer walking animation running while the local player is paused; production build and both focused local browser scenarios passed again. No server/protocol behavior changed after the hosted handoff test. A sub-50 ms p95 input-to-visible benchmark, a new ten-minute soak, device/network diversity, true TCP packet loss and multi-region load remain unverified. The 60 ms browser probe demonstrates prompt prediction; it is not a p95 latency benchmark. Short owner/Redis interruptions can still cause corrections or reconnect feedback. The fixed buffer and half-second server catch-up allowance are provisional and should be tuned with measurements.
 
-Next eligible task remains M1's true TCP fault and broader game-feel validation. Do not start M2.
+Final follow-up: [real TCP loss and ten-minute eight-player checks passed](M1_FINAL_VALIDATION.md). [M1 is complete within the recorded test envelope](M1_COMPLETION.md). The unrun device-diversity/input-to-photon/multi-region checks above remain limitations; M2 requires a new request.

@@ -1,0 +1,430 @@
+{
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 800,
+    "height": 600
+  },
+  "platform": "linux",
+  "phases": [
+    {
+      "mode": "clean",
+      "rounds": 8,
+      "elapsedMs": 21723,
+      "confirmedMs": [
+        168.40000000002328,
+        174.30000000004657,
+        166.70000000006985,
+        197.70000000006985,
+        194,
+        150,
+        165.09999999997672,
+        210.79999999993015
+      ],
+      "confirmedP95Ms": 210.79999999993015,
+      "inputToObservedMovementMs": [
+        106,
+        168,
+        127,
+        93,
+        92,
+        167,
+        29,
+        123
+      ],
+      "movementP95Ms": 168,
+      "snapshotAges": [
+        20.900000000023283,
+        26.5,
+        93.20000000006985,
+        99.09999999997672,
+        12.399999999906868,
+        25.199999999953434,
+        96.5,
+        2.400000000023283,
+        98.20000000006985,
+        102,
+        85.19999999995343,
+        88.90000000002328,
+        3.099999999976717,
+        7.5,
+        83,
+        92.20000000006985
+      ],
+      "statsBefore": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 54759,
+          "packets": 220,
+          "drops": 0,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 0,
+          "qlen": 0
+        }
+      ],
+      "statsAfter": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 400471,
+          "packets": 1244,
+          "drops": 0,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 0,
+          "qlen": 0
+        }
+      ]
+    },
+    {
+      "mode": "normal",
+      "rounds": 30,
+      "elapsedMs": 82203,
+      "confirmedMs": [
+        305.4000000000233,
+        308.60000000009313,
+        279,
+        359.9000000000233,
+        253.30000000004657,
+        210.90000000002328,
+        221.30000000004657,
+        380.19999999995343,
+        338.10000000009313,
+        307.9000000000233,
+        387.5,
+        327.9000000000233,
+        335.5,
+        336.9000000000233,
+        274.89999999990687,
+        221.19999999995343,
+        392.4000000000233,
+        226.09999999997672,
+        386.5,
+        290.20000000006985,
+        367,
+        233.09999999997672,
+        332.9000000000233,
+        336.5,
+        331.79999999993015,
+        266.5999999999767,
+        343.80000000004657,
+        457.80000000004657,
+        387.70000000006985,
+        366.30000000004657
+      ],
+      "confirmedP95Ms": 392.4000000000233,
+      "inputToObservedMovementMs": [
+        31,
+        175,
+        95,
+        134,
+        131,
+        94,
+        27,
+        101,
+        11,
+        60,
+        33,
+        69,
+        107,
+        156,
+        94,
+        62,
+        139,
+        66,
+        70,
+        145,
+        150,
+        157,
+        144,
+        109,
+        162,
+        111,
+        140,
+        14,
+        123,
+        159
+      ],
+      "movementP95Ms": 162,
+      "snapshotAges": [
+        100.80000000004657,
+        107.29999999993015,
+        110.5,
+        17.29999999993015,
+        104.09999999997672,
+        15.199999999953434,
+        87.30000000004657,
+        2.699999999953434,
+        73.59999999997672,
+        90.59999999997672,
+        28.800000000046566,
+        30.300000000046566,
+        40.90000000002328,
+        25.099999999976717,
+        30.29999999993015,
+        14.79999999993015,
+        25.5,
+        24.300000000046566,
+        70.39999999990687,
+        90.29999999993015,
+        94.5,
+        8.600000000093132,
+        16,
+        35.90000000002328,
+        30.5,
+        38.09999999997672,
+        3.400000000023283,
+        28.29999999993015,
+        112.09999999997672,
+        28.599999999976717,
+        8.699999999953434,
+        17.800000000046566,
+        55.09999999997672,
+        58.300000000046566,
+        117.69999999995343,
+        31.399999999906868,
+        226.40000000002328,
+        25.099999999976717,
+        102.90000000002328,
+        104.80000000004657,
+        101.09999999997672,
+        98.59999999997672,
+        23.5,
+        12.199999999953434,
+        109.40000000002328,
+        98.20000000006985,
+        24.099999999976717,
+        37.40000000002328,
+        35.800000000046566,
+        24.400000000023283,
+        24.800000000046566,
+        22.5,
+        31.400000000023283,
+        20.399999999906868,
+        20.20000000006985,
+        84.59999999997672,
+        85.40000000002328,
+        3.6000000000931323,
+        90,
+        95.29999999993015
+      ],
+      "statsBefore": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "delay": {
+              "delay": 0.075,
+              "jitter": 0.015,
+              "correlation": 0
+            },
+            "loss-random": {
+              "loss": 0.01,
+              "correlation": 0
+            },
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 400471,
+          "packets": 1244,
+          "drops": 0,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 0,
+          "qlen": 0
+        }
+      ],
+      "statsAfter": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "delay": {
+              "delay": 0.075,
+              "jitter": 0.015,
+              "correlation": 0
+            },
+            "loss-random": {
+              "loss": 0.01,
+              "correlation": 0
+            },
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 2014895,
+          "packets": 6113,
+          "drops": 48,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 1711,
+          "qlen": 4
+        }
+      ]
+    },
+    {
+      "mode": "high",
+      "rounds": 12,
+      "elapsedMs": 35679,
+      "confirmedMs": [
+        666.9000000000233,
+        412,
+        822.3999999999069,
+        523,
+        439.20000000006985,
+        506,
+        555.4000000000233,
+        505.5,
+        392,
+        568.0999999999767,
+        657.1999999999534,
+        584.8999999999069
+      ],
+      "confirmedP95Ms": 822.3999999999069,
+      "inputToObservedMovementMs": [
+        119,
+        152,
+        137,
+        159,
+        71,
+        83,
+        101,
+        126,
+        38,
+        44,
+        115,
+        172
+      ],
+      "movementP95Ms": 172,
+      "snapshotAges": [
+        17.70000000006985,
+        31.5,
+        27.20000000006985,
+        29,
+        96.09999999997672,
+        23.400000000023283,
+        94.89999999990687,
+        5,
+        39.10000000009313,
+        67.20000000006985,
+        36.59999999997672,
+        47.40000000002328,
+        106.30000000004657,
+        127.5,
+        20.599999999976717,
+        37.09999999997672,
+        74,
+        5.800000000046566,
+        23.599999999976717,
+        43.300000000046566,
+        240.5,
+        156.59999999997672,
+        28.800000000046566,
+        133
+      ],
+      "statsBefore": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "delay": {
+              "delay": 0.15,
+              "jitter": 0.015,
+              "correlation": 0
+            },
+            "loss-random": {
+              "loss": 0.01,
+              "correlation": 0
+            },
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 2015670,
+          "packets": 6115,
+          "drops": 48,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 1163,
+          "qlen": 3
+        }
+      ],
+      "statsAfter": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "delay": {
+              "delay": 0.15,
+              "jitter": 0.015,
+              "correlation": 0
+            },
+            "loss-random": {
+              "loss": 0.01,
+              "correlation": 0
+            },
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 2732637,
+          "packets": 8298,
+          "drops": 72,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 2298,
+          "qlen": 8
+        }
+      ]
+    }
+  ],
+  "recoveryMs": 5080,
+  "sameIdentities": true,
+  "connections": [
+    {
+      "receivedBytes": 888963,
+      "sentBytes": 424922
+    },
+    {
+      "receivedBytes": 865515,
+      "sentBytes": 16723
+    }
+  ],
+  "rates": [
+    {
+      "receivedBytesPerSecond": 5845.325846095174,
+      "sentBytesPerSecond": 2794.0505388575825
+    },
+    {
+      "receivedBytesPerSecond": 5691.144850441541,
+      "sentBytesPerSecond": 109.96113912980583
+    }
+  ],
+  "tcpBefore": "Ip: Forwarding DefaultTTL InReceives InHdrErrors InAddrErrors ForwDatagrams InUnknownProtos InDiscards InDelivers OutRequests OutDiscards OutNoRoutes ReasmTimeout ReasmReqds ReasmOKs ReasmFails FragOKs FragFails FragCreates OutTransmits\nIp: 1 64 144908 0 0 0 0 0 144903 44405 0 0 0 0 0 0 0 0 0 44405\nIcmp: InMsgs InErrors InCsumErrors InDestUnreachs InTimeExcds InParmProbs InSrcQuenchs InRedirects InEchos InEchoReps InTimestamps InTimestampReps InAddrMasks InAddrMaskReps OutMsgs OutErrors OutRateLimitGlobal OutRateLimitHost OutDestUnreachs OutTimeExcds OutParmProbs OutSrcQuenchs OutRedirects OutEchos OutEchoReps OutTimestamps OutTimestampReps OutAddrMasks OutAddrMaskReps\nIcmp: 2 0 0 2 0 0 0 0 0 0 0 0 0 0 2 0 0 0 2 0 0 0 0 0 0 0 0 0 0\nIcmpMsg: InType3 OutType3\nIcmpMsg: 2 2\nTcp: RtoAlgorithm RtoMin RtoMax MaxConn ActiveOpens PassiveOpens AttemptFails EstabResets CurrEstab InSegs OutSegs RetransSegs InErrs OutRsts InCsumErrors\nTcp: 1 200 120000 -1 812 48 20 1 16 144553 44443 0 0 53 0\nUdp: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors IgnoredMulti MemErrors\nUdp: 346 2 0 348 0 0 0 0 0\nUdpLite: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors IgnoredMulti MemErrors\nUdpLite: 0 0 0 0 0 0 0 0 0\n",
+  "tcpAfter": "Ip: Forwarding DefaultTTL InReceives InHdrErrors InAddrErrors ForwDatagrams InUnknownProtos InDiscards InDelivers OutRequests OutDiscards OutNoRoutes ReasmTimeout ReasmReqds ReasmOKs ReasmFails FragOKs FragFails FragCreates OutTransmits\nIp: 1 64 184977 0 0 0 0 0 184972 84644 0 0 0 0 0 0 0 0 0 84644\nIcmp: InMsgs InErrors InCsumErrors InDestUnreachs InTimeExcds InParmProbs InSrcQuenchs InRedirects InEchos InEchoReps InTimestamps InTimestampReps InAddrMasks InAddrMaskReps OutMsgs OutErrors OutRateLimitGlobal OutRateLimitHost OutDestUnreachs OutTimeExcds OutParmProbs OutSrcQuenchs OutRedirects OutEchos OutEchoReps OutTimestamps OutTimestampReps OutAddrMasks OutAddrMaskReps\nIcmp: 2 0 0 2 0 0 0 0 0 0 0 0 0 0 2 0 0 0 2 0 0 0 0 0 0 0 0 0 0\nIcmpMsg: InType3 OutType3\nIcmpMsg: 2 2\nTcp: RtoAlgorithm RtoMin RtoMax MaxConn ActiveOpens PassiveOpens AttemptFails EstabResets CurrEstab InSegs OutSegs RetransSegs InErrs OutRsts InCsumErrors\nTcp: 1 200 120000 -1 959 66 20 16 16 184610 84739 85 0 74 0\nUdp: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors IgnoredMulti MemErrors\nUdp: 358 2 0 360 0 0 0 0 0\nUdpLite: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors IgnoredMulti MemErrors\nUdpLite: 0 0 0 0 0 0 0 0 0\n",
+  "errors": []
+}

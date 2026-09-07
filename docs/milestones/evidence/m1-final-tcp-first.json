@@ -1,0 +1,93 @@
+{
+  "run": "https://github.com/elishaterada/astraworld/actions/runs/34083296162",
+  "revision": "d7dbc9b",
+  "status": "failed setup after clean baseline",
+  "reason": "Ubuntu tc looked for uniform.dist when distribution uniform was explicit; use default uniform jitter instead. No packet-loss pass claimed.",
+  "baseline": [
+    {
+      "mode": "clean",
+      "rounds": 8,
+      "elapsedMs": 23879,
+      "confirmedMs": [
+        134,
+        93,
+        543,
+        297,
+        271,
+        232,
+        245,
+        327
+      ],
+      "confirmedP95Ms": 543,
+      "inputToObservedMovementMs": [
+        95,
+        221,
+        135,
+        59,
+        551,
+        152,
+        24,
+        459
+      ],
+      "movementP95Ms": 551,
+      "snapshotAges": [
+        100.10000000000582,
+        0.39999999999417923,
+        68.10000000000582,
+        79.69999999998254,
+        87.19999999998254,
+        92.5,
+        76.90000000002328,
+        81.20000000001164,
+        4.600000000005821,
+        12.400000000023283,
+        13.5,
+        21.39999999999418,
+        18.89999999999418,
+        19.5,
+        85,
+        95.20000000001164
+      ],
+      "statsBefore": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 121398,
+          "packets": 486,
+          "drops": 0,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 0,
+          "qlen": 0
+        }
+      ],
+      "statsAfter": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 482419,
+          "packets": 1514,
+          "drops": 0,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 0,
+          "qlen": 0
+        }
+      ]
+    }
+  ]
+}

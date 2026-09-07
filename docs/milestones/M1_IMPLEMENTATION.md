@@ -1,5 +1,8 @@
 # M1 implementation contract
 
+**Current status: [M1 complete](M1_COMPLETION.md).** The dated results and then-pending checks below are historical; final TCP-loss and eight-player soak evidence supersedes their outstanding-gate notes. M2 has not started.
+
+
 Authorized by “Great, next step” following M0. Work is limited to M1; the deployed-host gate remains mandatory.
 
 ## Reference choices

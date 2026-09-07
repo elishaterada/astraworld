@@ -1,5 +1,8 @@
 # M1 eight-player expansion
 
+**Current status: [M1 complete](M1_COMPLETION.md).** The dated results and then-pending checks below are historical; final TCP-loss and eight-player soak evidence supersedes their outstanding-gate notes. M2 has not started.
+
+
 User requested: remove the two-player restriction and support up to eight. This changes M1 capacity only. Later gameplay milestones remain unstarted.
 
 ## Implementation

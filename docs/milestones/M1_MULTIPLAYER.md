@@ -1,6 +1,6 @@
 # M1 mission: authoritative multiplayer (up to eight players)
 
-**Status: local and deployed lifecycle verified; true TCP packet-loss validation pending. M1 was authorized by “Great, next step” after M0. See [local results](M1_LOCAL_RESULTS.md) and [deployment results](M1_DEPLOYMENT.md). Do not start M2.**
+**Status: M1 complete within the recorded test envelope. See [completion and acceptance matrix](M1_COMPLETION.md). M2 is eligible only upon a new explicit request and has not started.**
 
 The user explicitly expanded the room limit from two to eight after the two-player reference. See [capacity decisions and checks](M1_EIGHT_PLAYERS.md).
 

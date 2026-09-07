@@ -1,5 +1,8 @@
 # M1 local multiplayer results — 2026-09-06
 
+**Current status: [M1 complete](M1_COMPLETION.md).** The dated results and then-pending checks below are historical; final TCP-loss and eight-player soak evidence supersedes their outstanding-gate notes. M2 has not started.
+
+
 **Local reference implemented; deployed-host acceptance pending. M1 is not complete. Do not start M2.**
 
 ## Scope and revision

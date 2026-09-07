@@ -1,0 +1,430 @@
+{
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 800,
+    "height": 600
+  },
+  "platform": "linux",
+  "phases": [
+    {
+      "mode": "clean",
+      "rounds": 8,
+      "elapsedMs": 21242,
+      "confirmedMs": [
+        134.1999999997206,
+        248.39999999990687,
+        159.79999999981374,
+        36.299999999813735,
+        91.5,
+        210.20000000018626,
+        127.60000000009313,
+        107.6999999997206
+      ],
+      "confirmedP95Ms": 248.39999999990687,
+      "inputToObservedMovementMs": [
+        49,
+        127,
+        159,
+        92,
+        96,
+        50,
+        87,
+        47
+      ],
+      "movementP95Ms": 159,
+      "snapshotAges": [
+        59.6999999997206,
+        66.20000000018626,
+        13.800000000279397,
+        33.799999999813735,
+        74.3000000002794,
+        77.70000000018626,
+        1.1000000000931323,
+        5.699999999720603,
+        75.8000000002794,
+        80.10000000009313,
+        99,
+        103.39999999990687,
+        86.5,
+        90.89999999990687,
+        70.1999999997206,
+        75.79999999981374
+      ],
+      "statsBefore": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 45304,
+          "packets": 181,
+          "drops": 0,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 0,
+          "qlen": 0
+        }
+      ],
+      "statsAfter": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 386246,
+          "packets": 1193,
+          "drops": 0,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 0,
+          "qlen": 0
+        }
+      ]
+    },
+    {
+      "mode": "normal",
+      "rounds": 30,
+      "elapsedMs": 77510,
+      "confirmedMs": [
+        232.60000000009313,
+        525.9000000003725,
+        351.1999999997206,
+        216.8000000002794,
+        452,
+        236.60000000009313,
+        244.10000000009313,
+        214.10000000009313,
+        205.8000000002794,
+        221.79999999981374,
+        190.8000000002794,
+        291.09999999962747,
+        316.20000000018626,
+        178.60000000009313,
+        268.70000000018626,
+        198.89999999990687,
+        240.70000000018626,
+        217.70000000018626,
+        313.79999999981374,
+        216.8000000002794,
+        266.10000000009313,
+        272.10000000009313,
+        195.8000000002794,
+        359.20000000018626,
+        256.1999999997206,
+        289.8000000002794,
+        217.60000000009313,
+        267.20000000018626,
+        200.60000000009313,
+        368.39999999990687
+      ],
+      "confirmedP95Ms": 452,
+      "inputToObservedMovementMs": [
+        51,
+        49,
+        95,
+        157,
+        128,
+        57,
+        125,
+        126,
+        32,
+        92,
+        51,
+        66,
+        84,
+        64,
+        52,
+        134,
+        27,
+        92,
+        131,
+        125,
+        97,
+        97,
+        33,
+        107,
+        40,
+        16,
+        105,
+        70,
+        124,
+        93
+      ],
+      "movementP95Ms": 134,
+      "snapshotAges": [
+        115.40000000037253,
+        2.7999999998137355,
+        56.5,
+        89.3000000002794,
+        8.800000000279397,
+        8.900000000372529,
+        109.59999999962747,
+        13.700000000186265,
+        105.70000000018626,
+        97.20000000018626,
+        91.79999999981374,
+        90.90000000037253,
+        109.60000000009313,
+        195.5,
+        116.20000000018626,
+        124.6999999997206,
+        59.1999999997206,
+        76.20000000018626,
+        101.89999999990687,
+        98.5,
+        1.1999999997206032,
+        300.29999999981374,
+        89.39999999990687,
+        102.1999999997206,
+        84.8000000002794,
+        98.3000000002794,
+        61.10000000009313,
+        60.60000000009313,
+        22.59999999962747,
+        35.799999999813735,
+        28.5,
+        13.299999999813735,
+        8.900000000372529,
+        15.200000000186265,
+        91.6999999997206,
+        16.40000000037253,
+        0.900000000372529,
+        7.900000000372529,
+        92.20000000018626,
+        109,
+        78.90000000037253,
+        95.5,
+        1.7000000001862645,
+        1.1999999997206032,
+        103.10000000009313,
+        103.79999999981374,
+        39.700000000186265,
+        37.799999999813735,
+        94.1999999997206,
+        100.29999999981374,
+        16.5,
+        21.700000000186265,
+        80.60000000009313,
+        10.400000000372529,
+        3,
+        6.2999999998137355,
+        121.6999999997206,
+        19.100000000093132,
+        16.700000000186265,
+        29
+      ],
+      "statsBefore": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "delay": {
+              "delay": 0.075,
+              "jitter": 0.015,
+              "correlation": 0
+            },
+            "loss-random": {
+              "loss": 0.01,
+              "correlation": 0
+            },
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 386246,
+          "packets": 1193,
+          "drops": 0,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 0,
+          "qlen": 0
+        }
+      ],
+      "statsAfter": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "delay": {
+              "delay": 0.075,
+              "jitter": 0.015,
+              "correlation": 0
+            },
+            "loss-random": {
+              "loss": 0.01,
+              "correlation": 0
+            },
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 1921181,
+          "packets": 5964,
+          "drops": 45,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 1940,
+          "qlen": 5
+        }
+      ]
+    },
+    {
+      "mode": "high",
+      "rounds": 12,
+      "elapsedMs": 34869,
+      "confirmedMs": [
+        374.60000000009313,
+        429.3000000002794,
+        411.8000000002794,
+        426,
+        381.89999999990687,
+        662.3999999999069,
+        404,
+        383.1999999997206,
+        378.39999999990687,
+        1111.5,
+        360.60000000009313,
+        518.7000000001863
+      ],
+      "confirmedP95Ms": 1111.5,
+      "inputToObservedMovementMs": [
+        109,
+        72,
+        34,
+        36,
+        114,
+        39,
+        173,
+        114,
+        48,
+        87,
+        123,
+        125
+      ],
+      "movementP95Ms": 173,
+      "snapshotAges": [
+        6.399999999906868,
+        25.5,
+        24.200000000186265,
+        39.8000000002794,
+        65.5,
+        83.5,
+        30.399999999906868,
+        49.799999999813735,
+        21.100000000093132,
+        53.39999999990687,
+        15.399999999906868,
+        24.5,
+        6.600000000093132,
+        24.899999999906868,
+        79.5,
+        103.1999999997206,
+        54.5,
+        73.8000000002794,
+        64.8000000002794,
+        63.200000000186265,
+        94.70000000018626,
+        4.5,
+        27,
+        41.59999999962747
+      ],
+      "statsBefore": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "delay": {
+              "delay": 0.15,
+              "jitter": 0.015,
+              "correlation": 0
+            },
+            "loss-random": {
+              "loss": 0.01,
+              "correlation": 0
+            },
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 1922599,
+          "packets": 5966,
+          "drops": 45,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 588,
+          "qlen": 4
+        }
+      ],
+      "statsAfter": [
+        {
+          "kind": "netem",
+          "handle": "10:",
+          "root": true,
+          "refcnt": 2,
+          "options": {
+            "limit": 10000,
+            "delay": {
+              "delay": 0.15,
+              "jitter": 0.015,
+              "correlation": 0
+            },
+            "loss-random": {
+              "loss": 0.01,
+              "correlation": 0
+            },
+            "ecn": false,
+            "gap": 0
+          },
+          "bytes": 2624840,
+          "packets": 8109,
+          "drops": 70,
+          "overlimits": 0,
+          "requeues": 0,
+          "backlog": 2483,
+          "qlen": 9
+        }
+      ]
+    }
+  ],
+  "recoveryMs": 6051,
+  "sameIdentities": true,
+  "connections": [
+    {
+      "receivedBytes": 849220,
+      "sentBytes": 421705
+    },
+    {
+      "receivedBytes": 826405,
+      "sentBytes": 16168
+    }
+  ],
+  "rates": [
+    {
+      "receivedBytesPerSecond": 5779.955759741364,
+      "sentBytesPerSecond": 2870.205887357495
+    },
+    {
+      "receivedBytesPerSecond": 5624.6724519312575,
+      "sentBytesPerSecond": 110.0425387102263
+    }
+  ],
+  "tcpBefore": "Ip: Forwarding DefaultTTL InReceives InHdrErrors InAddrErrors ForwDatagrams InUnknownProtos InDiscards InDelivers OutRequests OutDiscards OutNoRoutes ReasmTimeout ReasmReqds ReasmOKs ReasmFails FragOKs FragFails FragCreates OutTransmits\nIp: 1 64 64031 0 0 0 0 0 64026 32597 0 0 0 0 0 0 0 0 0 32597\nIcmp: InMsgs InErrors InCsumErrors InDestUnreachs InTimeExcds InParmProbs InSrcQuenchs InRedirects InEchos InEchoReps InTimestamps InTimestampReps InAddrMasks InAddrMaskReps OutMsgs OutErrors OutRateLimitGlobal OutRateLimitHost OutDestUnreachs OutTimeExcds OutParmProbs OutSrcQuenchs OutRedirects OutEchos OutEchoReps OutTimestamps OutTimestampReps OutAddrMasks OutAddrMaskReps\nIcmp: 2 0 0 2 0 0 0 0 0 0 0 0 0 0 2 0 0 0 2 0 0 0 0 0 0 0 0 0 0\nIcmpMsg: InType3 OutType3\nIcmpMsg: 2 2\nTcp: RtoAlgorithm RtoMin RtoMax MaxConn ActiveOpens PassiveOpens AttemptFails EstabResets CurrEstab InSegs OutSegs RetransSegs InErrs OutRsts InCsumErrors\nTcp: 1 200 120000 -1 1780 48 18 0 17 63626 32875 1 0 54 0\nUdp: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors IgnoredMulti MemErrors\nUdp: 396 2 0 400 0 0 0 0 0\nUdpLite: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors IgnoredMulti MemErrors\nUdpLite: 0 0 0 0 0 0 0 0 0\n",
+  "tcpAfter": "Ip: Forwarding DefaultTTL InReceives InHdrErrors InAddrErrors ForwDatagrams InUnknownProtos InDiscards InDelivers OutRequests OutDiscards OutNoRoutes ReasmTimeout ReasmReqds ReasmOKs ReasmFails FragOKs FragFails FragCreates OutTransmits\nIp: 1 64 102863 0 0 0 0 0 102858 71577 0 0 0 0 0 0 0 0 0 71577\nIcmp: InMsgs InErrors InCsumErrors InDestUnreachs InTimeExcds InParmProbs InSrcQuenchs InRedirects InEchos InEchoReps InTimestamps InTimestampReps InAddrMasks InAddrMaskReps OutMsgs OutErrors OutRateLimitGlobal OutRateLimitHost OutDestUnreachs OutTimeExcds OutParmProbs OutSrcQuenchs OutRedirects OutEchos OutEchoReps OutTimestamps OutTimestampReps OutAddrMasks OutAddrMaskReps\nIcmp: 2 0 0 2 0 0 0 0 0 0 0 0 0 0 2 0 0 0 2 0 0 0 0 0 0 0 0 0 0\nIcmpMsg: InType3 OutType3\nIcmpMsg: 2 2\nTcp: RtoAlgorithm RtoMin RtoMax MaxConn ActiveOpens PassiveOpens AttemptFails EstabResets CurrEstab InSegs OutSegs RetransSegs InErrs OutRsts InCsumErrors\nTcp: 1 200 120000 -1 1923 66 18 15 16 102444 71945 78 0 75 0\nUdp: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors IgnoredMulti MemErrors\nUdp: 410 2 0 414 0 0 0 0 0\nUdpLite: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors IgnoredMulti MemErrors\nUdpLite: 0 0 0 0 0 0 0 0 0\n",
+  "errors": []
+}

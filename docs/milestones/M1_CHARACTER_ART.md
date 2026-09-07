@@ -1,5 +1,8 @@
 # M1 four distinct character designs
 
+**Current status: [M1 complete](M1_COMPLETION.md).** The dated results and then-pending checks below are historical; final TCP-loss and eight-player soak evidence supersedes their outstanding-gate notes. M2 has not started.
+
+
 Implemented 2026-09-06 after the user's request for four separate characters including women. M1 cosmetic work only; no M2 mechanics, statistics, new actions or services.
 
 ## Delivered
