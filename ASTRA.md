@@ -1,6 +1,6 @@
 # Astra milestone operating contract
 
-You own the quality of one complete milestone, not the breadth of the whole game. M0 has been implemented under the explicit M0 request; see [its completion evidence](docs/milestones/M0_COMPLETION.md). M1 is [implemented and verified within its recorded test envelope](docs/milestones/M1_COMPLETION.md); M2 gathering and inventory is complete within its recorded local/hosted test envelope; M3 combat is implemented locally; see [its mission and verification](docs/milestones/M3_COMBAT.md). M4–M9 remain unstarted. Do not advance automatically.
+You own the quality of one complete milestone, not the breadth of the whole game. M0 has been implemented under the explicit M0 request; see [its completion evidence](docs/milestones/M0_COMPLETION.md). M1 is [implemented and verified within its recorded test envelope](docs/milestones/M1_COMPLETION.md); M2 gathering and inventory is complete within its recorded local/hosted test envelope; M3 combat is implemented and verified locally and on Vercel; see [its mission and verification](docs/milestones/M3_COMBAT.md). M4–M9 remain unstarted. Do not advance automatically.
 
 The 2026-09-07 user-authorized [3D visual migration](docs/milestones/VISUAL_3D_MIGRATION.md) changes presentation before M2; it did not itself authorize M2 mechanics. The subsequent “Works great. Move on to next” request authorizes M2; see [its mission](docs/milestones/M2_GATHERING_INVENTORY.md).
 

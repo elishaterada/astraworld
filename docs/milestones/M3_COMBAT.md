@@ -16,7 +16,7 @@ Validate pure lifecycle, single hits, walls, cooldowns, dodge bounds, death and 
 
 ## Results
 
-**PASS within the local test envelope.** Based on clean commit `adabdfd`; M3 is being released through the existing Git integration following the user’s “lets do that” request. Hosted verification is pending below. No new dependency, cloud service or credential was needed.
+**PASS within the local test envelope.** Based on clean commit `adabdfd`; M3 was released through the existing Git integration following the user’s “lets do that” request. Hosted verification passed below. No new dependency, cloud service or credential was needed.
 
 - `npm run typecheck`: PASS. `npm test`: **53 tests / 17 files PASS** (final complete suite 16.44 s). `npm run build`: PASS with Next.js 16.3.4.
 - `tests/combat.test.ts`: six focused tests cover windup/active/recovery, facing lock and single hits, range/arc, exact segment-versus-tile wall blocking including tiny diagonal corner crossings, tool permission, dodge travel/time/cooldown/invulnerability and wall collision, death cancellation, retained inventory, safe respawn, single defeat tombstone, disconnected-target exclusion, leash return, action batching/conflicting replay and forged outcome rejection. Existing movement, protocol, inventory, contention and lifecycle tests also pass.
@@ -31,13 +31,21 @@ The deliberate `combat-1` identifier change updates the locked terrain/ID hash t
 
 ## Limitations and next task
 
-Combat is enabled in ordinary multiplayer entry; `?solo=1` intentionally retains its earlier regression harness. There is one hostile encounter and no healing, drops, additional weapons, taming or M4 implementation. The Slime uses direct swept steering within its habitat, not general obstacle pathfinding; it can be impeded by terrain when lured off the central trail. There is no historical hit rewind. Added application RTT verification is not TCP packet-loss testing, a WAN fairness guarantee, or a repeat of the ten-minute soak. Safari/Firefox, M3 hosted lifecycle/latency and sustained eight-player combat performance remain unverified. Existing M1 hosted evidence is historical and is not relabeled as an M3 result.
+Combat is enabled in ordinary multiplayer entry; `?solo=1` intentionally retains its earlier regression harness. There is one hostile encounter and no healing, drops, additional weapons, taming or M4 implementation. The Slime uses direct swept steering within its habitat, not general obstacle pathfinding; it can be impeded by terrain when lured off the central trail. There is no historical hit rewind. Added application RTT verification is not TCP packet-loss testing, a WAN fairness guarantee, or a repeat of the ten-minute soak. Safari/Firefox, M3 long-duration hosted lifecycle/rollover and sustained eight-player combat performance remain unverified. Existing M1 hosted evidence is historical and is not relabeled as an M3 result.
 
 Recovery is the existing temporary Redis checkpoint (about 30 minutes); Redis loss is not durable saving. A missing input may shorten a dodge, and pause menus do not pause the shared world or protect an adventurer from an already nearby enemy. Dead players keep their items; defeat tombstones persist only within the temporary room. Create a fresh Meadow and invitation for M3; old M2 sessions are isolated.
 
-Next: user playtest and, when requested, commit/push plus a hosted combat smoke. M4 taming/following is the next gameplay milestone and requires a separate request. Stop here.
+The release and hosted combat smoke are now complete. Next: user playtest. M4 taming/following is the next gameplay milestone and requires a separate request. Stop here.
 
 
 ## Hosted release
 
-Commit/push and two-player hosted combat verification authorized on 2026-09-07. The combat browser harness now accepts the same private automation-access file as the existing gathering tests and writes separate hosted evidence. Results pending.
+Commit/push and two-player hosted combat verification authorized on 2026-09-07. The combat browser harness now accepts the same private automation-access file as the existing gathering tests and writes separate hosted evidence. 
+
+**PASS: production M3 combat smoke.** Implementation commit `f9aaabe` pushed to origin/main and deployed as `dpl_MwhwZdkaP5uzTgPqoUVkUkf1VDCu` (`astraworld-790umyabc-teradas.vercel.app`), target production, status READY. The existing [production alias](https://astraworld-teradas.vercel.app) serves it. Protected health returned `ready: true`, owner prefix `f9aaabe`, region `iad1`, Redis round trip 1.31 ms. The scoped five-minute production error-log scan returned no logs.
+
+`BASE_URL=https://astraworld-teradas.vercel.app HOSTED_ACCESS_FILE=<private temporary file> COMBAT_EVIDENCE_PREFIX=docs/milestones/evidence/m3-hosted npx playwright test tests/e2e/combat.spec.ts`: **PASS, 36.8 seconds**, Chromium 153.0.8010.12. Two independently authenticated contexts gathered, approached the Slime, saw its warning, agreed on health, replicated a dodge, observed death and safe respawn with retained inventory, defeated the Slime, and reloaded with the same defeat tick and items. The second context added 75 ms to each WebSocket direction (150 ms application RTT). No page errors.
+
+[Hosted measurements](evidence/m3-hosted-browser.json), [warning](evidence/m3-hosted-telegraph.png), [blade](evidence/m3-hosted-blade.png), [recovery](evidence/m3-hosted-recovery.png), [defeat](evidence/m3-hosted-defeated.png). The warning screenshot was visually reviewed. Existing deployment protection was retained; temporary automation access was removed after verification. No secrets were placed in Git, client code or evidence. The evidence/documentation follow-up does not change runtime behavior.
+
+This is a hosted combat/reload smoke, not a repeat of the M1 ten-minute soak, TCP-loss test, or rolling-deployment experiment. M4 remains unimplemented and requires a separate request.

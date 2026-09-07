@@ -2,7 +2,7 @@
 
 A cozy 3D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
 
-**Status: M3 combat implemented locally; see [M3 results and limitations](docs/milestones/M3_COMBAT.md). The deployed version remains M2, verified on Vercel in [the M2 mission](docs/milestones/M2_GATHERING_INVENTORY.md).** M1 is complete within its recorded test envelope. Hosted lifecycle, real TCP-loss/recovery, and ten-minute eight-player verification passed; see [M1 completion](docs/milestones/M1_COMPLETION.md). Up to eight private browser sessions can explore the same Meadow with immediate local prediction, synchronized facing/walking/waves, server-owned movement and Redis-backed recovery. The user-authorized visual migration replaces sprites with original modular Three.js models, while retaining username entry and fullscreen. See [3D migration](docs/milestones/VISUAL_3D_MIGRATION.md). The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md).
+**Status: M3 combat implemented and verified locally and on Vercel; see [M3 results and limitations](docs/milestones/M3_COMBAT.md).** M1 is complete within its recorded test envelope. Hosted lifecycle, real TCP-loss/recovery, and ten-minute eight-player verification passed; see [M1 completion](docs/milestones/M1_COMPLETION.md). Up to eight private browser sessions can explore the same Meadow with immediate local prediction, synchronized facing/walking/waves, server-owned movement and Redis-backed recovery. The user-authorized visual migration replaces sprites with original modular Three.js models, while retaining username entry and fullscreen. See [3D migration](docs/milestones/VISUAL_3D_MIGRATION.md). The existing Vercel project and Redis service now host the same multiplayer runner. No new cloud service was provisioned. See [M1 local results](docs/milestones/M1_LOCAL_RESULTS.md).
 
 ## Start here
 
@@ -117,7 +117,7 @@ Walk near a pink berry bush or a tree. The gold ground ring marks your nearest a
 
 Only confirmed server results change the satchel. Resume the same browser session to recover items and depleted resources within the existing 30-minute recovery window. Leaving starts a new adventurer; Redis loss still loses progress. This is not permanent saving. Old M1 invitations/sessions are isolated from M2; create a new Meadow and share its new invite.
 
-M2 uses the existing local launch commands above and the existing Vercel/Redis stack. No new services or credentials are required. M3 adds combat locally; taming, crafting and building remain later milestones.
+M2 uses the existing local launch commands above and the existing Vercel/Redis stack. No new services or credentials are required. M3 adds combat; taming, crafting and building remain later milestones.
 
 The compact game HUD keeps your satchel closed until you press **I** or click its bottom-right button. **I** or **Escape** closes it; Escape during play opens the pause menu. Movement guidance appears once per browser and can always be found under **Menu → Controls**. Nearby gathering prompts and brief pickup notifications remain visible without opening inventory.
 
@@ -128,4 +128,4 @@ Refresh and create a **new Meadow**; M3 uses new room/session IDs, so send a fre
 
 The Slime has 30 health and takes three blade hits. Step or dodge outside its amber circle before the slam, then counterattack during recovery. Your compact lower-left health bar shows server-confirmed health. At zero health you recover at safe spawn after two seconds with your items retained. Players cannot hurt one another. Defeated Slimes remain defeated for the temporary room; create a new Meadow for another encounter. There are no drops, healing items, taming or new weapons in M3.
 
-Combat and inventory recover together through the existing temporary Redis checkpoint. This is not permanent saving or lag compensation. See [the complete M3 contract, checks and limitations](docs/milestones/M3_COMBAT.md). No M3 deployment has been made by this implementation task.
+Combat and inventory recover together through the existing temporary Redis checkpoint. This is not permanent saving or lag compensation. See [the complete M3 contract, checks and limitations](docs/milestones/M3_COMBAT.md). M3 is deployed through the existing Vercel project; refresh and create a new Meadow for its isolated room version.

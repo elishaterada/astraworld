@@ -1,6 +1,6 @@
 # Milestone roadmap
 
-**M0 is complete locally (G0/R0/R1 and ten-minute performance PASS)**; see [its completion evidence](milestones/M0_COMPLETION.md). M1 is [complete within the recorded test envelope](milestones/M1_COMPLETION.md), including deployed lifecycle/overlap, real TCP loss and the eight-player soak; M2 gathering and inventory is [complete with local and hosted evidence](milestones/M2_GATHERING_INVENTORY.md); M3 combat is [implemented locally](milestones/M3_COMBAT.md); M4–M9 are **not started**. Milestone names below normalize the different numbering used in the conversation; use these IDs in future tasks.
+**M0 is complete locally (G0/R0/R1 and ten-minute performance PASS)**; see [its completion evidence](milestones/M0_COMPLETION.md). M1 is [complete within the recorded test envelope](milestones/M1_COMPLETION.md), including deployed lifecycle/overlap, real TCP loss and the eight-player soak; M2 gathering and inventory is [complete with local and hosted evidence](milestones/M2_GATHERING_INVENTORY.md); M3 combat is [implemented and verified locally and on Vercel](milestones/M3_COMBAT.md); M4–M9 are **not started**. Milestone names below normalize the different numbering used in the conversation; use these IDs in future tasks.
 
 M1 responsiveness revision: [protocol 2 contract and evidence](milestones/M1_RESPONSIVENESS.md), including Vercel-only hosting, predicted input, facing and wave synchronization.
 
