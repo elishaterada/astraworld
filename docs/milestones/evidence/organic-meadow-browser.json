@@ -1,0 +1,11 @@
+{
+  "result": "pass",
+  "p95": 16.700000000000728,
+  "renderer": {
+    "drawCalls": 127,
+    "triangles": 440610,
+    "geometries": 9,
+    "textures": 4
+  },
+  "errors": []
+}

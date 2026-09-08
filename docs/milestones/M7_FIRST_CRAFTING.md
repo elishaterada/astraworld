@@ -34,3 +34,9 @@ The crafting/station loop is complete within this local test envelope. Hosted pr
 Workbench placement is permanently limited to two camp plots. The one hand-crafted recipe does not require using the workbench; no dismantling, chests or general building UI are included. Station art is an original placeholder. No SQL tables changed: additive aggregate validation was tested against old-style states and new stations.
 
 M8 settlement building is the next content milestone, but is not authorized or started. Before publishing M7, coordinate the protocol update and verify hosted recovery; do not assume local success proves deployment overlap.
+
+### Local connection repair
+
+A later user report of lost controls was traced to local Redis port 6380 refusing connections while the two gateways and browser were still running. The database saved world remained readable. Restarting loopback Redis restored the existing character without resetting its world. Local startup now daemonizes the shared, non-persistent Redis process so it outlives a temporary launcher terminal, like the existing local Postgres service. Explicit shutdown is documented in README.
+
+Verified Redis PONG, the user’s browser leaving Reconnecting with health/inventory controls restored, and actual keyboard input changing the authoritative position. JavaScript syntax and diff checks passed. No gameplay rules changed.

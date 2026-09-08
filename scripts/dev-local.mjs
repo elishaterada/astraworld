@@ -58,7 +58,8 @@ function listening(port) {
   });
 }
 if (!process.env.REDIS_URL && !(await listening(6380))) {
-  launch("redis-server", [
+  // Shared local infrastructure, like Postgres: outlives a transient launcher terminal.
+  execFileSync("redis-server", [
     "--bind",
     "127.0.0.1",
     "--port",
@@ -67,6 +68,12 @@ if (!process.env.REDIS_URL && !(await listening(6380))) {
     "",
     "--appendonly",
     "no",
+    "--daemonize",
+    "yes",
+    "--pidfile",
+    "/tmp/astraworld-local-redis.pid",
+    "--logfile",
+    "/tmp/astraworld-local-redis.log",
   ]);
   let ready = false;
   for (let i = 0; i < 50 && !stopping; i++) {

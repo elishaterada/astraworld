@@ -1,4 +1,5 @@
 "use client";
+import { meadowLandscape } from "./meadow-landscape";
 import { useEffect, useRef, useState } from "react";
 import { generateWorld, SIZE } from "../packages/world";
 import type { RealtimeSnapshot } from "../packages/protocol/realtime";
@@ -25,20 +26,20 @@ export function WorldMap({
   useEffect(() => {
     const ctx = canvas.current?.getContext("2d");
     if (!ctx) return;
-    const world = generateWorld(seed);
+    const world = generateWorld(seed),
+      landscape = meadowLandscape(world);
     for (const t of world.tiles) {
       ctx.fillStyle =
         t.terrain === "water"
           ? "#477f8c"
-          : t.terrain === "path"
-            ? "#bdad70"
-            : t.terrain === "shore"
-              ? "#919c73"
-              : t.blocker === "tree"
-                ? "#325840"
-                : t.blocker === "rock"
-                  ? "#718079"
-                  : "#77925b";
+          : t.blocker === "tree"
+            ? "#325840"
+            : t.blocker === "rock"
+              ? "#718079"
+              : `#${landscape
+                  .color(t.x + 0.5, t.y + 0.5)
+                  .toString(16)
+                  .padStart(6, "0")}`;
       ctx.fillRect(t.x, t.y, 1, 1);
     }
   }, [seed]);

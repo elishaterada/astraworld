@@ -30,7 +30,7 @@ npm run dev
 
 This starts local Redis when needed, two game gateways and Next.js through Portless. The stable address on this machine is **https://astraworld.localhost:1355**; `portless get astraworld` prints the address for your proxy configuration. Portless selects internal ports automatically, so neither the browser URL nor the gateway URLs need to change. HTTPS and WebSocket connections use the local trusted Portless certificate. On a machine where Portless can bind port 443, the same hostname has no port suffix.
 
-Stop the launcher with Ctrl+C. It stops the children it started; it leaves an existing Redis process and the shared Portless proxy alone. Redis remains temporary, but M6 worlds recover from Postgres. The launcher reads the untracked `.env.development.local` and restarts this repository’s `.local/postgres` cluster when configured; PostgreSQL stays running when the web launcher stops. Standalone gateways read process environment. Never copy production Redis/database settings into local development.
+Stop the launcher with Ctrl+C. It stops the children it started; it leaves the shared local Redis service and Portless proxy running. Redis starts as a loopback-only background service so closing a temporary terminal cannot strand the game gateways. Stop it explicitly with `redis-cli -p 6380 shutdown` when it is no longer needed. Redis remains temporary, but M6 worlds recover from Postgres. The launcher reads the untracked `.env.development.local` and restarts this repository’s `.local/postgres` cluster when configured; PostgreSQL stays running when the web launcher stops. Standalone gateways read process environment. Never copy production Redis/database settings into local development.
 
 For fixed-port network fault tests or production-build review, the previous separate-terminal flow remains available:
 
@@ -161,3 +161,7 @@ The upper-right minimap shows the entire Meadow: gold is you, blue is other onli
 Press **E** to collect loose stone along the east trail and chop trees. Open the satchel with **I** and choose **Craft axe**: a Stone Axe costs **3 wood + 2 stone** and automatically yields **5 wood per tree** instead of 3. Bring **6 wood** beside either outlined plot north/south of the starting campfire, open the satchel, and choose **Place workbench**. Plots must be clear of players and creatures. The station and tool are saved; both camp plots are shared and placement is permanent for now.
 
 Existing M6 saves and recovery files remain valid. The local server uses wire protocol 3; refresh old browser tabs. M7 has not been deployed. No M8 settlement features are included.
+
+### Organic Meadow presentation
+
+The Meadow now uses winding landmark trails, irregular clearings, patchy grass/wildflowers and cosmetic butterflies. The minimap follows the new trails. Saved-world collision, resource positions and camp plots are unchanged. [Decisions and local checks](docs/milestones/ORGANIC_MEADOW.md).

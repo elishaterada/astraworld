@@ -1,3 +1,5 @@
+import { createButterflies } from "./butterflies";
+import { meadowLandscape } from "../meadow-landscape";
 import { createWorkbenchView } from "./workbenches";
 import { createForestView } from "./forest";
 import type { Gate } from "../../packages/protocol/utility";
@@ -63,6 +65,7 @@ export function createMeadowView(
   const atmosphere = createAtmosphere(scene, world);
   const combatView = createCombatView(scene);
   const workbenchView = createWorkbenchView(scene);
+  const butterflies = createButterflies(scene);
   const effectTime = { value: 0 };
   const camera = new T.OrthographicCamera(-1, 1, 1, -1, 0.1, 160);
   const sky = new T.HemisphereLight(0xcde7e8, 0x243d3a, 1.35);
@@ -109,6 +112,7 @@ export function createMeadowView(
       if (offset.z > 0.0 && abs(offset.x) < 0.65 && abs(projectedY) < 0.85 && mod(gl_FragCoord.x + gl_FragCoord.y * 2.0, 4.0) > 0.5) discard;`,
     );
   };
+  const landscape = meadowLandscape(world);
   const resources = resourceNodes(world);
   const stoneTiles = new Map(
     resources
@@ -179,14 +183,6 @@ export function createMeadowView(
       diffuseColor.rgb+=vec3(.14,.25,.24)*shine;`,
     );
   };
-  const grass = [
-    0x547c52, 0x577f53, 0x547b50, 0x567d51, 0x577e50, 0x587f54, 0x537a50,
-    0x577c53,
-  ];
-  const path = [
-    0x9d8962, 0xa08b63, 0x9e8861, 0xa48e65, 0xa18b61, 0x9e8b62, 0xa68f66,
-    0xa28c63,
-  ];
   for (let cy = 0; cy < SIZE / CHUNK_SIZE; cy++)
     for (let cx = 0; cx < SIZE / CHUNK_SIZE; cx++) {
       const water: Cube[] = [];
@@ -227,8 +223,29 @@ export function createMeadowView(
                   : 0x486d5b
                 : t.terrain === "shore"
                   ? 0x8e9770
-                  : (t.terrain === "grass" ? grass : path)[v],
+                  : landscape.color(px, pz),
           );
+          const cover = landscape.pathAmount(px, pz);
+          if (
+            !inForest(x, y) &&
+            t.terrain !== "water" &&
+            t.terrain !== "shore" &&
+            cover > 0 &&
+            cover < 1
+          ) {
+            for (let sy = 0; sy < 3; sy++)
+              for (let sx = 0; sx < 3; sx++)
+                add(
+                  ground,
+                  x + (sx + 0.5) / 3,
+                  0.004,
+                  y + (sy + 0.5) / 3,
+                  1 / 3,
+                  0.008,
+                  1 / 3,
+                  landscape.color(x + (sx + 0.5) / 3, y + (sy + 0.5) / 3),
+                );
+          }
           const hash = seedHash(t.id);
           const stone = stoneTiles.get(y * SIZE + x);
           if (stone) {
@@ -267,7 +284,7 @@ export function createMeadowView(
           }
           if (t.terrain === "water") {
             add(water, px, -0.07, pz, 1, 0.04, 1, 0xffffff);
-            if (v === 1 || v === 6) {
+            if ((v === 1 || v === 6) && landscape.flowers(px, pz) > 0.6) {
               add(props, px, -0.025, pz, 0.36, 0.025, 0.27, 0x49764b, 0.35);
               if (v === 1)
                 add(props, px + 0.07, 0.02, pz, 0.1, 0.07, 0.1, 0xe6baca);
@@ -300,7 +317,7 @@ export function createMeadowView(
               0.24,
               0.012,
               0.15,
-              t.terrain === "grass" ? 0x90ab62 : 0xcbb77f,
+              cover < 0.4 ? 0x8fa568 : 0xbca573,
             );
           if (t.blocker === "campfire") {
             for (let i = 0; i < 8; i++)
@@ -391,6 +408,11 @@ export function createMeadowView(
                 0x4d7c4e,
                 0.2,
               );
+            for (const leaf of leaves.slice(leafStart)) {
+              leaf.position[0] += ((hash % 101) / 100 - 0.5) * 0.65;
+              leaf.position[2] += (((hash >>> 8) % 101) / 100 - 0.5) * 0.65;
+              leaf.scale[1] *= 0.8 + landscape.variation(px, pz) * 0.55;
+            }
             for (const cube of [
               ...props.slice(propStart + 1),
               ...leaves.slice(leafStart),
@@ -412,8 +434,16 @@ export function createMeadowView(
               -0.12,
             );
             add(props, px + 0.27, 0.55, pz + 0.21, 0.24, 0.08, 0.35, 0x72904c);
-          } else if (t.terrain === "grass") {
-            for (let k = 0; k < 3; k++) {
+          } else if (
+            t.terrain !== "water" &&
+            t.terrain !== "shore" &&
+            cover < 0.35
+          ) {
+            const density = Math.max(
+              0,
+              Math.floor((landscape.flowers(px + 19, pz + 31) - 0.25) * 7),
+            );
+            for (let k = 0; k < density; k++) {
               const gx = x + ((hash >> (k * 3)) & 7) / 9 + 0.05,
                 gz = y + ((hash >> (k * 3 + 9)) & 7) / 9 + 0.05;
               add(
@@ -427,7 +457,7 @@ export function createMeadowView(
                 0x78925a,
               );
             }
-            if (v % 3 === 0)
+            if (landscape.flowers(px, pz) > 0.57 && v % 2 === 0)
               for (let k = 0; k < 3; k++) {
                 const a = k * 2.4 + v,
                   fx = px + Math.cos(a) * 0.3,
@@ -463,19 +493,7 @@ export function createMeadowView(
               add(props, x + 0.3, 0.2, y + 0.3, 0.18, 0.06, 0.16, 0xab7155);
             }
 
-            add(props, x + 0.23, 0.13, y + 0.22, 0.04, 0.26, 0.05, 0x526d3e);
-            add(
-              props,
-              x + 0.34,
-              0.1,
-              y + 0.24,
-              0.045,
-              0.2,
-              0.04,
-              0x617f42,
-              -0.2,
-            );
-            if (v === 1 || v === 6) {
+            if ((v === 1 || v === 6) && landscape.flowers(px, pz) > 0.6) {
               add(
                 props,
                 x + 0.23,
@@ -629,6 +647,7 @@ export function createMeadowView(
     ) {
       effectTime.value = reduced ? 0 : time;
       atmosphere.update(time, reduced, actor.position);
+      butterflies.update(time, reduced, actor.position);
       combatView.update(currentSlime, combatTick, time, reduced);
       update(local, actor, time, reduced);
       const p = actor.position;
@@ -750,6 +769,7 @@ export function createMeadowView(
       leavesMaterial.dispose();
       waterMaterial.dispose();
       atmosphere.dispose();
+      butterflies.dispose();
       combatView.dispose();
       workbenchView.dispose();
       mossView.dispose();
