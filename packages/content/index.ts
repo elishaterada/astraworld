@@ -1,17 +1,24 @@
 import { z } from "zod";
 const itemSchema = z
   .object({
-    id: z.enum(["sweet-berry", "wood", "hatchet", "starter-blade"]),
+    id: z.enum([
+      "sweet-berry",
+      "wood",
+      "hatchet",
+      "starter-blade",
+      "stone",
+      "stone-axe",
+    ]),
     schemaVersion: z.literal(1),
     displayName: z.string().min(1),
     stackMax: z.number().int().positive().max(99),
     tags: z.array(z.string()),
-    iconId: z.enum(["berry", "wood", "hatchet", "blade"]),
+    iconId: z.enum(["berry", "wood", "hatchet", "blade", "stone"]),
   })
   .strict();
 const resourceSchema = z
   .object({
-    id: z.enum(["berry-bush", "tree"]),
+    id: z.enum(["berry-bush", "tree", "loose-stone"]),
     schemaVersion: z.literal(1),
     toolRequirement: itemSchema.shape.id.nullable(),
     gatherDuration: z.literal(30),
@@ -22,7 +29,7 @@ const resourceSchema = z
       })
       .strict(),
     collisionFootprint: z.union([z.literal(0), z.literal(1)]),
-    visualId: z.enum(["berry-bush", "tree"]),
+    visualId: z.enum(["berry-bush", "tree", "loose-stone"]),
   })
   .strict();
 export function validateContent(raw: unknown) {
@@ -41,6 +48,22 @@ export function validateContent(raw: unknown) {
 }
 export const CONTENT = validateContent({
   items: [
+    {
+      id: "stone",
+      schemaVersion: 1,
+      displayName: "Stone",
+      stackMax: 99,
+      tags: ["material"],
+      iconId: "stone",
+    },
+    {
+      id: "stone-axe",
+      schemaVersion: 1,
+      displayName: "Stone Axe",
+      stackMax: 1,
+      tags: ["tool"],
+      iconId: "hatchet",
+    },
     {
       id: "sweet-berry",
       schemaVersion: 1,
@@ -76,6 +99,15 @@ export const CONTENT = validateContent({
   ],
   resources: [
     {
+      id: "loose-stone",
+      schemaVersion: 1,
+      toolRequirement: null,
+      gatherDuration: 30,
+      yields: { item: "stone", quantity: 2 },
+      collisionFootprint: 0,
+      visualId: "loose-stone",
+    },
+    {
       id: "berry-bush",
       schemaVersion: 1,
       toolRequirement: null,
@@ -102,6 +134,7 @@ export const gatherCommandSchema = z
   .object({
     seq: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
     target: z.string().min(1).max(512),
+    action: z.enum(["craft", "place"]).optional(),
   })
   .strict();
 export type GatherCommand = z.infer<typeof gatherCommandSchema>;
@@ -118,6 +151,10 @@ export const receiptSchema = gatherCommandSchema
   .extend({
     result: z.enum([
       "gathered",
+      "crafted",
+      "placed",
+      "ingredients",
+      "occupied",
       "dead",
       "busy",
       "depleted",

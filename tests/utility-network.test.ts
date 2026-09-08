@@ -85,7 +85,7 @@ it("M5 utility survives owner turnover, retries, replacement generation and late
       ws.send(
         JSON.stringify({
           type: "hello",
-          protocolVersion: 2,
+          protocolVersion: 3,
           worldId: s.worldId,
           token: s.token,
           contentVersion: CONTENT_VERSION,
@@ -98,7 +98,7 @@ it("M5 utility survives owner turnover, retries, replacement generation and late
           ws.send(
             JSON.stringify({
               type: "frames",
-              protocolVersion: 2,
+              protocolVersion: 3,
               worldId: s.worldId,
               generation,
               runs: packFrames(frames),

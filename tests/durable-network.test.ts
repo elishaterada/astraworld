@@ -90,7 +90,7 @@ it.skipIf(!process.env.TEST_DATABASE_URL)(
         ws.send(
           JSON.stringify({
             type: "hello",
-            protocolVersion: 2,
+            protocolVersion: 3,
             worldId: s.worldId,
             token: s.token,
             contentVersion: CONTENT_VERSION,
@@ -103,7 +103,7 @@ it.skipIf(!process.env.TEST_DATABASE_URL)(
             ws.send(
               JSON.stringify({
                 type: "frames",
-                protocolVersion: 2,
+                protocolVersion: 3,
                 worldId: s.worldId,
                 generation,
                 runs: packFrames(frames),

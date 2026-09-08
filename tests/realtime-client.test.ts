@@ -49,7 +49,7 @@ it("predicts every frame, batches separately, replays only unacked frames and re
   const connected = (s: Socket, generation: number) =>
     s.receive({
       type: "connected",
-      protocolVersion: 2,
+      protocolVersion: 3,
       worldId: session.worldId,
       generation,
       gateway: "a",
@@ -63,7 +63,7 @@ it("predicts every frame, batches separately, replays only unacked frames and re
   ) =>
     s.receive({
       type: "snapshot",
-      protocolVersion: 2,
+      protocolVersion: 3,
       worldId: session.worldId,
       selfId: session.playerId,
       seed: session.seed,

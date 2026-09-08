@@ -1,3 +1,4 @@
+import { benchesSchema } from "../content/crafting";
 import { gateSchema } from "./utility";
 import {
   companionCommandSchema,
@@ -10,7 +11,7 @@ import { MAX_PLAYERS } from "./capacity";
 import { z } from "zod";
 import { id, integer, credential, characterSchema, name } from "./index";
 import { CONTENT_VERSION, GENERATION_VERSION } from "../world";
-export const REALTIME_VERSION = 2;
+export const REALTIME_VERSION = 3;
 export const HZ = 60;
 export const DT = 1 / HZ;
 const envelope = { protocolVersion: z.literal(REALTIME_VERSION), worldId: id };
@@ -55,7 +56,7 @@ export type Frame = Omit<Run, "count">;
 export const actionSchema = z
   .object({
     kind: z.enum(["wave", "gather", "attack", "dodge"]),
-    resource: z.enum(["tree", "berry-bush"]).optional(),
+    resource: z.enum(["tree", "berry-bush", "loose-stone"]).optional(),
     seq: integer,
     generation: integer,
     startedTick: integer,
@@ -103,6 +104,7 @@ export const realtimeSnapshotSchema = z
       .max(MAX_PLAYERS)
       .optional(),
     progress: progressSchema.optional(),
+    benches: benchesSchema.optional(),
     slime: slimeSchema.optional(),
     gate: gateSchema.optional(),
     moss: z.array(mossSchema).max(2).optional(),

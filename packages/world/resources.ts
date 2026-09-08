@@ -1,7 +1,7 @@
 import { type World, seedHash } from "./index";
 export type ResourceNode = {
   id: string;
-  kind: "berry-bush" | "tree";
+  kind: "berry-bush" | "tree" | "loose-stone";
   x: number;
   y: number;
 };
@@ -11,7 +11,7 @@ export const CURIOUS_SLOTS = [
 ] as const;
 /** Independent resource stream; trees reuse the baseline solid footprint. */
 export function resourceNodes(world: World): ResourceNode[] {
-  return world.tiles.flatMap((t) => {
+  const existing: ResourceNode[] = world.tiles.flatMap((t) => {
     const guaranteed = (t.x === 65 && t.y === 63) || (t.x === 63 && t.y === 65);
     const berry =
       guaranteed ||
@@ -32,4 +32,13 @@ export function resourceNodes(world: World): ResourceNode[] {
         ]
       : [];
   });
+  return [
+    ...existing,
+    ...Array.from({ length: 8 }, (_, i) => ({
+      id: `stone:${world.seed}:${i}`,
+      kind: "loose-stone" as const,
+      x: 68.5 + i * 2,
+      y: 64.5,
+    })),
+  ];
 }

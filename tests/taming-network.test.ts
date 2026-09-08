@@ -84,7 +84,7 @@ it("M4 contested feeding and ownership survive replay, generation replacement an
       ws.send(
         JSON.stringify({
           type: "hello",
-          protocolVersion: 2,
+          protocolVersion: 3,
           worldId: s.worldId,
           token: s.token,
           contentVersion: CONTENT_VERSION,
@@ -97,7 +97,7 @@ it("M4 contested feeding and ownership survive replay, generation replacement an
           ws.send(
             JSON.stringify({
               type: "frames",
-              protocolVersion: 2,
+              protocolVersion: 3,
               worldId: s.worldId,
               generation,
               runs: packFrames(frames),

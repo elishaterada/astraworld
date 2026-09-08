@@ -1,3 +1,4 @@
+import { craft } from "../../packages/simulation/crafting";
 import { teleportTo } from "../../packages/simulation/travel";
 import { receipts, type DurableCommand } from "./durable";
 import { DurableStore, valuableDigest, type DurableState } from "./durable";
@@ -691,6 +692,7 @@ export async function createRealtimeGateway(options: {
         gate: state.taming?.gate,
         moss: state.taming?.creatures.map(publicMoss),
         companionReceipts: state.taming?.receipts ?? {},
+        benches: state.gathering.benches ?? [],
         gathering: {
           players: state.gathering.players,
           depleted: encodeDepletion(
@@ -780,7 +782,11 @@ export async function createRealtimeGateway(options: {
           ? receipts(r.state as DurableState)
           : [];
         r.lastStep += 1000 / 60;
-        r.world = { ...r.world, gateOpen: r.state.taming?.gate.open ?? false };
+        r.world = {
+          ...r.world,
+          gateOpen: r.state.taming?.gate.open ?? false,
+          benches: r.state.gathering.benches,
+        };
         const tick = r.state.tick + 1,
           start = performance.now();
         r.state = {
@@ -817,21 +823,29 @@ export async function createRealtimeGateway(options: {
           const actor = r.state.actors.find((a) => a.id === player);
           if (!actor || actor.generation !== generation) continue;
           const prior = r.state.gathering;
-          const next = gather(
-            r.world,
-            r.nodes,
-            prior,
-            player,
-            actor.position,
-            command,
-            tick,
-            actor.combat?.health === 0
-              ? "dead"
-              : combatBusy(actor.combat, tick)
-                ? "busy"
-                : undefined,
-          );
+          const next = command.action
+            ? craft(r.world, prior, actor, r.state.actors, command, tick, [
+                ...(r.state.taming?.creatures ?? []).map((m) => m.position),
+                ...(r.state.slime && r.state.slime.health > 0
+                  ? [r.state.slime.position]
+                  : []),
+              ])
+            : gather(
+                r.world,
+                r.nodes,
+                prior,
+                player,
+                actor.position,
+                command,
+                tick,
+                actor.combat?.health === 0
+                  ? "dead"
+                  : combatBusy(actor.combat, tick)
+                    ? "busy"
+                    : undefined,
+              );
           r.state = { ...r.state, gathering: next };
+          r.world = { ...r.world, benches: next.benches };
           if (
             next !== prior &&
             next.players[player].receipt?.result === "gathered"

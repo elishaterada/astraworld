@@ -2,7 +2,7 @@
 
 A cozy 3D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
 
-**Status: M4/M5 deployed and verified on Vercel. M6 durable worlds are implemented; see [M6 verification and release gates](docs/milestones/M6_DURABLE_RELEASE.md). Stop before M7.** Eight players share a private Meadow with immediate local prediction, synchronized actions, authoritative rules and original Three.js placeholder models. M6 adds the user-connected Neon database alongside Redis. M5's human playtest and eight-window frame-time gate remain open; they are not relabeled by this release.
+**Status: M4/M5 deployed and verified on Vercel. M6 durable worlds are implemented; see [M6 verification and release gates](docs/milestones/M6_DURABLE_RELEASE.md). M7 crafting is implemented locally; see [M7 scope and verification](docs/milestones/M7_FIRST_CRAFTING.md). Stop before M8.** Eight players share a private Meadow with immediate local prediction, synchronized actions, authoritative rules and original Three.js placeholder models. M6 adds the user-connected Neon database alongside Redis. M5's human playtest and eight-window frame-time gate remain open; they are not relabeled by this release.
 
 
 ## Start here
@@ -155,3 +155,9 @@ Refresh and create a **new Meadow** at [the stable local address](https://astraw
 ### Player quality of life (M6)
 
 The upper-right minimap shows the entire Meadow: gold is you, blue is other online players, including friends outside your camera range. Click it to open the player list, then **Join** to teleport safely nearby (three-second cooldown; unavailable during combat or across a closed gate). Hold **V** while moving to run at 1.75× walking speed; **Shift** still dodges. Nearby campfires cast additional shadows alongside sunlight. [Implementation and verification](docs/milestones/PLAYER_QOL.md).
+
+### First crafting loop (M7)
+
+Press **E** to collect loose stone along the east trail and chop trees. Open the satchel with **I** and choose **Craft axe**: a Stone Axe costs **3 wood + 2 stone** and automatically yields **5 wood per tree** instead of 3. Bring **6 wood** beside either outlined plot north/south of the starting campfire, open the satchel, and choose **Place workbench**. Plots must be clear of players and creatures. The station and tool are saved; both camp plots are shared and placement is permanent for now.
+
+Existing M6 saves and recovery files remain valid. The local server uses wire protocol 3; refresh old browser tabs. M7 has not been deployed. No M8 settlement features are included.

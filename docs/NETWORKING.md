@@ -118,3 +118,9 @@ This update supersedes earlier cadence defaults: simulation stays at 60 Hz, clie
 Protocol 2 / `p8-c4-m6` worlds remain compatible. New clients advertise optional `qol: true` in hello to receive an eight-member maximum online roster regardless of the 48-tile actor interest radius. Legacy clients receive the original snapshot shape. Run is movement bit 16 (key mask maximum 31), predicted and validated through the existing frame timeline. Large remote displacement snaps instead of interpolating a teleport across the world.
 
 Teleport uses the existing sequenced companion command envelope with action `teleport` and a target member ID. The server resolves both actors, online status, combat restrictions, cooldown, collision and reachable terrain; no client coordinates are accepted. Successful position, private cooldown and receipt commit together through the M6 aggregate and command journal. See [Player QoL](milestones/PLAYER_QOL.md).
+
+## M7 crafting protocol
+
+Wire protocol **3** adds `stone`/`stone-axe` inventory values, `loose-stone` gathering visuals and optional shared `benches` snapshots. The existing gather command may include `action: "craft" | "place"`; `target` identifies a recipe or one of two fixed plots. No arbitrary coordinates or outputs are accepted. Existing sequence acknowledgement, retry, membership and Postgres publication barriers apply to the whole transition. Input and snapshot cadences are unchanged from QoL.
+
+Saved-world metadata, generation IDs and durable namespaces remain unchanged. M6 JSONB states default to no benches, preserving inventory and identity. New loose-stone nodes append to the resource order; old depleted IDs remain valid. Wire-version mismatch requires a client refresh. This change is locally verified only: a future production rollout must coordinate all gateways/clients and avoid simultaneous M6/M7 room owners; hosted lifecycle verification is still required.

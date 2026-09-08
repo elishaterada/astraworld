@@ -98,6 +98,7 @@ export async function joinMeadow(
 }
 
 export class MeadowConnection {
+  benches: NonNullable<RealtimeSnapshot["benches"]> = [];
   roster: NonNullable<RealtimeSnapshot["roster"]> = [];
   gate?: Gate;
   moss: Moss[] = [];
@@ -177,7 +178,7 @@ export class MeadowConnection {
     };
     return true;
   }
-  gather(target: string) {
+  gather(target: string, action?: "craft" | "place") {
     if (
       !this.baseline ||
       this.snapshotAge > 750 ||
@@ -185,7 +186,11 @@ export class MeadowConnection {
       this.gatherPending
     )
       return false;
-    this.gatherPending = { seq: (this.progress.receipt?.seq ?? 0) + 1, target };
+    this.gatherPending = {
+      seq: (this.progress.receipt?.seq ?? 0) + 1,
+      target,
+      ...(action ? { action } : {}),
+    };
     return true;
   }
   attack() {
@@ -282,10 +287,15 @@ export class MeadowConnection {
       this.tick = s.tick;
       this.owner = s.owner;
       this.roster = s.roster ?? s.actors;
+      this.benches = s.benches ?? [];
       this.progress = s.progress;
       this.slime = s.slime;
       this.gate = s.gate;
-      this.world = { ...this.world, gateOpen: s.gate?.open ?? false };
+      this.world = {
+        ...this.world,
+        gateOpen: s.gate?.open ?? false,
+        benches: this.benches,
+      };
       this.moss = s.moss ?? [];
       this.companionReceipt = s.companionReceipt;
       if (

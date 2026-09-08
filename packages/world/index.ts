@@ -18,6 +18,7 @@ export type World = Readonly<{
   seed: string;
   tiles: readonly Tile[];
   gateOpen?: boolean;
+  benches?: readonly { x: number; y: number }[];
 }>;
 
 export function seedHash(seed: string): number {
@@ -138,6 +139,9 @@ export function isSolid(world: World, x: number, y: number): boolean {
     y < 0 ||
     x >= SIZE ||
     y >= SIZE ||
+    !!world.benches?.some(
+      (b) => Math.floor(b.x) === x && Math.floor(b.y) === y,
+    ) ||
     (world.tiles[y * SIZE + x].blocker !== null &&
       !(world.gateOpen && isVineTile(x, y)))
   );

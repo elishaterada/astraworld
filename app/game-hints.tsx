@@ -81,7 +81,7 @@ export function GatherNotice({ progress }: { progress?: Progress }) {
     if (!prior || !progress.receipt || prior.receipt?.seq === seq) return;
     const result = progress.receipt.result;
     if (result === "gathered") {
-      const gained = (["wood", "sweet-berry"] as const)
+      const gained = (["wood", "sweet-berry", "stone"] as const)
         .map((item) => ({
           item,
           amount:
@@ -97,12 +97,16 @@ export function GatherNotice({ progress }: { progress?: Progress }) {
         .find((s) => s.amount > 0);
       setMessage(
         gained
-          ? `+${gained.amount} ${gained.item === "wood" ? "Wood" : "Sweet Berries"}`
+          ? `+${gained.amount} ${gained.item === "wood" ? "Wood" : gained.item === "stone" ? "Stone" : "Sweet Berries"}`
           : "Items added to satchel",
       );
     } else
       setMessage(
         {
+          crafted: "Stone Axe crafted — automatically used for wood",
+          placed: "Workbench placed",
+          ingredients: "Not enough materials",
+          occupied: "Plot occupied — clear the marked space",
           dead: "Recovering — items are safe",
           busy: "Finish your action first",
           depleted: "Already gathered",

@@ -31,7 +31,7 @@ it("isolates incompatible old terrain sessions", () => {
   expect(SESSION_STORAGE_KEY).toContain("m6");
   const hello = {
     type: "hello",
-    protocolVersion: 2,
+    protocolVersion: 3,
     worldId: "00000000-0000-4000-8000-000000000001",
     token: "a".repeat(43),
     generationVersion: "meadow-3",

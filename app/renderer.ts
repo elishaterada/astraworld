@@ -34,6 +34,8 @@ const live = {
   textures: 0,
 };
 export type SandboxReport = {
+  workReady?: boolean;
+  benches?: MeadowConnection["benches"];
   roster?: MeadowConnection["roster"];
   running?: boolean;
   gate?: Gate;
@@ -61,6 +63,7 @@ export type DebugSnapshot = {
   combat?: CombatState;
   slime?: Slime;
   progress?: Progress;
+  benches?: MeadowConnection["benches"];
   depleted: string[];
   target?: { id: string; kind: string; x: number; y: number };
   state: Position;
@@ -266,6 +269,7 @@ export function mountMeadow(
           : undefined,
         slime: network?.slime ? structuredClone(network.slime) : undefined,
         progress: progress() ? structuredClone(progress()) : undefined,
+        benches: structuredClone(network?.benches ?? []),
         depleted: [...depleted()],
         target: nearest(),
         state: { ...state },
@@ -344,6 +348,10 @@ export function mountMeadow(
         connection: network?.status,
         players: network ? network.roster.length || 1 : 1,
         roster: network?.roster,
+        workReady:
+          !network ||
+          (!network.gathering && network.tick >= (progress()?.readyTick ?? 0)),
+        benches: network?.benches,
         running: keys.has("KeyV"),
         progress: progress(),
         target: nearest()?.kind,
@@ -497,6 +505,11 @@ export function mountMeadow(
       resume();
       if (!wasPaused && e.button === 0) network?.attack();
     }) as EventListener);
+    listen(host, "craft-item", ((
+      e: CustomEvent<{ action: "craft" | "place"; target: string }>,
+    ) => {
+      network?.gather(e.detail.target, e.detail.action);
+    }) as EventListener);
     listen(host, "teleport-player", ((e: CustomEvent<string>) => {
       network?.companion("teleport", e.detail);
     }) as EventListener);
@@ -540,7 +553,12 @@ export function mountMeadow(
         host.dataset.pointerWorld = `${p.x.toFixed(3)},${p.y.toFixed(3)}`;
     }) as EventListener);
     function draw() {
-      world = { ...world, gateOpen: network?.gate?.open ?? false };
+      world = {
+        ...world,
+        gateOpen: network?.gate?.open ?? false,
+        benches: network?.benches,
+      };
+      view.workbenches(network?.benches ?? []);
       view.gate(network?.gate);
       rendered = network
         ? network.display(Math.min(deltaMS / 1000, 0.1))

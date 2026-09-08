@@ -1,3 +1,4 @@
+import { createWorkbenchView } from "./workbenches";
 import { createForestView } from "./forest";
 import type { Gate } from "../../packages/protocol/utility";
 import { inForest } from "../../packages/world/forest";
@@ -61,6 +62,7 @@ export function createMeadowView(
   scene.fog = new T.Fog(0x799994, 27, 80);
   const atmosphere = createAtmosphere(scene, world);
   const combatView = createCombatView(scene);
+  const workbenchView = createWorkbenchView(scene);
   const effectTime = { value: 0 };
   const camera = new T.OrthographicCamera(-1, 1, 1, -1, 0.1, 160);
   const sky = new T.HemisphereLight(0xcde7e8, 0x243d3a, 1.35);
@@ -108,6 +110,11 @@ export function createMeadowView(
     );
   };
   const resources = resourceNodes(world);
+  const stoneTiles = new Map(
+    resources
+      .filter((n) => n.kind === "loose-stone")
+      .map((n) => [Math.floor(n.y) * SIZE + Math.floor(n.x), n]),
+  );
   const berryTiles = new Map(
     resources
       .filter((n) => n.kind === "berry-bush")
@@ -223,6 +230,23 @@ export function createMeadowView(
                   : (t.terrain === "grass" ? grass : path)[v],
           );
           const hash = seedHash(t.id);
+          const stone = stoneTiles.get(y * SIZE + x);
+          if (stone) {
+            for (let k = 0; k < 3; k++) {
+              add(
+                props,
+                px + (k - 1) * 0.22,
+                0.12 + (k % 2) * 0.07,
+                pz + (k % 2) * 0.15,
+                0.3,
+                0.23,
+                0.28,
+                k % 2 ? 0xb4b7a6 : 0x858b83,
+                k * 0.7,
+              );
+              props.at(-1)!.resource = stone.id;
+            }
+          }
           const berry = berryTiles.get(y * SIZE + x);
           if (berry) {
             add(props, px, 0.28, pz, 0.76, 0.56, 0.67, 0x315f41);
@@ -692,6 +716,7 @@ export function createMeadowView(
       );
       renderer.render(scene, camera);
     },
+    workbenches: workbenchView.update,
     resources(depleted: string[], target?: { x: number; y: number }) {
       for (const id of depleted)
         if (!removed.has(id)) {
@@ -726,6 +751,7 @@ export function createMeadowView(
       waterMaterial.dispose();
       atmosphere.dispose();
       combatView.dispose();
+      workbenchView.dispose();
       mossView.dispose();
       forestView.dispose();
       kit.dispose();

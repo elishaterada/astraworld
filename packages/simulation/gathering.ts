@@ -1,3 +1,4 @@
+import type { Workbench } from "../content/crafting";
 import {
   CONTENT,
   itemDefinition,
@@ -12,6 +13,7 @@ import type { Position } from "./index";
 export type GatheringState = {
   players: Record<string, Progress>;
   depleted: string[];
+  benches?: Workbench[];
 };
 export const emptyGathering = (): GatheringState => ({
   players: {},
@@ -78,7 +80,11 @@ export function gather(
   else if (!interactionClear(world, position, node)) result = "blocked";
   else if (
     definition.toolRequirement &&
-    !p.inventory.some((s) => s?.item === definition.toolRequirement)
+    !p.inventory.some(
+      (s) =>
+        s?.item === definition.toolRequirement ||
+        (definition.id === "tree" && s?.item === "stone-axe"),
+    )
   )
     result = "tool";
   else if (tick < p.readyTick) result = "cooldown";
@@ -86,12 +92,17 @@ export function gather(
     const added = addItems(
       p.inventory,
       definition.yields.item,
-      definition.yields.quantity,
+      definition.yields.quantity +
+        (definition.id === "tree" &&
+        p.inventory.some((s) => s?.item === "stone-axe")
+          ? 2
+          : 0),
     );
     if (!added) result = "full";
     else inventory = added;
   }
   return {
+    ...state,
     players: {
       ...state.players,
       [player]: {

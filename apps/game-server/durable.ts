@@ -1,3 +1,4 @@
+import { benchesSchema } from "../../packages/content/crafting";
 import { Pool } from "pg";
 import { createHash } from "node:crypto";
 import { z } from "zod";
@@ -17,6 +18,7 @@ const stateSchema = z
     gathering: z.object({
       players: z.record(z.string(), progressSchema),
       depleted: z.array(z.string()).max(16384),
+      benches: benchesSchema.optional(),
     }),
     slime: slimeSchema.optional(),
     taming: z
@@ -264,6 +266,7 @@ export class DurableStore {
           ...Object.keys(state.gathering.players),
           ...state.actors.map((a) => a.id),
           ...owners,
+          ...(state.gathering.benches ?? []).map((b) => b.owner),
         ].some((id) => !members.has(id))
       )
         throw Error("State contains a non-member");
@@ -285,6 +288,17 @@ export class DurableStore {
           )
         )
           throw Error("Companion ownership cannot regress");
+      for (const b of row.state?.gathering?.benches ?? [])
+        if (
+          !state.gathering.benches?.some(
+            (next) =>
+              next.id === b.id &&
+              next.owner === b.owner &&
+              next.x === b.x &&
+              next.y === b.y,
+          )
+        )
+          throw Error("Workbench placement cannot regress");
       for (const node of row.state?.gathering?.depleted ?? [])
         if (!state.gathering.depleted.includes(node))
           throw Error("Depletion cannot regress");

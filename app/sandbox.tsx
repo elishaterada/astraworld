@@ -1,4 +1,5 @@
 "use client";
+import { CraftingPanel } from "./crafting-panel";
 import { WorldMap } from "./world-map";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { FirstPlayHint, GatherNotice, CompanionNotice } from "./game-hints";
@@ -238,24 +239,31 @@ function Meadow({
                           wood: "▰",
                           hatchet: "⚒",
                           "starter-blade": "†",
+                          stone: "◆",
+                          "stone-axe": "⚒",
                         }[slot.item]
                       }
                     </span>
-                    <small>
-                      {slot.item === "sweet-berry"
-                        ? "Berries"
-                        : slot.item === "wood"
-                          ? "Wood"
-                          : slot.item === "hatchet"
-                            ? "Hatchet"
-                            : "Blade"}
-                    </small>
+                    <small>{itemDefinition(slot.item).displayName}</small>
                     <b>{slot.quantity}</b>
                   </>
                 )}
               </div>
             ))}
           </div>
+          <CraftingPanel
+            progress={status.progress}
+            benches={status.benches ?? []}
+            position={{ x: status.x, y: status.y }}
+            connected={
+              status.connection === "Connected" && status.workReady !== false
+            }
+            onCommand={(action, target) =>
+              host.current?.dispatchEvent(
+                new CustomEvent("craft-item", { detail: { action, target } }),
+              )
+            }
+          />
           <p className="inventory-footnote">
             Starter tools · Click / J to swing your blade
           </p>
@@ -336,7 +344,9 @@ function Meadow({
               ? "Gathering…"
               : status.target === "tree"
                 ? "Chop tree"
-                : "Pick berries"}
+                : status.target === "loose-stone"
+                  ? "Collect stone"
+                  : "Pick berries"}
           </div>
         )}
       {status?.health !== undefined && (

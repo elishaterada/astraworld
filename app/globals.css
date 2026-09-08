@@ -1254,3 +1254,11 @@ kbd {
 .travel-list {margin-top:6px;padding:12px;background:#102c26f5;border:1px solid #78927c66;border-radius:6px;max-height:50vh;overflow:auto;}
 .travel-list p {margin:0 0 10px;font-weight:600;}.travel-list>div {display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid #78927c33;}.travel-list small {display:block;color:#adbfad;font-size:10px;line-height:1.5;}.travel-list>small {margin-top:8px;}.travel-list button {background:#355c48;border:1px solid #8da88666;color:#fff1c9;border-radius:4px;padding:5px 8px;cursor:pointer;}.travel-list button:disabled {opacity:.4;cursor:default;}.running-cue {position:absolute;bottom:23px;left:50%;transform:translateX(-50%);color:#f1e3ab;font-size:11px;letter-spacing:.1em;pointer-events:none;}
 @media(max-width:650px){.world-map{width:126px;right:12px;top:68px;}}
+
+.crafting-panel { border-top: 1px solid #ffffff26; margin-top: 16px; padding-top: 12px; }
+.crafting-panel h3 { margin: 0 0 12px; font-family: Georgia, serif; }
+.crafting-panel > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 12px 0; }
+.crafting-panel small { display: block; color: #b9ccbd; font-size: 11px; line-height: 1.5; }
+.crafting-panel button { flex-shrink: 0; padding: 9px 12px; border: 1px solid #d3b47777; border-radius: 5px; color: #f6e9c6; background: #3c5845; cursor: pointer; }
+.crafting-panel button:disabled { opacity: .45; cursor: default; }
+.crafting-panel p { color: #eed096; font-size: 12px; }
