@@ -1,3 +1,4 @@
+import type { Weapon } from "../packages/content/weapons";
 import { rememberSession, parseRecovery } from "./recovery";
 import type { Gate } from "../packages/protocol/utility";
 import type {
@@ -106,6 +107,14 @@ export class MeadowConnection {
   private companionPending?: CompanionCommand;
   progress?: Progress;
   slime?: Slime;
+  monsters?: Slime[];
+  rules = { friendlyFire: false };
+  creatorId?: string;
+  private cancelQueued = false;
+  private skillQueued = false;
+  private weaponQueued?: Weapon;
+  private chargeHeld = false;
+  private blockHeld = false;
   private attackQueued = false;
   private dodgeQueued = false;
   depleted: string[] = [];
@@ -192,6 +201,23 @@ export class MeadowConnection {
       ...(action ? { action } : {}),
     };
     return true;
+  }
+  cancelCombat() {
+    this.chargeHeld = false;
+    this.blockHeld = false;
+    this.attackQueued = false;
+    this.skillQueued = false;
+    this.cancelQueued = true;
+  }
+  combatInput(charge: boolean, block: boolean) {
+    this.chargeHeld = charge;
+    this.blockHeld = block;
+  }
+  skill() {
+    this.skillQueued = true;
+  }
+  equip(weapon: Weapon) {
+    this.weaponQueued = weapon;
   }
   attack() {
     this.attackQueued = true;
@@ -289,7 +315,10 @@ export class MeadowConnection {
       this.roster = s.roster ?? s.actors;
       this.benches = s.benches ?? [];
       this.progress = s.progress;
+      this.rules = s.rules ?? { friendlyFire: false };
+      this.creatorId = s.creatorId;
       this.slime = s.slime;
+      this.monsters = s.monsters;
       this.gate = s.gate;
       this.world = {
         ...this.world,
@@ -414,6 +443,13 @@ export class MeadowConnection {
       facing === this.actor.facing &&
       !this.waveQueued &&
       !this.attackQueued &&
+      !this.cancelQueued &&
+      !this.skillQueued &&
+      !this.weaponQueued &&
+      !this.chargeHeld &&
+      !this.blockHeld &&
+      this.actor.combat?.charging === undefined &&
+      this.actor.combat?.blocking === undefined &&
       !this.dodgeQueued &&
       !(this.actor.combat && this.visualTick < this.actor.combat.dodgeUntil) &&
       !this.pending.length
@@ -426,10 +462,18 @@ export class MeadowConnection {
       ...(this.waveQueued ? { wave: true as const } : {}),
       ...(this.attackQueued ? { attack: true as const } : {}),
       ...(this.dodgeQueued ? { dodge: true as const } : {}),
+      ...(this.cancelQueued ? { cancel: true as const } : {}),
+      ...(this.chargeHeld ? { charge: true } : {}),
+      ...(this.blockHeld ? { block: true } : {}),
+      ...(this.skillQueued ? { skill: true as const } : {}),
+      ...(this.weaponQueued ? { weapon: this.weaponQueued } : {}),
     };
     this.waveQueued = false;
     this.attackQueued = false;
     this.dodgeQueued = false;
+    this.cancelQueued = false;
+    this.skillQueued = false;
+    this.weaponQueued = undefined;
     this.pending.push(frame);
     this.actor = applyFrame(
       this.world,

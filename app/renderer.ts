@@ -1,3 +1,9 @@
+import {
+  WEAPONS,
+  weaponSchema,
+  type Weapon,
+} from "../packages/content/weapons";
+import { createGamepadControls } from "./gamepad";
 import type { Gate } from "../packages/protocol/utility";
 import { COMBAT } from "../packages/content/combat";
 import { VINE_TARGET, inForest } from "../packages/world/forest";
@@ -34,6 +40,14 @@ const live = {
   textures: 0,
 };
 export type SandboxReport = {
+  weapon?: Weapon;
+  skillRemaining?: number;
+  charge?: number;
+  blocking?: boolean;
+  parrying?: boolean;
+  friendlyFire?: boolean;
+  canManageWorld?: boolean;
+  controller?: boolean;
   workReady?: boolean;
   benches?: MeadowConnection["benches"];
   roster?: MeadowConnection["roster"];
@@ -57,11 +71,15 @@ export type SandboxReport = {
   gathering?: boolean;
 };
 export type DebugSnapshot = {
+  friendlyFire?: boolean;
+  creatorId?: string;
+  controller?: boolean;
   gate?: Gate;
   moss: Moss[];
   companionReceipt?: CompanionReceipt;
   combat?: CombatState;
   slime?: Slime;
+  monsters?: Slime[];
   progress?: Progress;
   benches?: MeadowConnection["benches"];
   depleted: string[];
@@ -87,6 +105,9 @@ export type DebugSnapshot = {
     gait: number;
     waving: boolean;
     attacking: boolean;
+    slash: boolean;
+    projectiles: number;
+    guard: boolean;
     roll: number;
   };
   environment: {
@@ -261,6 +282,9 @@ export function mountMeadow(
       new URLSearchParams(location.search).get("debug") === "1";
     debug = {
       snapshot: (): DebugSnapshot => ({
+        friendlyFire: network?.rules.friendlyFire,
+        creatorId: network?.creatorId,
+        controller: controllerConnected,
         gate: network?.gate,
         moss: structuredClone(network?.moss ?? []),
         companionReceipt: network?.companionReceipt,
@@ -268,6 +292,7 @@ export function mountMeadow(
           ? structuredClone(network.actor.combat)
           : undefined,
         slime: network?.slime ? structuredClone(network.slime) : undefined,
+        monsters: structuredClone(network?.monsters ?? []),
         progress: progress() ? structuredClone(progress()) : undefined,
         benches: structuredClone(network?.benches ?? []),
         depleted: [...depleted()],
@@ -293,6 +318,9 @@ export function mountMeadow(
           gait: view.local.legs[0].rotation.x,
           waving: view.local.waving,
           attacking: view.local.blade.visible,
+          slash: view.local.slash.visible,
+          projectiles: view.local.shots.filter((s) => s.visible).length,
+          guard: view.local.guard.visible,
           roll: view.local.roll.rotation.x,
         },
         renderer: view.stats(),
@@ -340,10 +368,14 @@ export function mountMeadow(
       }),
     };
     if (debugEnabled) window.__MEADOW__ = debug;
+    const controller = createGamepadControls(host);
+    let controllerConnected = false,
+      controllerRunning = false;
     const publish = () =>
       report({
         ...state,
         paused,
+        controller: controllerConnected,
         fps: 1000 / Math.max(1, deltaMS),
         connection: network?.status,
         players: network ? network.roster.length || 1 : 1,
@@ -352,7 +384,31 @@ export function mountMeadow(
           !network ||
           (!network.gathering && network.tick >= (progress()?.readyTick ?? 0)),
         benches: network?.benches,
-        running: keys.has("KeyV"),
+        weapon: network?.actor.combat?.weapon ?? "blade",
+        skillRemaining: Math.max(
+          0,
+          ((network?.actor.combat?.skillReady ?? 0) -
+            (network?.visualTick ?? 0)) /
+            60,
+        ),
+        charge:
+          network?.actor.combat?.charging !== undefined
+            ? Math.max(
+                0,
+                Math.min(
+                  1,
+                  (network.visualTick - network.actor.combat.charging) / 60,
+                ),
+              )
+            : undefined,
+        blocking: network?.actor.combat?.blocking !== undefined,
+        parrying:
+          !!network?.actor.combat?.parryTick &&
+          network.visualTick - network.actor.combat.parryTick < 25,
+        friendlyFire: network?.rules.friendlyFire ?? false,
+        canManageWorld:
+          !!network && network.creatorId === network.session.playerId,
+        running: keys.has("KeyV") || controllerRunning,
         progress: progress(),
         target: nearest()?.kind,
         gathering: network?.gathering,
@@ -367,6 +423,7 @@ export function mountMeadow(
         companionReceipt: network?.companionReceipt,
       });
     const pause = () => {
+      network?.cancelCombat();
       keys.clear();
       paused = true;
       accumulator = 0;
@@ -399,6 +456,34 @@ export function mountMeadow(
       });
     }
     listen(host, "keydown", ((e: KeyboardEvent) => {
+      if ((e.code === "KeyK" || e.code === "KeyF") && !paused) {
+        e.preventDefault();
+        keys.add(e.code);
+      }
+      if (!paused && !e.repeat) {
+        if (e.code === "KeyH") {
+          e.preventDefault();
+          network?.skill();
+        }
+        const index = [
+          "Digit1",
+          "Digit2",
+          "Digit3",
+          "Digit4",
+          "Digit5",
+        ].indexOf(e.code);
+        if (index >= 0) {
+          e.preventDefault();
+          network?.equip(weaponSchema.options[index]);
+        }
+        if (e.code === "KeyZ") {
+          e.preventDefault();
+          const i = weaponSchema.options.indexOf(
+            network?.actor.combat?.weapon ?? "blade",
+          );
+          network?.equip(weaponSchema.options[(i + 1) % 5]);
+        }
+      }
       if (e.code === "KeyV") {
         e.preventDefault();
         if (!paused) keys.add(e.code);
@@ -425,8 +510,10 @@ export function mountMeadow(
       ) {
         e.preventDefault();
         if (!paused && !e.repeat) {
-          if (e.code === "KeyJ") network?.attack();
-          else network?.dodge();
+          if (e.code === "KeyJ") {
+            keys.add("KeyJ");
+            network?.attack();
+          } else network?.dodge();
         }
       }
       if (e.code === "KeyQ" && !paused && !e.repeat && network?.gate) {
@@ -447,6 +534,18 @@ export function mountMeadow(
           );
       }
       if (e.code === "KeyE") {
+        if (
+          !paused &&
+          !e.repeat &&
+          network?.gate &&
+          !network.gate.open &&
+          owned() &&
+          Math.hypot(state.x - VINE_TARGET.x, state.y - VINE_TARGET.y) < 4
+        ) {
+          e.preventDefault();
+          network.companion("dissolve", network.gate.id);
+          return;
+        }
         const moss = mossTarget();
         if (moss && !paused && !e.repeat) {
           e.preventDefault();
@@ -494,7 +593,13 @@ export function mountMeadow(
       }
     }) as EventListener);
     listen(host, "keyup", ((e: KeyboardEvent) => {
-      if (movementCodes.has(e.code) || e.code === "KeyV") {
+      if (
+        movementCodes.has(e.code) ||
+        e.code === "KeyV" ||
+        e.code === "KeyJ" ||
+        e.code === "KeyK" ||
+        e.code === "KeyF"
+      ) {
         e.preventDefault();
         keys.delete(e.code);
       }
@@ -503,8 +608,30 @@ export function mountMeadow(
       const wasPaused = paused;
       host.focus();
       resume();
-      if (!wasPaused && e.button === 0) network?.attack();
+      if (!wasPaused && e.button === 2) keys.add("MouseBlock");
+      if (!wasPaused && e.button === 0) {
+        keys.add("MouseAttack");
+        network?.attack();
+      }
     }) as EventListener);
+    listen(host, "contextmenu", ((e: Event) =>
+      e.preventDefault()) as EventListener);
+    listen(window, "pointerup", ((e: PointerEvent) => {
+      if (e.button === 0) keys.delete("MouseAttack");
+      if (e.button === 2) keys.delete("MouseBlock");
+    }) as EventListener);
+    listen(window, "pointercancel", (() => {
+      keys.delete("MouseAttack");
+      keys.delete("MouseBlock");
+    }) as EventListener);
+    listen(host, "combat-equip", ((e: CustomEvent<Weapon>) =>
+      network?.equip(e.detail)) as EventListener);
+    listen(host, "combat-skill", (() => network?.skill()) as EventListener);
+    listen(host, "friendly-fire", ((e: CustomEvent<boolean>) =>
+      network?.companion(
+        "friendly-fire",
+        e.detail ? "on" : "off",
+      )) as EventListener);
     listen(host, "craft-item", ((
       e: CustomEvent<{ action: "craft" | "place"; target: string }>,
     ) => {
@@ -570,6 +697,22 @@ export function mountMeadow(
           0.0001;
       const actor = network?.actor;
       const combatVisual = (a: RealtimeActor) => ({
+        weapon: a.combat?.attack?.weapon ?? a.combat?.weapon ?? "blade",
+        charge: a.combat?.attack?.charge ?? 0,
+        skill: !!a.combat?.attack?.skill,
+        charging:
+          a.combat?.charging !== undefined
+            ? Math.max(
+                0,
+                Math.min(1, (network!.visualTick - a.combat.charging) / 60),
+              )
+            : undefined,
+        blocking: a.combat?.blocking !== undefined,
+        parry:
+          !!a.combat?.parryTick &&
+          network!.visualTick - a.combat.parryTick < 20,
+        attackOrigin: a.combat?.attack?.origin,
+        rays: a.combat?.attack?.rays ?? [],
         health: a.combat?.health,
         hurt:
           !!a.combat &&
@@ -585,11 +728,18 @@ export function mountMeadow(
               )
             : undefined,
         rollFacing: a.combat?.dodgeFacing,
+        combo: a.combat?.attack?.combo ?? 0,
         attackAge: a.combat?.attack
           ? Math.max(0, network!.visualTick - a.combat.attack.startedTick)
           : undefined,
       });
-      view.combat(network?.slime, network?.visualTick ?? 0);
+      view.combat(
+        [
+          ...(network?.slime ? [network.slime] : []),
+          ...(network?.monsters ?? []),
+        ],
+        network?.visualTick ?? 0,
+      );
       view.companions(network?.moss ?? []);
       view.resources(
         depleted(),
@@ -642,6 +792,11 @@ export function mountMeadow(
       visibleProps = view.visibleProps;
     }
     function tickFrame() {
+      const pad = controller.poll(paused, performance.now());
+      if (controllerConnected && !pad.connected) network?.cancelCombat();
+      controllerConnected = pad.connected;
+      controllerRunning = !paused && pad.run;
+      if (!paused && pad.facing !== undefined) facingIndex = pad.facing;
       const dt = Math.min(deltaMS / 1000, 0.25);
       if (!paused || network) {
         accumulator += dt;
@@ -656,13 +811,32 @@ export function mountMeadow(
               Number(!paused && (keys.has("KeyS") || keys.has("ArrowDown"))) -
               Number(!paused && (keys.has("KeyW") || keys.has("ArrowUp"))),
           };
+          if (!paused && !input.x && !input.y) {
+            input.x = pad.x;
+            input.y = pad.y;
+          }
+          network?.combatInput(
+            !paused && (pad.charge || keys.has("KeyK")),
+            !paused &&
+              (pad.block || keys.has("KeyF") || keys.has("MouseBlock")),
+          );
+          if (
+            !paused &&
+            (pad.attack || keys.has("KeyJ") || keys.has("MouseAttack"))
+          )
+            network?.attack();
           state = network
-            ? network.advance(input, facingIndex, !paused && keys.has("KeyV"))
+            ? network.advance(
+                input,
+                facingIndex,
+                !paused && (keys.has("KeyV") || pad.run),
+              )
             : moveFor(
                 world,
                 state,
                 input,
-                STEP_SECONDS * (!paused && keys.has("KeyV") ? 1.75 : 1),
+                STEP_SECONDS *
+                  (!paused && (keys.has("KeyV") || pad.run) ? 1.75 : 1),
               );
           accumulator = Math.max(0, accumulator - fixed);
           ticks++;

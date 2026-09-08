@@ -82,7 +82,7 @@ it("three serial feeds consume exactly three berries and preserve identity; dupl
     121,
   );
   expect(s.taming.creatures[0].owner).toBe("a");
-  expect(s.taming.creatures).toHaveLength(2);
+  expect(s.taming.creatures).toHaveLength(8);
   expect(s.taming.creatures[0].id).toBe(target);
   expect(s.gathering.players.a.inventory[2]!.quantity).toBe(3);
   s = commandCompanion(

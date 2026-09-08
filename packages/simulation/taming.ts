@@ -1,3 +1,5 @@
+import { EXTRA_PET_HOMES } from "../content/creatures";
+import { creatureHomes } from "./population";
 import { freshGate } from "./utility";
 import type { Gate } from "../protocol/utility";
 import { TAMING as T } from "../content/taming";
@@ -44,6 +46,7 @@ export function freshTaming(seed: string): TamingState {
     creatures: [
       { x: 61.5, y: 64.5 },
       { x: 64.5, y: 68.5 },
+      ...creatureHomes(seed, EXTRA_PET_HOMES),
     ].map((home, i) => ({
       id: `${GENERATION_VERSION}:${CONTENT_VERSION}:${seed}:moss:${i}`,
       kind: "moss-slime",
@@ -300,5 +303,19 @@ export function stepTaming(
           (Math.round(Math.atan2(delta.y, delta.x) / (Math.PI / 4)) + 8) % 8,
       };
     }),
+  };
+}
+
+/** Add missing wild pets without replacing ownership, claims, or follow state. */
+export function expandTaming(seed: string, saved?: TamingState): TamingState {
+  const fresh = freshTaming(seed);
+  if (!saved) return fresh;
+  const ids = new Set(saved.creatures.map((c) => c.id));
+  return {
+    ...saved,
+    creatures: [
+      ...saved.creatures,
+      ...fresh.creatures.filter((c) => !ids.has(c.id)),
+    ],
   };
 }

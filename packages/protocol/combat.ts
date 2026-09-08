@@ -1,3 +1,4 @@
+import { weaponSchema } from "../content/weapons";
 import { z } from "zod";
 const tick = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
 export const pointSchema = z
@@ -10,11 +11,27 @@ export const combatSchema = z
     attack: z
       .object({
         startedTick: tick,
+        weapon: weaponSchema.optional(),
+        origin: pointSchema.optional(),
+        charge: z.number().min(0).max(1).optional(),
+        skill: z.boolean().optional(),
+        combo: z.number().int().min(0).max(2).optional(),
         facing: z.number().int().min(0).max(7),
-        hits: z.array(z.string().max(200)).max(1),
+        rays: z.array(z.number().int().min(0).max(2)).max(3).optional(),
+        hits: z.array(z.string().max(200)).max(14),
       })
       .strict()
       .nullable(),
+    combo: z
+      .object({ step: z.number().int().min(0).max(2), until: tick })
+      .strict()
+      .optional(),
+    weapon: weaponSchema.optional(),
+    charging: tick.optional(),
+    blocking: tick.optional(),
+    blockReady: tick.optional(),
+    parryTick: tick.optional(),
+    skillReady: tick.optional(),
     attackReady: tick,
     dodgeUntil: tick,
     dodgeReady: tick,
@@ -40,6 +57,8 @@ export const slimeSchema = z
     impact: pointSchema,
     damageTick: tick,
     deathTick: tick.nullable(),
+    staggerUntil: tick.optional(),
+    lastDamage: z.number().int().min(0).max(30).optional(),
   })
   .strict();
 export type Slime = z.infer<typeof slimeSchema>;

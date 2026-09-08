@@ -12,6 +12,7 @@ export const companionCommandSchema = z
       "recall",
       "dissolve",
       "teleport",
+      "friendly-fire",
     ]),
   })
   .strict();
@@ -21,6 +22,7 @@ export const companionReceiptSchema = companionCommandSchema
     tick,
     result: z.enum([
       "teleported",
+      "settings-updated",
       "channeling",
       "opened",
       "already-open",

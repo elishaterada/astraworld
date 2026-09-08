@@ -40,3 +40,7 @@ M8 settlement building is the next content milestone, but is not authorized or s
 A later user report of lost controls was traced to local Redis port 6380 refusing connections while the two gateways and browser were still running. The database saved world remained readable. Restarting loopback Redis restored the existing character without resetting its world. Local startup now daemonizes the shared, non-persistent Redis process so it outlives a temporary launcher terminal, like the existing local Postgres service. Explicit shutdown is documented in README.
 
 Verified Redis PONG, the user’s browser leaving Reconnecting with health/inventory controls restored, and actual keyboard input changing the authoritative position. JavaScript syntax and diff checks passed. No gameplay rules changed.
+
+The later user-authorized [Meadow creature expansion](MEADOW_CREATURES.md) increases the existing monster/pet population and advances the wire protocol to 4 without implementing M8.
+
+The subsequent user-authorized [combat arsenal](COMBAT_ARSENAL.md) adds friendly fire, charge, guard/parries and five simple weapon loadouts under wire protocol 6. This remains an explicit combat expansion after M7; M8 is not implemented.

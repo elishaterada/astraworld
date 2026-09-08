@@ -85,7 +85,7 @@ it("M5 utility survives owner turnover, retries, replacement generation and late
       ws.send(
         JSON.stringify({
           type: "hello",
-          protocolVersion: 3,
+          protocolVersion: 6,
           worldId: s.worldId,
           token: s.token,
           contentVersion: CONTENT_VERSION,
@@ -98,7 +98,7 @@ it("M5 utility survives owner turnover, retries, replacement generation and late
           ws.send(
             JSON.stringify({
               type: "frames",
-              protocolVersion: 3,
+              protocolVersion: 6,
               worldId: s.worldId,
               generation,
               runs: packFrames(frames),
@@ -204,7 +204,7 @@ it("M5 utility survives owner turnover, retries, replacement generation and late
     expect(
       last(c2).moss!.filter((m) => m.owner === first.playerId),
     ).toHaveLength(1);
-    expect(last(c2).moss).toHaveLength(2);
+    expect(last(c2).moss).toHaveLength(8);
     expect(last(c2).moss![0].mode).toBe("stay");
     c2.companion(target, 3, "stay");
     await until(() => last(c2).companionReceipt?.result === "forbidden");

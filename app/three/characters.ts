@@ -37,6 +37,16 @@ export function createModelKit() {
   const geometry = new T.BoxGeometry(1, 1, 1);
   const batchMaterial = new T.MeshStandardMaterial({ roughness: 1 });
   const batches = new Set<T.InstancedMesh>();
+  const slashGeometry = new T.RingGeometry(
+    1.05,
+    1.25,
+    24,
+    1,
+    0,
+    Math.PI * 0.85,
+  );
+  const slashMaterials = new Set<T.MeshBasicMaterial>();
+  const guardGeometry = new T.RingGeometry(0.52, 0.6, 32);
   const materials = new Map<number, T.MeshStandardMaterial>();
   function box(
     parent: T.Object3D,
@@ -156,17 +166,86 @@ export function createModelKit() {
     box(blade, 0xd7b477, [0.32, 0.07, 0.12], [0, -0.52, 0.13]);
     box(blade, 0xd4e3df, [0.14, 0.75, 0.06], [0, -0.92, 0.13]);
     blade.visible = false;
-    const rigidParts = [body, ...legs, ...arms, hatchet, blade].map((part) =>
-      batchBoxes(part, geometry, batchMaterial),
+    const bow = new T.Group(),
+      staff = new T.Group();
+    arms[1].add(bow, staff);
+    for (let i = 0; i < 5; i++) {
+      const b = box(
+        bow,
+        0xa87942,
+        [0.12, 0.26, 0.12],
+        [Math.sin((i * Math.PI) / 4) * 0.32, -0.1 - i * 0.24, 0.15],
+      );
+      b.rotation.z = -Math.cos((i * Math.PI) / 4) * 0.4;
+    }
+    box(bow, 0xf3e3b0, [0.025, 1, 0.025], [0, -0.57, 0.15]);
+    box(staff, 0x795d85, [0.08, 1.25, 0.08], [0, -0.6, 0.15]);
+    box(staff, 0xb2a3ff, [0.25, 0.3, 0.25], [0, 0.1, 0.15]);
+    bow.visible = staff.visible = false;
+    const slashMaterial = new T.MeshBasicMaterial({
+      color: 0xffefc4,
+      transparent: true,
+      opacity: 0.8,
+      side: T.DoubleSide,
+      depthWrite: false,
+    });
+    slashMaterials.add(slashMaterial);
+    const slash = new T.Mesh(slashGeometry, slashMaterial);
+    slash.rotation.x = -Math.PI / 2;
+    slash.position.y = 0.8;
+    slash.visible = false;
+    root.add(slash);
+    const rigidParts = [body, ...legs, ...arms, hatchet, blade, bow, staff].map(
+      (part) => batchBoxes(part, geometry, batchMaterial),
     );
     for (const batch of rigidParts) batches.add(batch);
+    const guardMaterial = new T.MeshBasicMaterial({
+      color: 0x8edcff,
+      transparent: true,
+      opacity: 0.85,
+      side: T.DoubleSide,
+      depthWrite: false,
+    });
+    slashMaterials.add(guardMaterial);
+    const guard = new T.Mesh(guardGeometry, guardMaterial);
+    guard.position.set(0, 1, 0.7);
+    root.add(guard);
+    guard.visible = false;
+    const auraMaterial = guardMaterial.clone();
+    slashMaterials.add(auraMaterial);
+    const aura = new T.Mesh(guardGeometry, auraMaterial);
+    aura.rotation.x = -Math.PI / 2;
+    aura.position.y = 0.12;
+    root.add(aura);
+    aura.visible = false;
+    const shotMaterial = new T.MeshBasicMaterial({ color: 0xffdc8d });
+    slashMaterials.add(shotMaterial);
+    const shots = Array.from({ length: 3 }, () => {
+      const shot = new T.Mesh(geometry, shotMaterial);
+      root.add(shot);
+      shot.visible = false;
+      return shot;
+    });
     return {
       dispose() {
+        for (const m of [
+          slashMaterial,
+          guardMaterial,
+          auraMaterial,
+          shotMaterial,
+        ])
+          if (slashMaterials.delete(m)) m.dispose();
         for (const batch of rigidParts) {
           if (batches.delete(batch)) batch.dispose();
         }
       },
       blade,
+      bow,
+      staff,
+      guard,
+      aura,
+      shots,
+      slash,
       root,
       roll,
       body,
@@ -186,6 +265,10 @@ export function createModelKit() {
       batches.clear();
       batchMaterial.dispose();
       geometry.dispose();
+      slashGeometry.dispose();
+      guardGeometry.dispose();
+      for (const m of slashMaterials) m.dispose();
+      slashMaterials.clear();
       for (const material of materials.values()) material.dispose();
       materials.clear();
     },

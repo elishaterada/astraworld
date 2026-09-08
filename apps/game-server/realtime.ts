@@ -1,3 +1,7 @@
+import {
+  setWorldRule,
+  type WorldRules,
+} from "../../packages/simulation/world-rules";
 import { craft } from "../../packages/simulation/crafting";
 import { teleportTo } from "../../packages/simulation/travel";
 import { receipts, type DurableCommand } from "./durable";
@@ -7,7 +11,7 @@ import {
   stepUtility,
 } from "../../packages/simulation/utility";
 import {
-  freshTaming,
+  expandTaming,
   commandCompanion,
   stepTaming,
   publicMoss,
@@ -20,7 +24,8 @@ import type {
 import {
   freshCombat,
   freshSlime,
-  stepCombat,
+  stepEncounters,
+  expandMonsters,
   combatBusy,
 } from "../../packages/simulation/combat";
 import type { Slime } from "../../packages/protocol/combat";
@@ -94,14 +99,17 @@ export async function createRealtimeGateway(options: {
     generation: number;
   };
   type State = {
+    rules?: WorldRules;
     durableRevision?: number;
     tick: number;
     actors: RealtimeActor[];
     gathering: GatheringState;
     slime?: Slime;
+    monsters?: Slime[];
     taming?: TamingState;
   };
   type Room = {
+    creatorId?: string;
     journal: DurableCommand[];
     durableRevision: number;
     durableDigest: string;
@@ -260,10 +268,15 @@ export async function createRealtimeGateway(options: {
     ]);
     if (!compatible(loaded.meta)) throw Error("Expired room");
     r.seed = loaded.meta!.seed;
+    r.creatorId = loaded.members.find((m) => m.spawnIndex === 0)?.id;
     r.world = generateWorld(r.seed);
     r.nodes = new Map(resourceNodes(r.world).map((n) => [n.id, n]));
-    r.state = { ...r.state, taming: r.state.taming ?? freshTaming(r.seed) };
-    r.state = { ...r.state, slime: r.state.slime ?? freshSlime(r.seed) };
+    r.state = { ...r.state, taming: expandTaming(r.seed, r.state.taming) };
+    r.state = {
+      ...r.state,
+      slime: r.state.slime ?? freshSlime(r.seed),
+      monsters: expandMonsters(r.seed, r.state.monsters),
+    };
     r.state = {
       ...r.state,
       gathering: {
@@ -301,7 +314,9 @@ export async function createRealtimeGateway(options: {
             ? committed.action
             : null,
         combat:
-          committed?.combat ??
+          (committed?.combat
+            ? { ...committed.combat, charging: undefined, blocking: undefined }
+            : undefined) ??
           freshCombat({ x: SPAWN.x + 2 * (m.spawnIndex ?? index), y: SPAWN.y }),
       };
     });
@@ -688,7 +703,10 @@ export async function createRealtimeGateway(options: {
         epoch,
         tick: state.tick,
         owner,
+        rules: state.rules ?? { friendlyFire: false },
+        creatorId: r.creatorId,
         slime: state.slime,
+        monsters: state.monsters,
         gate: state.taming?.gate,
         moss: state.taming?.creatures.map(publicMoss),
         companionReceipts: state.taming?.receipts ?? {},
@@ -800,22 +818,24 @@ export async function createRealtimeGateway(options: {
                 a,
                 tick,
                 tick >= (r.state.gathering.players[a.id]?.readyTick ?? 0) &&
-                  r.state.gathering.players[a.id]?.inventory.some(
-                    (s) => s?.item === "starter-blade",
-                  ),
+                  (a.combat?.weapon === "fists" ||
+                    r.state.gathering.players[a.id]?.inventory.some(
+                      (s) => s?.item === "starter-blade",
+                    )),
               ),
           ),
         };
-        const combat = stepCombat(
+        const combat = stepEncounters(
           r.world,
           r.state.actors,
-          r.state.slime!,
+          [r.state.slime!, ...(r.state.monsters ?? [])],
           tick,
           new Set(
             r.state.actors
               .filter((a) => now - (r.seen.get(a.id) ?? 0) < 3000)
               .map((a) => a.id),
           ),
+          r.state.rules?.friendlyFire ?? false,
         );
         r.state = { ...r.state, ...combat };
         for (const [player, pending] of r.gathers) {
@@ -826,9 +846,9 @@ export async function createRealtimeGateway(options: {
           const next = command.action
             ? craft(r.world, prior, actor, r.state.actors, command, tick, [
                 ...(r.state.taming?.creatures ?? []).map((m) => m.position),
-                ...(r.state.slime && r.state.slime.health > 0
-                  ? [r.state.slime.position]
-                  : []),
+                ...[r.state.slime, ...(r.state.monsters ?? [])]
+                  .filter((m): m is Slime => !!m && m.health > 0)
+                  .map((m) => m.position),
               ])
             : gather(
                 r.world,
@@ -871,38 +891,47 @@ export async function createRealtimeGateway(options: {
           if (actor && actor.generation === pending.generation)
             r.state = {
               ...r.state,
-              ...(pending.command.action === "teleport"
-                ? teleportTo(
-                    r.world,
+              ...(pending.command.action === "friendly-fire"
+                ? setWorldRule(
+                    r.state.rules,
                     r.state.taming!,
-                    r.state.actors,
+                    r.creatorId,
                     actor.id,
                     pending.command,
-                    new Set(
-                      [...r.seen]
-                        .filter(([, at]) => now - at < 3000)
-                        .map(([id]) => id),
-                    ),
                     tick,
                   )
-                : pending.command.action === "dissolve"
-                  ? {
-                      taming: commandDissolve(
+                : pending.command.action === "teleport"
+                  ? teleportTo(
+                      r.world,
+                      r.state.taming!,
+                      r.state.actors,
+                      actor.id,
+                      pending.command,
+                      new Set(
+                        [...r.seen]
+                          .filter(([, at]) => now - at < 3000)
+                          .map(([id]) => id),
+                      ),
+                      tick,
+                    )
+                  : pending.command.action === "dissolve"
+                    ? {
+                        taming: commandDissolve(
+                          r.world,
+                          r.state.taming!,
+                          actor,
+                          pending.command,
+                          tick,
+                        ),
+                      }
+                    : commandCompanion(
                         r.world,
                         r.state.taming!,
+                        r.state.gathering,
                         actor,
                         pending.command,
                         tick,
-                      ),
-                    }
-                  : commandCompanion(
-                      r.world,
-                      r.state.taming!,
-                      r.state.gathering,
-                      actor,
-                      pending.command,
-                      tick,
-                    )),
+                      )),
             };
         }
         r.companions.clear();

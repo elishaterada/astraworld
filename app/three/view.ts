@@ -1,3 +1,5 @@
+import { weaponAttack, type Weapon } from "../../packages/content/weapons";
+import { clearAttackLine } from "../../packages/simulation/combat";
 import { createButterflies } from "./butterflies";
 import { meadowLandscape } from "../meadow-landscape";
 import { createWorkbenchView } from "./workbenches";
@@ -32,6 +34,15 @@ export type VisualActor = {
   gathering?: boolean;
   chopping?: boolean;
   attackAge?: number;
+  combo?: number;
+  weapon?: Weapon;
+  charge?: number;
+  skill?: boolean;
+  charging?: number;
+  blocking?: boolean;
+  parry?: boolean;
+  attackOrigin?: Position;
+  rays?: number[];
   rollProgress?: number;
   rollFacing?: number;
   health?: number;
@@ -63,7 +74,7 @@ export function createMeadowView(
   scene.background = new T.Color(0x799994);
   scene.fog = new T.Fog(0x799994, 27, 80);
   const atmosphere = createAtmosphere(scene, world);
-  const combatView = createCombatView(scene);
+  const combatViews = Array.from({ length: 6 }, () => createCombatView(scene));
   const workbenchView = createWorkbenchView(scene);
   const butterflies = createButterflies(scene);
   const effectTime = { value: 0 };
@@ -552,10 +563,21 @@ export function createMeadowView(
   const forestView = createForestView(scene, labels);
   let currentGate: Gate | undefined;
   let moss: Moss[] = [];
-  const enemyLabel = document.createElement("div");
-  enemyLabel.className = "world-name slime-label";
-  labels.append(enemyLabel);
-  let currentSlime: Slime | undefined;
+  const enemyLabels = Array.from({ length: 6 }, () => {
+    const label = document.createElement("div");
+    label.className = "world-name slime-label";
+    labels.append(label);
+    return label;
+  });
+  const hitLabels = Array.from({ length: 6 }, () => {
+    const label = document.createElement("div");
+    label.className = "world-name";
+    label.style.cssText =
+      "font-size:22px;font-weight:800;color:#ffe1a1;pointer-events:none;background:none;text-shadow:0 2px 2px #30251c";
+    labels.append(label);
+    return label;
+  });
+  let currentSlimes: Slime[] = [];
   let combatTick = 0;
   let width = 1,
     height = 1,
@@ -594,25 +616,122 @@ export function createMeadowView(
     model.root.scale.setScalar(actor.health === 0 ? 0.45 : 1);
     model.body.rotation.z = actor.hurt ? 0.15 : 0;
     model.body.rotation.x = 0;
-    model.blade.visible =
+    model.body.rotation.y = 0;
+    const weapon = actor.weapon ?? "blade",
+      profile = weaponAttack(weapon, actor.combo, actor.charge, actor.skill);
+    const attacking =
       actor.attackAge !== undefined &&
       actor.attackAge >= 0 &&
-      actor.attackAge < 36;
+      actor.attackAge < profile.windup + profile.active + profile.recovery;
+    model.slash.visible = false;
+    model.blade.visible =
+      (weapon === "blade" || weapon === "greatsword") &&
+      (attacking || actor.charging !== undefined);
+    model.blade.scale.setScalar(weapon === "greatsword" ? 1.6 : 1);
+    model.bow.visible = weapon === "bow" && !actor.gathering;
+    model.staff.visible = weapon === "magic" && !actor.gathering;
+    model.guard.visible = !!actor.blocking || !!actor.parry;
+    model.guard.material.color.setHex(actor.parry ? 0xfff1a2 : 0x8edcff);
+    model.aura.visible = actor.charging !== undefined;
+    model.aura.scale.setScalar(1 + (actor.charging ?? 0));
+    model.aura.material.color.setHex(0xffce72);
+    if (actor.charging !== undefined || actor.blocking) {
+      model.arms[0].rotation.x = -1.1;
+      model.arms[1].rotation.x = actor.blocking ? -1.1 : -2.1;
+    }
+    model.shots.forEach((shot, i) => {
+      const age = actor.attackAge ?? -1,
+        flight = (age - profile.windup) / profile.active;
+      const visible =
+        profile.projectile &&
+        attacking &&
+        flight >= 0 &&
+        flight < 1 &&
+        i < profile.spread.length &&
+        !actor.rays?.includes(i);
+      shot.visible = visible;
+      if (!visible) return;
+      const origin = actor.attackOrigin ?? actor.position,
+        angle = (actor.facing * Math.PI) / 4 + profile.spread[i],
+        distance = flight * profile.range;
+      const position = {
+        x: origin.x + Math.cos(angle) * distance,
+        y: origin.y + Math.sin(angle) * distance,
+      };
+      shot.visible = clearAttackLine(world, origin, position);
+      const dx = position.x - actor.position.x,
+        dz = position.y - actor.position.y,
+        r = model.root.rotation.y;
+      shot.position.set(
+        Math.cos(r) * dx - Math.sin(r) * dz,
+        0.8,
+        Math.sin(r) * dx + Math.cos(r) * dz,
+      );
+      shot.rotation.y = -profile.spread[i];
+      shot.scale.set(
+        weapon === "magic" ? 0.23 : 0.07,
+        weapon === "magic" ? 0.23 : 0.07,
+        weapon === "magic" ? 0.35 : 0.8,
+      );
+      shot.material.color.setHex(weapon === "magic" ? 0xbb91ff : 0xffe2ab);
+    });
     model.hatchet.visible = !!actor.gathering && !!actor.chopping;
     if (actor.gathering && !model.blade.visible) {
       model.arms[1].rotation.x = reduced ? -1 : -1 + Math.sin(time * 18) * 0.7;
       model.arms[1].rotation.z = -0.35;
     }
-    if (model.blade.visible) {
-      const age = actor.attackAge!;
+    if (attacking) {
+      const age = actor.attackAge!,
+        phase = Math.max(
+          0,
+          Math.min(1, (age - profile.windup) / profile.active),
+        ),
+        side = actor.combo === 1 ? -1 : 1;
       model.arms[1].rotation.x = reduced
         ? -1.5
-        : age < 9
+        : age < profile.windup
           ? -2.5
-          : age < 15
-            ? -2.5 + ((age - 9) / 6) * 2.2
-            : -0.3;
-      model.arms[1].rotation.z = -0.45;
+          : -2.5 + phase * 2.2;
+      model.arms[1].rotation.z = -0.45 * side;
+      if (!reduced) {
+        model.body.rotation.y = Math.sin(phase * Math.PI) * 0.5 * side;
+        model.body.rotation.x =
+          actor.combo === 2 ? Math.sin(phase * Math.PI) * 0.25 : 0;
+      }
+      model.slash.visible =
+        !profile.projectile &&
+        !profile.radial &&
+        !reduced &&
+        age >= profile.windup &&
+        age < profile.windup + profile.active;
+      model.slash.rotation.z = side * (phase - 0.5) * 1.8 - Math.PI * 0.9;
+      model.slash.scale.setScalar(actor.combo === 2 ? 1.4 : 1);
+      model.slash.material.color.setHex(
+        actor.combo === 2 ? 0xffbc59 : 0xffefc4,
+      );
+      model.slash.material.opacity = Math.sin(phase * Math.PI) * 0.8;
+      if (weapon === "fists") {
+        model.arms[0].rotation.x = -0.8;
+        model.arms[1].rotation.x =
+          -Math.PI / 2 - Math.sin(phase * Math.PI) * 0.6;
+      }
+      if (weapon === "bow" || weapon === "magic") {
+        model.arms[1].rotation.x = -Math.PI / 2;
+        model.arms[0].rotation.x = weapon === "bow" ? -1.1 : 0;
+      }
+      if (
+        profile.radial &&
+        age >= profile.windup &&
+        age < profile.windup + profile.active
+      ) {
+        model.aura.visible = true;
+        model.aura.scale.setScalar(
+          (profile.range / 0.6) * (reduced ? 1 : Math.max(0.15, phase)),
+        );
+        model.aura.material.color.setHex(
+          weapon === "magic" ? 0xbb91ff : 0xffcf87,
+        );
+      }
     }
   }
   return {
@@ -635,8 +754,8 @@ export function createMeadowView(
     companions(creatures: Moss[]) {
       moss = creatures;
     },
-    combat(slime: Slime | undefined, tick: number) {
-      currentSlime = slime;
+    combat(slimes: Slime[], tick: number) {
+      currentSlimes = slimes;
       combatTick = tick;
     },
     draw(
@@ -648,7 +767,9 @@ export function createMeadowView(
       effectTime.value = reduced ? 0 : time;
       atmosphere.update(time, reduced, actor.position);
       butterflies.update(time, reduced, actor.position);
-      combatView.update(currentSlime, combatTick, time, reduced);
+      combatViews.forEach((view, i) =>
+        view.update(currentSlimes[i], combatTick, time, reduced),
+      );
       update(local, actor, time, reduced);
       const p = actor.position;
       camera.position.set(
@@ -699,21 +820,38 @@ export function createMeadowView(
           screen.y < -100 ||
           screen.y > height + 100;
       }
-      if (currentSlime) {
-        const screen = worldToScreen(currentSlime.position, p, width, height);
-        enemyLabel.textContent =
-          currentSlime.health === 0
-            ? "Slime defeated"
-            : `Wild Slime · ${currentSlime.health}/30${currentSlime.phase === "tell" ? " · SLAM!" : ""}`;
-        enemyLabel.style.transform = `translate(${screen.x}px, ${screen.y - 58}px) translate(-50%, -100%)`;
-        enemyLabel.hidden =
-          Math.hypot(
-            currentSlime.position.x - p.x,
-            currentSlime.position.y - p.y,
-          ) > 12 ||
-          (currentSlime.health === 0 &&
-            combatTick - currentSlime.phaseTick > 180);
-      } else enemyLabel.hidden = true;
+      enemyLabels.forEach((enemyLabel, i) => {
+        const currentSlime = currentSlimes[i];
+        const hitLabel = hitLabels[i];
+        hitLabel.hidden = true;
+        if (currentSlime) {
+          const screen = worldToScreen(currentSlime.position, p, width, height);
+          enemyLabel.textContent =
+            currentSlime.health === 0
+              ? "Slime defeated"
+              : `Wild Slime · ${currentSlime.health}/30${currentSlime.phase === "tell" ? " · SLAM!" : ""}`;
+          const hitAge = combatTick - currentSlime.damageTick;
+          hitLabel.hidden =
+            currentSlime.damageTick === 0 ||
+            hitAge < 0 ||
+            hitAge >= 36 ||
+            Math.hypot(
+              currentSlime.position.x - p.x,
+              currentSlime.position.y - p.y,
+            ) > 12;
+          hitLabel.textContent = `−${currentSlime.lastDamage ?? 10}`;
+          hitLabel.style.opacity = String(Math.max(0, 1 - hitAge / 36));
+          hitLabel.style.transform = `translate(${screen.x + 25}px, ${screen.y - 70 - (reduced ? 0 : hitAge * 0.8)}px) translate(-50%,-100%)`;
+          enemyLabel.style.transform = `translate(${screen.x}px, ${screen.y - 58}px) translate(-50%, -100%)`;
+          enemyLabel.hidden =
+            Math.hypot(
+              currentSlime.position.x - p.x,
+              currentSlime.position.y - p.y,
+            ) > 12 ||
+            (currentSlime.health === 0 &&
+              combatTick - currentSlime.phaseTick > 180);
+        } else enemyLabel.hidden = true;
+      });
       forestView.update(
         currentGate,
         combatTick,
@@ -770,7 +908,7 @@ export function createMeadowView(
       waterMaterial.dispose();
       atmosphere.dispose();
       butterflies.dispose();
-      combatView.dispose();
+      combatViews.forEach((view) => view.dispose());
       workbenchView.dispose();
       mossView.dispose();
       forestView.dispose();

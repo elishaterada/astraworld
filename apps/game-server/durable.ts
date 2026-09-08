@@ -20,14 +20,16 @@ const stateSchema = z
       depleted: z.array(z.string()).max(16384),
       benches: benchesSchema.optional(),
     }),
+    rules: z.object({ friendlyFire: z.boolean() }).strict().optional(),
     slime: slimeSchema.optional(),
+    monsters: z.array(slimeSchema).max(5).optional(),
     taming: z
       .object({
         travelReady: z
           .record(z.string(), z.number().int().nonnegative())
           .optional(),
         gate: gateSchema,
-        creatures: z.array(mossSchema.passthrough()).max(2),
+        creatures: z.array(mossSchema.passthrough()).max(8),
         receipts: z.record(z.string(), companionReceiptSchema),
       })
       .optional(),
@@ -68,6 +70,11 @@ const digest = (v: unknown) =>
   createHash("sha256").update(JSON.stringify(v)).digest("hex");
 export function valuableDigest(s: DurableState) {
   return digest({
+    rules: s.rules,
+    loadouts: s.actors.map((a) => ({
+      id: a.id,
+      weapon: a.combat?.weapon ?? "blade",
+    })),
     gathering: s.gathering,
     taming: s.taming
       ? {
@@ -84,6 +91,7 @@ export function valuableDigest(s: DurableState) {
         }
       : null,
     defeated: s.slime?.health === 0,
+    monsters: s.monsters?.map((m) => ({ id: m.id, defeated: m.health === 0 })),
   });
 }
 export class DurableStore {
@@ -288,6 +296,15 @@ export class DurableStore {
           )
         )
           throw Error("Companion ownership cannot regress");
+      for (const m of [row.state?.slime, ...(row.state?.monsters ?? [])])
+        if (
+          m &&
+          m.health === 0 &&
+          ![state.slime, ...(state.monsters ?? [])].some(
+            (next) => !!next && next.id === m.id && next.health === 0,
+          )
+        )
+          throw Error("Monster defeat cannot regress");
       for (const b of row.state?.gathering?.benches ?? [])
         if (
           !state.gathering.benches?.some(

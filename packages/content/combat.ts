@@ -46,3 +46,25 @@ export const COMBAT = z
     leash: 8,
     slimeSpeed: 2,
   });
+
+/** A short chain window rewards sustained pressure; the finisher commits for longer. */
+export const COMBO_WINDOW = 48;
+export function bladeAttack(combo = 0) {
+  return combo === 2
+    ? {
+        windup: 12,
+        active: 8,
+        recovery: 22,
+        damage: 15,
+        range: 1.9,
+        knockback: 1.1,
+      }
+    : {
+        windup: COMBAT.windup,
+        active: COMBAT.active,
+        recovery: combo === 1 ? 15 : COMBAT.recovery,
+        damage: COMBAT.bladeDamage,
+        range: COMBAT.bladeRange,
+        knockback: 0,
+      };
+}

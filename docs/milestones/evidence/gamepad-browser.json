@@ -1,0 +1,19 @@
+{
+  "result": "pass",
+  "input": "simulated standard Gamepad API; no physical controller",
+  "controllerHints": true,
+  "keyboardHintsAfterDisconnect": true,
+  "movement": true,
+  "aim": true,
+  "combo": true,
+  "roll": true,
+  "charge": true,
+  "block": true,
+  "skill": true,
+  "cycleWeapon": true,
+  "satchel": true,
+  "menuBlocksGameplay": true,
+  "disconnectStops": true,
+  "keyboardAfterDisconnect": true,
+  "errors": []
+}

@@ -1,4 +1,5 @@
 import * as T from "three";
+import { seedHash } from "../../packages/world";
 import type { Slime } from "../../packages/protocol/combat";
 import { COMBAT as C } from "../../packages/content/combat";
 /** Original block-built creature and ground tells; never resolves a hit. */
@@ -50,11 +51,20 @@ export function createCombatView(scene: T.Scene) {
   const fill = new T.Mesh(fillGeometry, fillMaterial);
   fill.rotation.x = -Math.PI / 2;
   scene.add(fill);
-  root.visible = tell.visible = fill.visible = false;
+  const sparkMaterial = new T.MeshBasicMaterial({
+    color: 0xffde83,
+    transparent: true,
+    depthWrite: false,
+  });
+  const sparks = new T.InstancedMesh(geometry, sparkMaterial, 8),
+    dummy = new T.Object3D();
+  sparks.frustumCulled = false;
+  scene.add(sparks);
+  root.visible = tell.visible = fill.visible = sparks.visible = false;
   return {
     update(s: Slime | undefined, tick: number, time: number, reduced: boolean) {
       if (!s) {
-        root.visible = tell.visible = fill.visible = false;
+        root.visible = tell.visible = fill.visible = sparks.visible = false;
         return;
       }
       const age = tick - s.phaseTick;
@@ -65,12 +75,43 @@ export function createCombatView(scene: T.Scene) {
         !reduced && s.phase === "chase"
           ? Math.abs(Math.sin(time * 9)) * 0.16
           : 0;
-      body.position.y = hop;
+      const hitAge = tick - s.damageTick,
+        impact = !reduced && s.damageTick > 0 && hitAge >= 0 && hitAge < 18;
+      sparks.visible = impact;
+      if (impact) {
+        const t = hitAge / 18;
+        sparkMaterial.opacity = 1 - t;
+        for (let i = 0; i < 8; i++) {
+          const a = (i * Math.PI) / 4;
+          dummy.position.set(
+            s.position.x + Math.cos(a) * t * 1.1,
+            0.65 + Math.sin(t * Math.PI) * 0.6,
+            s.position.y + Math.sin(a) * t * 1.1,
+          );
+          dummy.scale.setScalar(0.09 * (1 - t));
+          dummy.rotation.set(a + t * 3, a, 0);
+          dummy.updateMatrix();
+          sparks.setMatrixAt(i, dummy.matrix);
+        }
+        sparks.instanceMatrix.needsUpdate = true;
+      }
+      const slamLift =
+        !reduced && s.phase === "tell"
+          ? Math.sin(Math.PI * Math.min(1, age / C.tellTicks)) * 0.65
+          : 0;
+      body.position.y = hop + slamLift;
+      body.rotation.z = impact
+        ? Math.sin(hitAge * 0.8) * (1 - hitAge / 18) * 0.18
+        : 0;
       body.scale.set(d, s.phase === "tell" ? 0.72 * d : d, d);
       skin.material.color.setHex(
-        tick - s.damageTick < 9 && s.damageTick > 0 ? 0xffeed0 : 0xad746c,
+        tick - s.damageTick < 9 && s.damageTick > 0
+          ? 0xffeed0
+          : [0xad746c, 0x85739c, 0x7c9164][seedHash(s.id) % 3],
       );
-      const active = s.phase === "tell" || (s.phase === "recover" && age < 8);
+      const active =
+        s.phase === "tell" ||
+        (s.phase === "recover" && age < 8 && tick >= (s.staggerUntil ?? 0));
       tell.visible = fill.visible = active;
       tell.position.set(s.impact.x, 0.05, s.impact.y);
       fill.position.copy(tell.position);
@@ -84,7 +125,9 @@ export function createCombatView(scene: T.Scene) {
       );
     },
     dispose() {
-      scene.remove(root, tell, fill);
+      scene.remove(root, tell, fill, sparks);
+      sparks.dispose();
+      sparkMaterial.dispose();
       geometry.dispose();
       tellGeometry.dispose();
       fillGeometry.dispose();

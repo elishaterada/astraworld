@@ -80,7 +80,7 @@ it("two independent gateways: exact acknowledgements, actions, generation fencin
       ws.send(
         JSON.stringify({
           type: "hello",
-          protocolVersion: 3,
+          protocolVersion: 6,
           worldId: s.worldId,
           token: s.token,
           contentVersion: CONTENT_VERSION,
@@ -93,7 +93,7 @@ it("two independent gateways: exact acknowledgements, actions, generation fencin
           ws.send(
             JSON.stringify({
               type: "frames",
-              protocolVersion: 3,
+              protocolVersion: 6,
               worldId: s.worldId,
               generation,
               runs: packFrames(frames),

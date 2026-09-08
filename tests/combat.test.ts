@@ -252,7 +252,7 @@ it("action flags survive batching; conflicting replay and forged outcomes are re
       parsePacket(
         JSON.stringify({
           type: "frames",
-          protocolVersion: 3,
+          protocolVersion: 6,
           worldId: "00000000-0000-4000-8000-000000000000",
           generation: 1,
           runs: [{ seq: 1, count: 1, keys: 0, facing: 6, ...forged }],

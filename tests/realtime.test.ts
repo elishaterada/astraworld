@@ -69,7 +69,7 @@ describe("60 Hz authoritative input timeline", () => {
   it("rejects authority fields, oversized replay windows, contradictory retries and malformed facing", () => {
     const packet = {
       type: "frames",
-      protocolVersion: 3,
+      protocolVersion: 6,
       worldId: randomUUID(),
       generation: 1,
       runs: [{ seq: 1, count: 1, keys: 0, facing: 0 }],

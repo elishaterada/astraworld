@@ -1,7 +1,7 @@
 import { batchBoxes } from "./batch-boxes";
 import * as T from "three";
 import type { Moss } from "../../packages/protocol/taming";
-import type { World } from "../../packages/world";
+import { seedHash, type World } from "../../packages/world";
 import { interpolate, type Position } from "../../packages/simulation";
 import { worldToScreen } from "../camera";
 export function createMossView(
@@ -75,8 +75,14 @@ export function createMossView(
           scene.add(root);
           label.className = "world-name moss-label";
           labels.append(label);
-          box(body, 0x649c62, [0.82, 0.55, 0.72], [0, 0.35, 0]);
-          box(body, 0x9abd71, [0.58, 0.23, 0.57], [0, 0.72, 0]);
+          const colors = [
+            [0x649c62, 0x9abd71],
+            [0x579d9f, 0x99d0bd],
+            [0xbd9157, 0xe4c77f],
+            [0xa16f94, 0xd6a2b4],
+          ][seedHash(c.id) % 4];
+          box(body, colors[0], [0.82, 0.55, 0.72], [0, 0.35, 0]);
+          box(body, colors[1], [0.58, 0.23, 0.57], [0, 0.72, 0]);
           for (const x of [-0.18, 0.18]) {
             box(body, 0x223936, [0.09, 0.11, 0.03], [x, 0.45, 0.376]);
             box(body, 0xe8c698, [0.1, 0.035, 0.032], [x * 1.4, 0.35, 0.376]);

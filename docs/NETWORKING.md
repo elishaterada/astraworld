@@ -124,3 +124,13 @@ Teleport uses the existing sequenced companion command envelope with action `tel
 Wire protocol **3** adds `stone`/`stone-axe` inventory values, `loose-stone` gathering visuals and optional shared `benches` snapshots. The existing gather command may include `action: "craft" | "place"`; `target` identifies a recipe or one of two fixed plots. No arbitrary coordinates or outputs are accepted. Existing sequence acknowledgement, retry, membership and Postgres publication barriers apply to the whole transition. Input and snapshot cadences are unchanged from QoL.
 
 Saved-world metadata, generation IDs and durable namespaces remain unchanged. M6 JSONB states default to no benches, preserving inventory and identity. New loose-stone nodes append to the resource order; old depleted IDs remain valid. Wire-version mismatch requires a client refresh. This change is locally verified only: a future production rollout must coordinate all gateways/clients and avoid simultaneous M6/M7 room owners; hosted lifecycle verification is still required.
+
+## Creature population protocol
+
+The post-M7 population expansion adds six authoritative hostile encounters and eight pets. Wire protocol 4 carries the original `slime`, up to five additional `monsters`, and up to eight `moss` instances. All player strikes resolve before enemy impacts, with at most six distinct hit IDs per swing. Existing saved-world IDs remain unchanged; deployment requires coordinated gateway/client updates. See [decisions and evidence](milestones/MEADOW_CREATURES.md).
+
+The subsequent [combat-rhythm upgrade](milestones/COMBAT_RHYTHM.md) advances the wire version to 5. Combo stage and interruption state remain server-owned; held input uses the existing rate-limited frame stream. Saved namespaces remain unchanged.
+
+## Post-M7 combat arsenal
+
+The user-authorized [combat arsenal](milestones/COMBAT_ARSENAL.md) adds charge, frontal guard/parry, five training loadouts and one skill per class. Wire protocol **6** carries their intent and authoritative state. Friendly fire defaults off and is a durable world rule controlled only by the authenticated creator. This supersedes earlier player-immunity and melee-only scope for this increment; pets remain immune. Existing saves load additively without changing world IDs or namespaces. See the decision record for timings, controls, permission boundaries and verification.

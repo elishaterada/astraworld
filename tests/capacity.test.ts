@@ -79,7 +79,7 @@ it("accepts all eight actors, rejects a ninth snapshot actor, and provides colli
   }));
   const snapshot = {
     type: "snapshot",
-    protocolVersion: 3,
+    protocolVersion: 6,
     worldId: randomUUID(),
     seed: world.seed,
     epoch: 1,

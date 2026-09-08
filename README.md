@@ -160,8 +160,24 @@ The upper-right minimap shows the entire Meadow: gold is you, blue is other onli
 
 Press **E** to collect loose stone along the east trail and chop trees. Open the satchel with **I** and choose **Craft axe**: a Stone Axe costs **3 wood + 2 stone** and automatically yields **5 wood per tree** instead of 3. Bring **6 wood** beside either outlined plot north/south of the starting campfire, open the satchel, and choose **Place workbench**. Plots must be clear of players and creatures. The station and tool are saved; both camp plots are shared and placement is permanent for now.
 
-Existing M6 saves and recovery files remain valid. The local server uses wire protocol 3; refresh old browser tabs. M7 has not been deployed. No M8 settlement features are included.
+Existing M6 saves and recovery files remain valid. The local server uses wire protocol 6; refresh old browser tabs. M7 has not been deployed. No M8 settlement features are included.
 
 ### Organic Meadow presentation
 
 The Meadow now uses winding landmark trails, irregular clearings, patchy grass/wildflowers and cosmetic butterflies. The minimap follows the new trails. Saved-world collision, resource positions and camp plots are unchanged. [Decisions and local checks](docs/milestones/ORGANIC_MEADOW.md).
+
+### Expanded Meadow creatures
+
+The Meadow now has six hostile Slimes and eight tameable Moss Slimes with varied coat colors. Explore beyond camp to find them; pets still need three Sweet Berries and each player can own one. Existing saves gain the additional creatures on load. See [population decisions and verification](docs/milestones/MEADOW_CREATURES.md). Refresh the browser after updating to protocol 6.
+
+### Blade combos
+
+Hold Click or J for two cuts and a heavier third strike. The finisher knocks enemies back and interrupts their slam. Shift plus a direction rolls out of attack recovery; rolling or pausing the chain resets it. [Combat decisions and verification](docs/milestones/COMBAT_RHYTHM.md).
+
+### Xbox controller
+
+Connect by USB/Bluetooth, enter the Meadow and press a controller button. Left stick moves, right stick aims, X attacks, RT charges, LT blocks, RB uses the class skill, D-pad down cycles weapons, B rolls, A interacts, LB runs, Y opens the satchel, View opens the map, and Menu pauses. D-pad/A/B navigate menus. Center the sticks after connecting or returning to play. Full mapping is in the game menu and [controller documentation](docs/milestones/GAMEPAD_SUPPORT.md). Browser verification used simulated input; physical hardware testing remains open.
+
+### Combat arsenal
+
+Use **1–5** to select blade, fists, greatsword, bow or magic. Hold **K** to charge, **F/right mouse** to guard, and use **H** for a class skill. A well-timed guard parries and reflects damage; late guards take chip damage. **Menu → Weapons and world rules** lets the creator enable optional friendly fire (off by default). See [rules, controls and verification](docs/milestones/COMBAT_ARSENAL.md). Refresh old tabs for protocol **6**; this update has not been deployed.

@@ -81,7 +81,7 @@ it("M3 real gateways retain damage, hit receipts and defeat across ownership and
       ws.send(
         JSON.stringify({
           type: "hello",
-          protocolVersion: 3,
+          protocolVersion: 6,
           worldId: s.worldId,
           token: s.token,
           contentVersion: CONTENT_VERSION,
@@ -94,7 +94,7 @@ it("M3 real gateways retain damage, hit receipts and defeat across ownership and
           ws.send(
             JSON.stringify({
               type: "frames",
-              protocolVersion: 3,
+              protocolVersion: 6,
               worldId: s.worldId,
               generation,
               runs: packFrames(frames),

@@ -1,0 +1,24 @@
+{
+  "typecheck": "pass",
+  "productionBuild": "pass",
+  "unitAndIntegration": {
+    "passed": 100,
+    "failed": 0,
+    "skipped": 0,
+    "postgres": "real local PostgreSQL"
+  },
+  "arsenalBrowser": {
+    "consecutivePasses": 2,
+    "durationSeconds": 37.6,
+    "independentContexts": 2
+  },
+  "controllerBrowser": "pass; simulated standard Gamepad API",
+  "comboAndReducedMotionBrowser": "pass",
+  "twoPlayerAdventure": "pass",
+  "deployed": false,
+  "limitations": [
+    "No physical controller test",
+    "No hosted rollout or eight-player soak",
+    "No high-latency parry fairness acceptance"
+  ]
+}

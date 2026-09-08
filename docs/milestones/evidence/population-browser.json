@@ -1,0 +1,15 @@
+{
+  "result": "pass",
+  "players": 2,
+  "monsters": 6,
+  "pets": 8,
+  "remoteEncounter": true,
+  "reload": true,
+  "errors": [],
+  "renderer": {
+    "drawCalls": 132,
+    "triangles": 358334,
+    "geometries": 16,
+    "textures": 4
+  }
+}

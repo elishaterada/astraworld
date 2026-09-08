@@ -6,12 +6,15 @@ export function FirstPlayHint({
   active,
   onDismiss,
   combat = false,
+  controller = false,
 }: {
   active: boolean;
   combat?: boolean;
+  controller?: boolean;
   onDismiss: () => void;
 }) {
-  const hintKey = combat ? "meadow-combat-controls-seen-v1" : HINT_KEY;
+  const baseKey = combat ? "meadow-combat-controls-seen-v1" : HINT_KEY;
+  const hintKey = controller ? `${baseKey}-controller` : baseKey;
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     try {
@@ -44,10 +47,21 @@ export function FirstPlayHint({
   return visible ? (
     <div className="first-play-hint" role="status">
       <span>
-        {combat ? (
+        {controller ? (
+          combat ? (
+            <>
+              Hold <kbd>X</kbd> Attack · <kbd>RT</kbd> Charge · <kbd>LT</kbd>{" "}
+              Block · <kbd>B</kbd> Roll · <kbd>LS</kbd> Move · <kbd>RS</kbd> Aim
+            </>
+          ) : (
+            <>
+              <kbd>LS</kbd> Move <kbd>A</kbd> Gather <kbd>Y</kbd> Satchel
+            </>
+          )
+        ) : combat ? (
           <>
-            <kbd>Click / J</kbd> Blade <kbd>Shift</kbd> Dodge · Slime on the
-            north trail
+            Hold <kbd>Click / J</kbd> Attack · <kbd>K</kbd> Charge ·{" "}
+            <kbd>F</kbd> Block · <kbd>Shift</kbd> Roll
           </>
         ) : (
           <>
@@ -131,6 +145,7 @@ export function GatherNotice({ progress }: { progress?: Progress }) {
 }
 
 const COMPANION_MESSAGES: Record<string, string> = {
+  "settings-updated": "World combat rules updated.",
   teleported: "Joined your friend.",
   channeling: "Moss is dissolving the vines…",
   opened: "The Forest path is open for everyone",
@@ -169,6 +184,7 @@ export function CompanionNotice({
     if (previous.current === key) return;
     previous.current = key;
     const travel: Record<string, string> = {
+      "settings-updated": "World combat rules updated.",
       teleported: "Joined your friend.",
       cooldown: "Teleport is cooling down — wait 3 seconds.",
       missing: "That player is no longer available.",

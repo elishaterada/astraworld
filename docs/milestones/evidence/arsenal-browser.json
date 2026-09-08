@@ -1,0 +1,13 @@
+{
+  "result": "pass",
+  "independentContexts": 2,
+  "unauthorizedSettingRejected": true,
+  "friendlyFireDefaultOff": true,
+  "charge": true,
+  "rangedModels": true,
+  "skills": true,
+  "chipDamage": 5,
+  "parryReflection": 18,
+  "reloadRulesAndClass": true,
+  "errors": []
+}

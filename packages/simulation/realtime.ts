@@ -1,5 +1,6 @@
-import { COMBAT as C } from "../content/combat";
-import { direction, combatBusy } from "./combat";
+import { weaponAttack, WEAPONS, CHARGE_TICKS, BLOCK } from "../content/weapons";
+import { COMBAT as C, COMBO_WINDOW } from "../content/combat";
+import { direction, attackBusy as combatBusy } from "./combat";
 import { moveFor } from "./index";
 import type { World } from "../world";
 import {
@@ -25,7 +26,57 @@ export function applyFrame(
   if (combat?.health === 0)
     return { ...actor, ack: frame.seq, moving: false, action: null };
   let action = actor.action;
-  if (combat && !combatBusy(combat, tick)) {
+  if (combat && frame.cancel) {
+    combat.charging = undefined;
+    combat.blocking = undefined;
+  }
+  if (combat) {
+    if (frame.block) combat.charging = undefined;
+    if (
+      frame.weapon &&
+      !combatBusy(combat, tick) &&
+      combat.charging === undefined &&
+      combat.blocking === undefined
+    )
+      combat = { ...combat, weapon: frame.weapon, combo: undefined };
+    if (!frame.block) combat.blocking = undefined;
+    if (
+      frame.block &&
+      combat.blocking === undefined &&
+      tick >= (combat.blockReady ?? 0) &&
+      !combatBusy(combat, tick) &&
+      combat.charging === undefined
+    ) {
+      combat.blocking = tick;
+      combat.blockReady = tick + BLOCK.rearmTicks;
+    }
+    if (
+      frame.charge &&
+      combat.charging === undefined &&
+      combat.blocking === undefined &&
+      !combatBusy(combat, tick)
+    )
+      combat.charging = tick;
+  }
+  const releasedCharge = combat?.charging !== undefined && !frame.charge;
+
+  const recoveryRoll =
+    combat?.attack &&
+    tick >=
+      combat.attack.startedTick +
+        weaponAttack(
+          combat.attack.weapon,
+          combat.attack.combo,
+          combat.attack.charge,
+          combat.attack.skill,
+        ).windup +
+        weaponAttack(
+          combat.attack.weapon,
+          combat.attack.combo,
+          combat.attack.charge,
+          combat.attack.skill,
+        ).active;
+  if (combat && (!combatBusy(combat, tick) || (frame.dodge && recoveryRoll))) {
     if (frame.dodge && tick >= combat.dodgeReady) {
       const input = movement(frame.keys);
       const facing =
@@ -35,6 +86,10 @@ export function applyFrame(
       combat = {
         ...combat,
         attack: null,
+        charging: undefined,
+        blocking: undefined,
+        attackReady: tick,
+        combo: undefined,
         dodgeFacing: facing,
         dodgeSteps: C.dodgeTicks,
         dodgeUntil: tick + C.dodgeTicks,
@@ -50,11 +105,49 @@ export function applyFrame(
         generation: actor.generation,
         startedTick: tick,
       };
-    } else if (frame.attack && allowAttack) {
+    } else if (
+      (frame.attack || releasedCharge || frame.skill) &&
+      allowAttack &&
+      !combatBusy(combat, tick) &&
+      combat.blocking === undefined &&
+      (!frame.charge || releasedCharge) &&
+      (!frame.skill || tick >= (combat.skillReady ?? 0))
+    ) {
+      const combo =
+        combat.combo && tick <= combat.combo.until
+          ? (combat.combo.step + 1) % 3
+          : 0;
+      const weapon = combat.weapon ?? "blade",
+        charge =
+          releasedCharge && !frame.skill
+            ? Math.min(1, (tick - combat.charging!) / CHARGE_TICKS)
+            : 0,
+        skill = !!frame.skill;
+      const profile = weaponAttack(weapon, combo, charge, skill);
       combat = {
         ...combat,
-        attack: { startedTick: tick, facing: frame.facing, hits: [] },
-        attackReady: tick + C.windup + C.active + C.recovery,
+        attack: {
+          startedTick: tick,
+          facing: frame.facing,
+          hits: [],
+          combo,
+          weapon,
+          charge,
+          skill,
+          origin: { ...actor.position },
+        },
+        charging: undefined,
+        skillReady: skill ? tick + WEAPONS[weapon].cooldown : combat.skillReady,
+        combo: {
+          step: combo,
+          until:
+            tick +
+            profile.windup +
+            profile.active +
+            profile.recovery +
+            COMBO_WINDOW,
+        },
+        attackReady: tick + profile.windup + profile.active + profile.recovery,
       };
       action = {
         kind: "attack",
@@ -64,6 +157,8 @@ export function applyFrame(
       };
     }
   }
+  if (releasedCharge && combat?.charging !== undefined)
+    combat.charging = undefined;
   const dodging = combat && tick < combat.dodgeUntil && combat.dodgeSteps > 0;
   const position = moveFor(
     world,
@@ -72,9 +167,12 @@ export function applyFrame(
     DT *
       (dodging
         ? C.dodgeSpeed / 4
-        : frame.keys & 16 && !combatBusy(combat, tick)
-          ? 1.75
-          : 1),
+        : combat &&
+            (combat.blocking !== undefined || combat.charging !== undefined)
+          ? 0.45
+          : frame.keys & 16 && !combatBusy(combat, tick)
+            ? 1.75
+            : 1),
   );
   if (dodging) combat = { ...combat!, dodgeSteps: combat!.dodgeSteps - 1 };
   const acceptedWave =
@@ -123,6 +221,11 @@ export class InputTimeline {
           ...(i === 0 && run.wave ? { wave: true as const } : {}),
           ...(i === 0 && run.attack ? { attack: true as const } : {}),
           ...(i === 0 && run.dodge ? { dodge: true as const } : {}),
+          ...(run.charge !== undefined ? { charge: run.charge } : {}),
+          ...(run.block !== undefined ? { block: run.block } : {}),
+          ...(i === 0 && run.skill ? { skill: true as const } : {}),
+          ...(i === 0 && run.cancel ? { cancel: true as const } : {}),
+          ...(i === 0 && run.weapon ? { weapon: run.weapon } : {}),
         };
         const existing = this.queued.get(seq);
         if (
@@ -131,7 +234,12 @@ export class InputTimeline {
             existing.facing !== frame.facing ||
             existing.wave !== frame.wave ||
             existing.attack !== frame.attack ||
-            existing.dodge !== frame.dodge)
+            existing.dodge !== frame.dodge ||
+            existing.charge !== frame.charge ||
+            existing.block !== frame.block ||
+            existing.skill !== frame.skill ||
+            existing.cancel !== frame.cancel ||
+            existing.weapon !== frame.weapon)
         )
           throw Error("Conflicting replay");
         this.queued.set(seq, frame);
@@ -156,6 +264,18 @@ export class InputTimeline {
     if (processed) this.lastProcessedTick = tick;
     return processed || tick - this.lastProcessedTick < 6
       ? actor
-      : { ...actor, moving: false };
+      : {
+          ...actor,
+          moving: false,
+          ...(actor.combat
+            ? {
+                combat: {
+                  ...actor.combat,
+                  charging: undefined,
+                  blocking: undefined,
+                },
+              }
+            : {}),
+        };
   }
 }

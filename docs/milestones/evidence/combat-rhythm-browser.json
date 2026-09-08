@@ -1,0 +1,15 @@
+{
+  "result": "pass",
+  "independentContexts": 2,
+  "remoteFinisher": true,
+  "recoveryRoll": true,
+  "releaseStopsAttacks": true,
+  "p95": 16.800000000000182,
+  "renderer": {
+    "drawCalls": 152,
+    "triangles": 346718,
+    "geometries": 14,
+    "textures": 4
+  },
+  "errors": []
+}

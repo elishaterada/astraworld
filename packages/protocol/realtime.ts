@@ -1,3 +1,4 @@
+import { weaponSchema } from "../content/weapons";
 import { benchesSchema } from "../content/crafting";
 import { gateSchema } from "./utility";
 import {
@@ -11,7 +12,7 @@ import { MAX_PLAYERS } from "./capacity";
 import { z } from "zod";
 import { id, integer, credential, characterSchema, name } from "./index";
 import { CONTENT_VERSION, GENERATION_VERSION } from "../world";
-export const REALTIME_VERSION = 3;
+export const REALTIME_VERSION = 6;
 export const HZ = 60;
 export const DT = 1 / HZ;
 const envelope = { protocolVersion: z.literal(REALTIME_VERSION), worldId: id };
@@ -27,6 +28,11 @@ export const runSchema = z
     wave: z.literal(true).optional(),
     attack: z.literal(true).optional(),
     dodge: z.literal(true).optional(),
+    charge: z.boolean().optional(),
+    block: z.boolean().optional(),
+    skill: z.literal(true).optional(),
+    cancel: z.literal(true).optional(),
+    weapon: weaponSchema.optional(),
   })
   .strict();
 export const packetSchema = z.discriminatedUnion("type", [
@@ -105,9 +111,12 @@ export const realtimeSnapshotSchema = z
       .optional(),
     progress: progressSchema.optional(),
     benches: benchesSchema.optional(),
+    rules: z.object({ friendlyFire: z.boolean() }).strict().optional(),
+    creatorId: id.optional(),
     slime: slimeSchema.optional(),
+    monsters: z.array(slimeSchema).max(5).optional(),
     gate: gateSchema.optional(),
-    moss: z.array(mossSchema).max(2).optional(),
+    moss: z.array(mossSchema).max(8).optional(),
     companionReceipt: companionReceiptSchema.optional(),
     depleted: z
       .string()
@@ -147,9 +156,17 @@ export function packFrames(frames: Frame[]): Run[] {
       !f.wave &&
       !f.attack &&
       !f.dodge &&
+      !f.cancel &&
+      !f.skill &&
+      !f.weapon &&
       !last.wave &&
       !last.attack &&
       !last.dodge &&
+      !last.cancel &&
+      !last.skill &&
+      !last.weapon &&
+      f.charge === last.charge &&
+      f.block === last.block &&
       last.count < 60 &&
       last.seq + last.count === f.seq &&
       last.keys === f.keys &&

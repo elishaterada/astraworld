@@ -1,4 +1,5 @@
 "use client";
+import { WEAPONS, weaponSchema } from "../packages/content/weapons";
 import { CraftingPanel } from "./crafting-panel";
 import { WorldMap } from "./world-map";
 import { useEffect, useRef, useState, type FormEvent } from "react";
@@ -122,9 +123,47 @@ function Meadow({
         className="playfield"
         tabIndex={0}
         role="application"
-        aria-label="Meadow game. Move with WASD or arrow keys. Point to face. Space waves. Click or J attacks. V runs. Shift dodges. E gathers or feeds nearby Moss Slimes. C toggles companion follow/stay. R recalls. Q dissolves nearby vines. Escape pauses and releases keyboard focus."
+        aria-label="Meadow game. Move with WASD or arrow keys. Point to face. Space waves. Hold Click or J to attack. Hold K to charge. F or right mouse blocks. H uses a skill. 1 through 5 selects a weapon. V runs. Shift rolls and cancels attack recovery. E gathers or feeds nearby Moss Slimes. C toggles companion follow/stay. R recalls. Q dissolves nearby vines. Escape pauses and releases keyboard focus."
       />
       <div className="game-vignette" aria-hidden="true" />
+      {session && (
+        <div className="combat-kit" aria-label="Combat loadout">
+          <span>{WEAPONS[status?.weapon ?? "blade"].name}</span>
+          <button
+            disabled={
+              !status ||
+              status.paused ||
+              !!status.skillRemaining ||
+              status.health === 0
+            }
+            onPointerDown={(e) => e.preventDefault()}
+            onClick={() => {
+              host.current?.dispatchEvent(new Event("combat-skill"));
+              host.current?.focus();
+            }}
+            aria-label={`Use ${WEAPONS[status?.weapon ?? "blade"].skill}`}
+          >
+            <kbd>{status?.controller ? "RB" : "H"}</kbd>{" "}
+            {WEAPONS[status?.weapon ?? "blade"].skill}{" "}
+            {status?.skillRemaining
+              ? `${Math.ceil(status.skillRemaining)}s`
+              : ""}
+          </button>
+          <small>
+            {status?.parrying
+              ? "PARRY!"
+              : status?.blocking
+                ? "Blocking"
+                : status?.charge !== undefined
+                  ? `Charging ${Math.round(status.charge * 100)}%`
+                  : `${status?.controller ? "RT" : "K"} charge · ${status?.controller ? "LT" : "F / RMB"} block`}
+          </small>
+          {status?.friendlyFire && (
+            <small className="friendly-fire-cue">Friendly fire ON</small>
+          )}
+        </div>
+      )}
+
       <div className="location-hud">
         <h1>{status?.forest ? "Forest Clearing" : "The Meadow"}</h1>
         <span
@@ -265,10 +304,19 @@ function Meadow({
             }
           />
           <p className="inventory-footnote">
-            Starter tools · Click / J to swing your blade
+            Starter tools · {status?.controller ? "X" : "Click / J"} to swing
+            your blade
           </p>
           <p className="inventory-shortcut">
-            <kbd>I</kbd> or <kbd>esc</kbd> Close
+            {status?.controller ? (
+              <>
+                <kbd>B</kbd> Close
+              </>
+            ) : (
+              <>
+                <kbd>I</kbd> or <kbd>esc</kbd> Close
+              </>
+            )}
           </p>
         </dialog>
       )}
@@ -292,7 +340,7 @@ function Meadow({
         >
           <path d="M8 6V4h8v2M5 8h14v12H5zM5 8l2-2h10l2 2M5 11h14M10 10v4h4v-4" />
         </svg>
-        <kbd>I</kbd>
+        <kbd>{status?.controller ? "Y" : "I"}</kbd>
       </button>
       {!status?.paused && status?.nearGate && !status.gate?.open && (
         <div className="interaction-hint vine-prompt" role="status">
@@ -300,7 +348,7 @@ function Meadow({
             "Moss is dissolving the vines…"
           ) : status.companion ? (
             <>
-              <kbd>Q</kbd> Dissolve Vines
+              <kbd>{status?.controller ? "A" : "Q"}</kbd> Dissolve Vines
               <small>
                 Bring Moss close · Follow mode · Stay nearby for 1 second
               </small>
@@ -308,9 +356,7 @@ function Meadow({
           ) : (
             <>
               A Moss companion can clear these vines
-              <small>
-                Feed a green Moss Slime three Sweet Berries near camp
-              </small>
+              <small>Feed a Moss Slime three Sweet Berries near camp</small>
             </>
           )}
         </div>
@@ -328,7 +374,8 @@ function Meadow({
       )}
       {!status?.paused && !status?.nearGate && status?.mossTarget && (
         <div className="interaction-hint moss-prompt">
-          <kbd>E</kbd> Feed Sweet Berry · {status.mossTarget.feeds}/3
+          <kbd>{status?.controller ? "A" : "E"}</kbd> Feed Sweet Berry ·{" "}
+          {status.mossTarget.feeds}/3
           <small>
             Feed three times · Progress resets 1 minute after the last feed
           </small>
@@ -339,7 +386,7 @@ function Meadow({
         !status?.nearGate &&
         (status?.target || status?.gathering) && (
           <div className="interaction-hint">
-            <kbd>E</kbd>{" "}
+            <kbd>{status?.controller ? "A" : "E"}</kbd>{" "}
             {status.gathering
               ? "Gathering…"
               : status.target === "tree"
@@ -416,6 +463,7 @@ function Meadow({
       <CompanionNotice receipt={status?.companionReceipt} />
       <GatherNotice progress={status?.progress} />
       <FirstPlayHint
+        controller={!!status?.controller}
         combat={!!session}
         active={!!status && !status.paused}
         onDismiss={() => host.current?.focus()}
@@ -441,13 +489,65 @@ function Meadow({
         </p>
         {session && (
           <details className="controls-reference">
+            <summary>Weapons and world rules</summary>
+            <p>
+              Choose a training loadout. All five classes are available; skills
+              use cooldowns.
+            </p>
+            <div className="weapon-choices">
+              {weaponSchema.options.map((weapon, i) => (
+                <button
+                  key={weapon}
+                  aria-pressed={status?.weapon === weapon}
+                  onClick={() =>
+                    host.current?.dispatchEvent(
+                      new CustomEvent("combat-equip", { detail: weapon }),
+                    )
+                  }
+                  title={WEAPONS[weapon].description}
+                >
+                  {i + 1} · {WEAPONS[weapon].name}
+                  <small>{WEAPONS[weapon].skill}</small>
+                </button>
+              ))}
+            </div>
+            <label className="world-rule">
+              <input
+                type="checkbox"
+                checked={!!status?.friendlyFire}
+                disabled={!status?.canManageWorld}
+                onChange={(e) =>
+                  host.current?.dispatchEvent(
+                    new CustomEvent("friendly-fire", {
+                      detail: e.target.checked,
+                    }),
+                  )
+                }
+              />{" "}
+              Friendly fire — players can damage each other
+            </label>
+            <small>
+              {status?.canManageWorld
+                ? "Applies to everyone in this world and is saved."
+                : "Only the world creator can change this setting."}
+            </small>
+            <p>
+              Hold K to charge, release to strike. Hold F or right mouse to
+              block. A frontal hit during the first instant of a fresh block
+              parries and reflects damage; a late block takes chip damage. H
+              uses your class skill. 1–5 changes class.
+            </p>
+          </details>
+        )}
+        {session && (
+          <details className="controls-reference">
             <summary>Your first adventure</summary>
             <p>
               Gather Sweet Berries near camp and chop a tree with E. Try your
               blade and dodge against the wild Slime on the north trail.
             </p>
             <p>
-              Feed a green Moss Slime three berries near camp. Bring your new
+              Feed a Moss Slime three berries near camp. Bring your new
               companion north, past the wild Slime, to the tangled vines. Press
               Q with Moss nearby to open the Forest for everyone.
             </p>
@@ -458,16 +558,53 @@ function Meadow({
           </details>
         )}
         <details className="controls-reference">
-          <summary>Controls</summary>
+          <summary>
+            Xbox controller {status?.controller ? "· Connected" : "· Controls"}
+          </summary>
+          <p>
+            Connect by USB or Bluetooth, then press a controller button. Center
+            both sticks before playing.
+          </p>
+          <dl>
+            <dt>Move / aim</dt>
+            <dd>Left stick / right stick</dd>
+            <dt>Attack / roll</dt>
+            <dd>Hold X / B</dd>
+            <dt>Interact / run</dt>
+            <dd>A / hold LB</dd>
+            <dt>Satchel / map / menu</dt>
+            <dd>Y / View / Menu</dd>
+            <dt>Companion / recall</dt>
+            <dd>D-pad left / press right stick</dd>
+            <dt>Charge / block / skill</dt>
+            <dd>Hold RT and release / LT / RB</dd>
+            <dt>Change class / follow / recall</dt>
+            <dd>D-pad down / left / right</dd>
+            <dt>Dissolve vines / wave</dt>
+            <dd>A near vines / D-pad up</dd>
+            <dt>Menus</dt>
+            <dd>D-pad or left stick to navigate · A select · B back</dd>
+          </dl>
+          <p>
+            Movement uses eight directions at the same speed as keyboard play.
+            Entering your name and editing text still use a keyboard.
+          </p>
+        </details>
+        <details className="controls-reference">
+          <summary>Keyboard and mouse</summary>
           <dl>
             <dt>Move</dt>
             <dd>WASD / arrow keys</dd>
             <dt>Run</dt>
             <dd>Hold V while moving</dd>
+            <dt>Charge / block / skill</dt>
+            <dd>Hold K then release / hold F or right mouse / H</dd>
+            <dt>Weapon class</dt>
+            <dd>1–5</dd>
             <dt>Blade</dt>
-            <dd>Click / J</dd>
+            <dd>Hold Click / J · third hit knocks back and interrupts</dd>
             <dt>Dodge</dt>
-            <dd>Shift + direction</dd>
+            <dd>Shift + direction · cancels attack recovery</dd>
             <dt>Feed nearby Moss</dt>
             <dd>E · Sweet Berries</dd>
             <dt>Companion</dt>
