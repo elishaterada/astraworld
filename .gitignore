@@ -8,3 +8,6 @@ test-results/
 .DS_Store
 .vercel
 .local/
+dist/
+.wrangler/
+.dev.vars*

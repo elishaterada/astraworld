@@ -106,7 +106,7 @@ if (!stopping) {
       GATEWAY_ID: owner,
       GAME_PORT: "",
     });
-  launch("portless", ["astraworld", "npm", "run", "dev:next"], {
+  launch("portless", ["astraworld", "npm", "run", "dev:vite"], {
     NEXT_PUBLIC_GAME_GATEWAYS: `${a},${b}`,
   });
   console.log(`\nAstraworld: ${web}\n`);

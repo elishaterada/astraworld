@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Recover your Astraworld adventurer</title></head>
+<body style="font-family:system-ui;max-width:40rem;margin:5rem auto;padding:1rem;background:#14372d;color:#fff6dc">
+<h1>Bring your adventurer along</h1>
+<p>Astraworld has moved. Download the recovery key saved in this browser, then choose “Restore a saved world” at the new address. Your saved world stays in the same database.</p>
+<p id="status"></p><button id="download" hidden>Download recovery key</button>
+<p><a style="color:#ffd875" href="https://astraworld.elishaterada.com/">Open Astraworld</a></p>
+<p>Keep the key private. Anyone with it can use your character. This page never sends the key to a server.</p>
+<script>
+try {
+  const key = "meadow-session-v2-p8-c4-m6";
+  const raw = sessionStorage.getItem(key) || localStorage.getItem(key);
+  const saved = JSON.parse(raw || "null");
+  if (!saved || saved.durable !== true || typeof saved.token !== "string") throw new Error();
+  document.getElementById("status").textContent = "Saved adventurer: " + saved.name;
+  const button = document.getElementById("download");button.hidden = false;
+  button.onclick = () => {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(saved, null, 2)], {type:"application/json"}));
+    const link = document.createElement("a");link.href = url;link.download = "astraworld-recovery.json";link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+} catch {
+  document.getElementById("status").textContent = "No saved adventurer was found on this hostname. Try the browser and original Vercel address you used to play, or import a recovery file you already downloaded.";
+}
+</script>
+</body></html>

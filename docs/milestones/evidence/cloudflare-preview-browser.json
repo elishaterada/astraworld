@@ -1,0 +1,11 @@
+{
+  "result": "pass",
+  "independentContexts": 2,
+  "stoneGathered": true,
+  "axeCrafted": true,
+  "improvedYield": 5,
+  "sharedWorkbench": true,
+  "collision": true,
+  "resumed": true,
+  "errors": []
+}

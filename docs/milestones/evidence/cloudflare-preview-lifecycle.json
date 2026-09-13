@@ -1,0 +1,39 @@
+{
+  "browser": "153.0.8010.12",
+  "requestedDurationMs": 265000,
+  "clients": [
+    {
+      "observedMs": 265339.7000000477,
+      "maxGapMs": 1199.1000000238419,
+      "p95GapMs": 140.30000007152557,
+      "serverHz": 59.881728968552935,
+      "generations": [
+        1,
+        2
+      ],
+      "owners": [
+        "c6e141af-bcaf-4467-b2c1-67d302049d06"
+      ],
+      "epochs": [
+        1
+      ]
+    },
+    {
+      "observedMs": 265460.1999999285,
+      "maxGapMs": 819.8999999761581,
+      "p95GapMs": 140.39999997615814,
+      "serverHz": 59.88091623529359,
+      "generations": [
+        1,
+        2
+      ],
+      "owners": [
+        "c6e141af-bcaf-4467-b2c1-67d302049d06"
+      ],
+      "epochs": [
+        1
+      ]
+    }
+  ],
+  "errors": []
+}

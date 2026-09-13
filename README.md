@@ -1,5 +1,7 @@
 # Astraworld
 
+**Cloudflare migration:** the frontend now uses prerendered Vite/React, with the existing game gateways on Cloudflare Containers. See [deployment, DNS/email status, verification and rollback](docs/milestones/CLOUDFLARE_MIGRATION.md) for current hosting operations. Historical milestone sections below describe their original releases.
+
 A cozy 3D cooperative browser adventure where befriending creatures gives players new ways to explore a persistent wilderness.
 
 **Status: M4/M5 deployed and verified on Vercel. M6 durable worlds are implemented; see [M6 verification and release gates](docs/milestones/M6_DURABLE_RELEASE.md). M7 crafting is implemented locally; see [M7 scope and verification](docs/milestones/M7_FIRST_CRAFTING.md). Stop before M8.** Eight players share a private Meadow with immediate local prediction, synchronized actions, authoritative rules and original Three.js placeholder models. M6 adds the user-connected Neon database alongside Redis. M5's human playtest and eight-window frame-time gate remain open; they are not relabeled by this release.
@@ -28,7 +30,7 @@ Then:
 npm run dev
 ```
 
-This starts local Redis when needed, two game gateways and Next.js through Portless. The stable address on this machine is **https://astraworld.localhost:1355**; `portless get astraworld` prints the address for your proxy configuration. Portless selects internal ports automatically, so neither the browser URL nor the gateway URLs need to change. HTTPS and WebSocket connections use the local trusted Portless certificate. On a machine where Portless can bind port 443, the same hostname has no port suffix.
+This starts local Redis when needed, two game gateways and Vite through Portless. The stable address on this machine is **https://astraworld.localhost:1355**; `portless get astraworld` prints the address for your proxy configuration. Portless selects internal ports automatically, so neither the browser URL nor the gateway URLs need to change. HTTPS and WebSocket connections use the local trusted Portless certificate. On a machine where Portless can bind port 443, the same hostname has no port suffix.
 
 Stop the launcher with Ctrl+C. It stops the children it started; it leaves the shared local Redis service and Portless proxy running. Redis starts as a loopback-only background service so closing a temporary terminal cannot strand the game gateways. Stop it explicitly with `redis-cli -p 6380 shutdown` when it is no longer needed. Redis remains temporary, but M6 worlds recover from Postgres. The launcher reads the untracked `.env.development.local` and restarts this repository’s `.local/postgres` cluster when configured; PostgreSQL stays running when the web launcher stops. Standalone gateways read process environment. Never copy production Redis/database settings into local development.
 
@@ -38,7 +40,7 @@ For fixed-port network fault tests or production-build review, the previous sepa
 npm run game:redis
 GATEWAY_ID=local-a npm run game:realtime
 GAME_PORT=3104 GATEWAY_ID=local-b npm run game:realtime
-npm run dev:next -- --port 3002
+npm run dev:vite -- --port 3002
 ```
 
 Open [Astraworld locally](https://astraworld.localhost:1355), choose an adventurer name and one of four distinct adventurers (Fern, Ember, Iris or Hazel), and press **Enter Meadow**. The game requests fullscreen; unavailable fullscreen falls back to the full browser viewport. **WASD / arrows** move, **pointing** sets facing, **Space** waves, **Escape** releases focus, and **Menu** pauses your input. Other players keep exploring while your menu is open. Trees, rocks, logs, water and fire pits are solid. Wander northwest from spawn to Willow Pond or southeast to Wayfarer’s Rest.
@@ -103,7 +105,7 @@ The active milestone is **M6 durable cooperative release**, explicitly authorize
 
 ## Repository layout
 
-The implementation uses one npm package with `app/` for Next.js/React/Three.js, `packages/world/` for generation, `packages/simulation/` for pure movement, and `tests/` for rule/browser checks. `apps/game-server/` now contains the standalone M1 gateway, Redis adapter and runner; `packages/protocol/` contains strict wire schemas. The following longer-term layout remains a guide for later milestones:
+The implementation uses one npm package with `app/` for Vite/React/Three.js, `packages/world/` for generation, `packages/simulation/` for pure movement, and `tests/` for rule/browser checks. `apps/game-server/` now contains the standalone M1 gateway, Redis adapter and runner; `packages/protocol/` contains strict wire schemas. The following longer-term layout remains a guide for later milestones:
 
 ```text
 apps/web/             Next.js UI and client-only Three.js renderer

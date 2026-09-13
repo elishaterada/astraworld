@@ -148,7 +148,8 @@ test("renew live sockets without periodic room pauses", async ({ browser }) => {
     }
     expect(errors).toEqual([]);
     writeFileSync(
-      `docs/milestones/evidence/m1-v2-${access ? "hosted" : "local"}-lifecycle.json`,
+      process.env.LIFECYCLE_EVIDENCE_FILE ??
+        `docs/milestones/evidence/m1-v2-${access ? "hosted" : "local"}-lifecycle.json`,
       JSON.stringify(
         {
           browser: browser.version(),

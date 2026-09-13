@@ -24,6 +24,8 @@ test("two players gather, craft, place and resume a shared workbench", async ({
   browser,
 }) => {
   test.setTimeout(120000);
+  const evidence =
+    process.env.CRAFTING_EVIDENCE_PREFIX ?? "docs/milestones/evidence/m7";
   const a = await browser.newContext(),
     b = await browser.newContext(),
     errors: string[] = [];
@@ -96,7 +98,7 @@ test("two players gather, craft, place and resume a shared workbench", async ({
           p.getByLabel("Stone Axe: 1", { exact: true }),
         ).toBeVisible();
         await p.screenshot({
-          path: "docs/milestones/evidence/m7-crafting.png",
+          path: `${evidence}-crafting.png`,
         });
         await p.keyboard.press("Escape");
       }
@@ -122,7 +124,7 @@ test("two players gather, craft, place and resume a shared workbench", async ({
     await p.keyboard.up("s");
     expect((await snap(p)).collision).toBe(false);
     expect((await snap(p)).state.y).toBeLessThan(68);
-    await p.screenshot({ path: "docs/milestones/evidence/m7-workbench.png" });
+    await p.screenshot({ path: `${evidence}-workbench.png` });
     await p.reload();
     await p.getByRole("button", { name: "Resume Meadow", exact: true }).click();
     await p.waitForFunction(
@@ -134,7 +136,7 @@ test("two players gather, craft, place and resume a shared workbench", async ({
     ).toBe(true);
     expect(errors).toEqual([]);
     writeFileSync(
-      "docs/milestones/evidence/m7-browser.json",
+      `${evidence}-browser.json`,
       JSON.stringify(
         {
           result: "pass",

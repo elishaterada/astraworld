@@ -17,7 +17,7 @@ The long-term world persists between visits. The first adventure slice is intent
 ## Locked constraints
 
 - Browser-first desktop play with keyboard and mouse; a fixed elevated 3D presentation over a flat simulation plane for V1.
-- Next.js, TypeScript and Vercel for the web stack; Three.js is the renderer (explicit visual migration, 2026-09-07).
+- TypeScript, prerendered Vite/React on Cloudflare Workers Static Assets, and the Node gateway on Cloudflare Containers (explicit hosting migration, 2026-09-12). Three.js remains the renderer.
 - Server-authoritative realtime multiplayer. No peer host authority and no client-written inventory.
 - Redis for hot/distributed state; Postgres for durable state. Deployment lifecycle must not define world lifetime.
 - Deterministic finite procedural baseline plus recorded world modifications.

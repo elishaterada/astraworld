@@ -1,0 +1,23 @@
+{
+  "framework": null,
+  "buildCommand": null,
+  "outputDirectory": "public",
+  "git": { "deploymentEnabled": false },
+  "redirects": [
+    {
+      "source": "/((?!recover(?:/|$)).*)",
+      "destination": "https://astraworld.elishaterada.com/$1",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/recover",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "X-Robots-Tag", "value": "noindex" }
+      ]
+    }
+  ]
+}

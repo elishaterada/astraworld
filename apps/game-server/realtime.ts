@@ -64,6 +64,7 @@ export async function createRealtimeGateway(options: {
   origins: string[];
   owner?: string;
   socketAgeMs?: number;
+  trustedProxy?: boolean;
 }) {
   const owner = options.owner ?? randomUUID(),
     store = new Store(
@@ -182,7 +183,11 @@ export async function createRealtimeGateway(options: {
       res.writeHead(404).end();
       return;
     }
-    const ip = req.socket.remoteAddress ?? "unknown",
+    const forwarded = req.headers["x-meadow-client-ip"];
+    const ip =
+        options.trustedProxy && typeof forwarded === "string"
+          ? forwarded
+          : (req.socket.remoteAddress ?? "unknown"),
       now = Date.now();
     for (const [key, v] of httpRates)
       if (now - v.start > 60000) httpRates.delete(key);

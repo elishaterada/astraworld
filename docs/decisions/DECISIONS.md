@@ -91,3 +91,8 @@ The user accepted the M3 proposal with “lets implement.” Implement one blade
 ## 2026-09-07 — M5 shared vine gate
 
 The user authorized M5 by “proceed” after M4. Introduce one three-tile dissolvable gate and a fully bounded Forest entry clearing in `meadow-3 / utility-1 / p8-c4-m5`. The existing temporary checkpoint owns its channel/open state and client collision consumes the full confirmed overlay. Q initiates a one-second owner ability with two-second cooldown; observed disconnect/generation replacement and invalid range/state cancel it. This is a new simulation mechanism owned by Astra, with no model delegation, new service or permanent saving. Human first-time loop feedback and the remaining measured acceptance gates must precede M6. See [M5 mission](../milestones/M5_COMPANION_UTILITY.md).
+
+
+## 2026-09-12 — Cloudflare hosting migration
+
+Explicit user direction supersedes the Next.js/Vercel hosting constraint. Use prerendered Vite/React plus Workers Static Assets, retaining the tested Node WebSocket/Redis/Postgres gateways in bounded Cloudflare Containers. Preserve simulation and production namespaces. Keep Namecheap registration and migrate authoritative DNS only after backing up all parent-zone applications and catch-all email. See [migration evidence, cutover status and rollback](../milestones/CLOUDFLARE_MIGRATION.md). No M8 scope.

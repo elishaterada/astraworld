@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/dev-local.mjs",
-    "build": "next build",
-    "start": "next start --hostname 127.0.0.1",
-    "typecheck": "tsc --noEmit",
+    "build": "vite build && tsx scripts/prerender.tsx",
+    "start": "vite preview --host 127.0.0.1",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.worker.json",
     "test": "vitest run",
     "test:browser": "playwright test",
     "test:soak": "SOAK=1 playwright test tests/e2e/soak.spec.ts",
@@ -14,14 +14,17 @@
     "game:redis": "redis-server --bind 127.0.0.1 --port 6380 --save \"\" --appendonly no",
     "test:multiplayer-soak": "M1_SOAK=1 playwright test tests/e2e/multiplayer-soak.spec.ts",
     "game:realtime": "tsx apps/game-server/main-realtime.ts",
-    "dev:next": "next dev --hostname 127.0.0.1",
     "db:migrate": "node scripts/migrate.mjs",
     "db:local": "node scripts/db-local.mjs",
-    "test:durable": "vitest run tests/durable.test.ts tests/durable-network.test.ts tests/durable-faults.test.ts"
+    "test:durable": "vitest run tests/durable.test.ts tests/durable-network.test.ts tests/durable-faults.test.ts",
+    "build:cloudflare": "npm run build",
+    "dev:vite": "vite",
+    "deploy:preview": "npm run build:cloudflare && wrangler deploy --env preview",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@cloudflare/containers": "^0.3.7",
     "@vercel/functions": "3.9.5",
-    "next": "16.3.4",
     "pg": "^8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -38,11 +41,14 @@
     "@types/react-dom": "19.2.3",
     "@types/three": "0.185.4",
     "@types/ws": "8.18.1",
+    "@vitejs/plugin-react": "^6.1.1",
     "agent-browser": "0.36.0",
     "prettier": "3.6.2",
     "tsx": "4.23.13",
     "typescript": "5.9.3",
-    "vitest": "5.0.0"
+    "vite": "^8.3.0",
+    "vitest": "5.0.0",
+    "wrangler": "^4.131.1"
   },
   "engines": {
     "node": ">=22.12.0"
