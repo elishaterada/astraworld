@@ -84,3 +84,7 @@ Both Workers are connected to `elishaterada/astraworld`, release branch `codex/c
 ### Cutover progress
 
 Namecheap accepted the nameserver change. Cloudflare and Google public resolvers report the assigned nameservers; the zone is active. HTTPS became available after certificate issuance. Email Routing is enabled, ready and synchronized; three Cloudflare MX records replaced the five backed-up Namecheap MX records. A single SPF record now retains the original Namecheap include and adds Cloudflare; existing Mailchimp DKIM/other TXT records remain unchanged. Gmail send-as configuration was not modified. Actual incoming and outgoing message delivery awaits the user’s test.
+
+### Git rollout regression caught and corrected
+
+The second concurrent Git release exposed inherited Wrangler routes: preview claimed the production custom domain after its later rollout, and origin checks rejected sessions. No production credentials were issued by the preview gateway. Preview now explicitly sets `routes: []`; a regression test first reproduced the missing override, then passed with it. Verify the Cloudflare custom-domain binding points to `astraworld` after both builds finish, alongside HTTP and browser recovery checks. Temporary runtime diagnostics were removed.

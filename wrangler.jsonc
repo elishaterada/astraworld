@@ -38,6 +38,7 @@
   "env": {
     "preview": {
       "name": "astraworld-preview",
+      "routes": [],
       "vars": {
         "GAME_NAMESPACE": "preview:cloudflare-migration-p8-c4-m6",
         "LEGACY_NAMESPACE": "preview:cloudflare-migration-legacy",

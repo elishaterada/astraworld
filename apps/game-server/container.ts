@@ -18,7 +18,6 @@ if (
   throw new Error("Missing required Meadow server configuration");
 }
 const origins = WEB_ORIGINS.split(",");
-console.info("[DEBUG-migration-origin]", JSON.stringify({ origins, namespace: GAME_NAMESPACE }));
 const realtime = await createRealtimeGateway({
   databaseUrl: DATABASE_URL,
   redisUrl: REDIS_URL,
@@ -31,12 +30,6 @@ const legacy = await createGateway({
   prefix: LEGACY_NAMESPACE,
   origins,
   rotationMs: 45000,
-});
-realtime.server.prependListener("request", (req, res) => {
-  if (req.url === "/health") {
-    res.setHeader("x-meadow-debug-origins", origins.join(","));
-    res.setHeader("x-meadow-debug-namespace", GAME_NAMESPACE);
-  }
 });
 realtime.server.listen(8080, "0.0.0.0");
 legacy.server.listen(8081, "0.0.0.0");
