@@ -2,11 +2,13 @@
   "framework": null,
   "buildCommand": null,
   "outputDirectory": "public",
-  "git": { "deploymentEnabled": false },
+  "git": {
+    "deploymentEnabled": false
+  },
   "redirects": [
     {
-      "source": "/((?!recover(?:/|$)).*)",
-      "destination": "https://astraworld.elishaterada.com/$1",
+      "source": "/:path((?!recover(?:/|$)).*)",
+      "destination": "https://astraworld.elishaterada.com/:path",
       "permanent": true
     }
   ],
@@ -14,10 +16,20 @@
     {
       "source": "/recover",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store" },
-        { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "X-Robots-Tag", "value": "noindex" }
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
       ]
     }
-  ]
+  ],
+  "cleanUrls": true
 }

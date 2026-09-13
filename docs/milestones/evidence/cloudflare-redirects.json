@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-09-13T00:11:58.957Z",
+  "checks": [
+    {
+      "url": "https://astraworld.vercel.app/trail/missing?invite=test%2Bvalue&debug=1",
+      "status": 308,
+      "location": "https://astraworld.elishaterada.com/trail/missing?invite=test%2Bvalue&debug=1"
+    },
+    {
+      "url": "https://astraworld.elishaterada.workers.dev/trail/missing?invite=test%2Bvalue&debug=1",
+      "status": 308,
+      "location": "https://astraworld.elishaterada.com/trail/missing?invite=test%2Bvalue&debug=1"
+    },
+    {
+      "url": "http://astraworld.elishaterada.com/trail/missing?invite=test%2Bvalue&debug=1",
+      "status": 301,
+      "location": "https://astraworld.elishaterada.com/trail/missing?invite=test%2Bvalue&debug=1"
+    },
+    {
+      "url": "https://astraworld.vercel.app/recover",
+      "status": 200,
+      "location": null
+    }
+  ],
+  "recoveryDownload": "passed using synthetic browser-local credential"
+}

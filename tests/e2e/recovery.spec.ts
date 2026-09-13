@@ -25,7 +25,11 @@ test("M6 saved inventory resumes after reload and recovery-key import into a fre
       });
     const p = await a.newPage();
     p.on("pageerror", (e) => errors.push(e.message));
-    await p.goto("/?debug=1");
+    await p.goto(
+      process.env.RECOVERY_SOURCE_URL
+        ? `${process.env.RECOVERY_SOURCE_URL}/?debug=1`
+        : "/?debug=1",
+    );
     await p.getByLabel("What should we call you?").fill("Rowan");
     await p.getByRole("button", { name: "Enter Meadow", exact: true }).click();
     await p.waitForFunction(

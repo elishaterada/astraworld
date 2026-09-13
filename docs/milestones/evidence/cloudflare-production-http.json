@@ -1,0 +1,115 @@
+{
+  "base": "https://astraworld.elishaterada.com",
+  "checkedAt": "2026-09-13T00:08:14.079Z",
+  "result": "pass",
+  "checks": [
+    {
+      "path": "/?invite=preserve-query&debug=1",
+      "status": 200
+    },
+    {
+      "path": "/not-a-real-page",
+      "status": 404
+    },
+    {
+      "path": "/missing.png",
+      "status": 404
+    },
+    {
+      "path": "/api/missing",
+      "status": 404
+    },
+    {
+      "path": "/api/meadow/health",
+      "status": 200
+    },
+    {
+      "path": "/api/meadow/session",
+      "status": 403
+    },
+    {
+      "path": "/api/meadow/session",
+      "status": 400
+    },
+    {
+      "path": "/api/meadow/session",
+      "status": 413
+    },
+    {
+      "path": "/api/meadow-v2/health",
+      "status": 200
+    },
+    {
+      "path": "/api/meadow-v2/session",
+      "status": 403
+    },
+    {
+      "path": "/api/meadow-v2/session",
+      "status": 400
+    },
+    {
+      "path": "/api/meadow-v2/session",
+      "status": 413
+    },
+    {
+      "path": "/art/characters-v1.json",
+      "status": 200
+    },
+    {
+      "path": "/art/ember-v1.png",
+      "status": 200
+    },
+    {
+      "path": "/art/fern-v1.png",
+      "status": 200
+    },
+    {
+      "path": "/art/hazel-v1.png",
+      "status": 200
+    },
+    {
+      "path": "/art/iris-v1.png",
+      "status": 200
+    },
+    {
+      "path": "/art/meadow-atlas-v2.png",
+      "status": 200
+    },
+    {
+      "path": "/art/meadow-atlas.json",
+      "status": 200
+    },
+    {
+      "path": "/art/meadow-living-v1.png",
+      "status": 200
+    },
+    {
+      "path": "/art/meadow-title-3d-v1.png",
+      "status": 200
+    },
+    {
+      "path": "/art/meadow-title-v1.png",
+      "status": 200
+    },
+    {
+      "path": "/assets/characters-D2Yltl4e.js",
+      "status": 200
+    },
+    {
+      "path": "/assets/index-6YGMkYeL.css",
+      "status": 200
+    },
+    {
+      "path": "/assets/index-DlzuyNPK.js",
+      "status": 200
+    },
+    {
+      "path": "/assets/portrait-5MAmMdyr.js",
+      "status": 200
+    },
+    {
+      "path": "/assets/renderer-BhspeMYe.js",
+      "status": 200
+    }
+  ]
+}

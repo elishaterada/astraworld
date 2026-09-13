@@ -1,0 +1,29 @@
+{
+  "result": "pass",
+  "reload": true,
+  "freshBrowserKeyImport": true,
+  "inventory": [
+    {
+      "item": "hatchet",
+      "quantity": 1
+    },
+    {
+      "item": "starter-blade",
+      "quantity": 1
+    },
+    {
+      "item": "sweet-berry",
+      "quantity": 3
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "errors": []
+}

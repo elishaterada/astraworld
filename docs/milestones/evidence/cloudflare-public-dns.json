@@ -1,0 +1,42 @@
+{
+  "1.1.1.1": {
+    "NS": [
+      "frank.ns.cloudflare.com.",
+      "sunny.ns.cloudflare.com."
+    ],
+    "MX": [
+      "17 route3.mx.cloudflare.net.",
+      "18 route1.mx.cloudflare.net.",
+      "25 route2.mx.cloudflare.net."
+    ],
+    "TXT": [
+      "\"google-site-verification=HgKP_hcFmew5nhZL8xSnJXOVL_95clg9uZd-ujLHAzw\"",
+      "\"v=spf1 include:_spf.mx.cloudflare.net include:spf.efwd.registrar-servers.com ~all\""
+    ],
+    "DS": [],
+    "siteA": [
+      "104.21.88.218",
+      "172.67.153.140"
+    ]
+  },
+  "8.8.8.8": {
+    "NS": [
+      "frank.ns.cloudflare.com.",
+      "sunny.ns.cloudflare.com."
+    ],
+    "MX": [
+      "17 route3.mx.cloudflare.net.",
+      "25 route2.mx.cloudflare.net.",
+      "18 route1.mx.cloudflare.net."
+    ],
+    "TXT": [
+      "\"v=spf1 include:_spf.mx.cloudflare.net include:spf.efwd.registrar-servers.com ~all\"",
+      "\"google-site-verification=HgKP_hcFmew5nhZL8xSnJXOVL_95clg9uZd-ujLHAzw\""
+    ],
+    "DS": [],
+    "siteA": [
+      "172.67.153.140",
+      "104.21.88.218"
+    ]
+  }
+}
