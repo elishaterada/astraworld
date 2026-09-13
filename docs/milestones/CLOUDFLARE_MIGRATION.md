@@ -75,4 +75,9 @@ Inherited M5/M6 human/performance/PITR limitations remain open; this migration d
 
 ## Git deployment setup
 
-Git connection and its end-to-end build verification are pending at this checkpoint. Local deployment commands above are functional. The intended release branch is `codex/cloudflare-migration`; preview and production have distinct Worker names and namespaces. Do not point arbitrary PR builds at production credentials/namespaces or reuse `wrangler versions upload` for a container release without validating its rollout behavior.
+Both Workers are connected to `elishaterada/astraworld`, release branch `codex/cloudflare-migration`, through the already-authorized Cloudflare GitHub integration and an existing build token. Each push runs `npm run build && npm run typecheck`, then `npx wrangler deploy --env preview` for the preview Worker or `npx wrangler deploy` for production. Other branches do not auto-deploy. End-to-end Git build verification is pending at this checkpoint; local deployment commands are verified. Preview and production have distinct Worker names and namespaces. Do not point arbitrary PR builds at production credentials/namespaces or reuse `wrangler versions upload` for a container release without validating its rollout behavior.
+
+
+### Cutover progress
+
+Namecheap accepted the nameserver change. Cloudflare and Google public resolvers report the assigned nameservers; the zone is active. HTTPS became available after certificate issuance. Email Routing is enabled, ready and synchronized; three Cloudflare MX records replaced the five backed-up Namecheap MX records. A single SPF record now retains the original Namecheap include and adds Cloudflare; existing Mailchimp DKIM/other TXT records remain unchanged. Gmail send-as configuration was not modified. Actual incoming and outgoing message delivery awaits the user’s test.
