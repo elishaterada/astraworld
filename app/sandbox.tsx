@@ -951,17 +951,6 @@ export default function Sandbox() {
               )}
               <details className="entry-recovery">
                 <summary>Restore a saved world</summary>
-                <p className="entry-note">
-                  Played on the old address?{" "}
-                  <a
-                    href="https://astraworld.vercel.app/recover"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Download your existing recovery key
-                  </a>
-                  , then import it here.
-                </p>
                 <label className="entry-note">
                   Choose your recovery key
                   <input

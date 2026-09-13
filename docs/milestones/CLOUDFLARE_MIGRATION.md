@@ -2,6 +2,10 @@
 
 User-authorized hosting migration of the current repository, after M7 and the combat/controller expansions. No M8 gameplay. This document supersedes historical Next.js/Vercel launch instructions when it describes the new deployment.
 
+## Final Vercel retirement
+
+The user explicitly accepted losing the old hostname, origin-local recovery and Vercel rollback because nobody is using the site. The Astraworld Vercel project is retired under that authorization; the old `vercel.app` addresses are no longer supported. The obsolete recovery link and redirect deployment files have been removed. The historical cutover evidence below describes the checks before retirement. Shared Redis/Neon services, other Vercel projects, Namecheap registration and Cloudflare Email Routing are retained. Email delivery remains unconfirmed until a mailbox test is reported.
+
 ## Architecture and preservation
 
 The single page has no server rendering requirement, server actions, image optimizer, CMS, contact form, or Next-specific navigation. Vite builds the same React/Three.js client and `scripts/prerender.tsx` renders its real entry UI into HTML. The existing title, description, CSS, artwork, characters, invite/debug/solo query modes, recovery import/export, and game controls are retained. `index.html` adds the new canonical URL. Unknown pages and assets return a real 404. Artwork remains in Git; R2 offers no benefit for these ten small static files.
@@ -70,11 +74,11 @@ Inherited M5/M6 human/performance/PITR limitations remain open; this migration d
 
 ## Rollback
 
-1. Restore the old Vercel app when needed with `vercel promote https://astraworld-jlc560pix-teradas.vercel.app --scope teradas --yes`. This replaces the redirect on the old aliases. Keep Vercel's immutable production deployment and the existing Redis/Neon integrations. The database namespace is preserved, so compatible gateways can recover committed state. Do not restore the backup over newer acknowledged progress during an ordinary hosting rollback.
+1. Vercel promotion rollback is no longer available after the authorized project deletion. Keep the existing Redis/Neon services and database namespace. Do not restore the backup over newer acknowledged progress during an ordinary hosting rollback.
 2. If a Cloudflare release fails, use `npx wrangler rollback <verified-version-id>` and check the Container rollout separately: Worker and container deployments have distinct lifecycle behavior. Redeploy the known-good commit/image if needed; exercise recovery before reopening traffic.
-3. To return the custom hostname to Vercel, attach `astraworld.elishaterada.com` to the existing Vercel project, verify the certificate, then remove its Worker custom-domain binding and configure the Vercel-provided DNS target in Cloudflare. Keep the authoritative Cloudflare zone and email routing intact where possible.
+3. Returning to Vercel would require recreating a project from the pre-migration Git revision, restoring its backed-up environment securely, deploying and verifying it, and then attaching the custom domain. Keep authoritative Cloudflare DNS and email routing where possible.
 4. A full DNS rollback requires rechecking Namecheap's backed-up records and forwarding, then restoring the two original registrar nameservers. Account for TTL/registry propagation. If Cloudflare DNSSEC is later enabled, remove the parent DS before returning to unsigned Namecheap DNS. Never leave a mismatched DS.
-5. Old browser credentials are origin-local. Existing players can export a recovery key on the old origin and import it on the new one. Retain a recovery path on the old hostname when adding its permanent redirect. Never put bearer credentials in query strings, logs or Git.
+5. Previously downloaded recovery files remain importable on Cloudflare. The old-origin recovery page is retired by explicit user decision. Never put bearer credentials in query strings, logs or Git.
 
 ## Git deployment setup
 
